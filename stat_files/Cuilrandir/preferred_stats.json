@@ -1,0 +1,55 @@
+{
+    "items_to_pick": {
+        "Helm": 1,
+        "Shoulders": 1,
+        "Chest": 1,
+        "Gloves": 1,
+        "Leggings": 1,
+        "Boots": 1,
+        "Back": 1,
+        "Necklace": 1,
+        "Ring": 2,
+        "Earring": 2,
+        "Bracelet": 2
+    },
+    "roles": {
+        "tank": {
+            "stats_to_print": [
+                "Morale",
+                "Finesse",
+                "Resistance",
+                "IncomingHealing",
+                "BlockChance",
+                "ParryChance",
+                "EvadeChance",
+                "PhysicalMitigation",
+                "TacticalMitigation"
+            ],
+            "stat_requirements": [
+                "Morale",
+                "Finesse",
+                "BlockChance",
+                "ParryChance",
+                "EvadeChance",
+                "PhysicalMitigation",
+                "TacticalMitigation"
+            ]
+        },
+        "dps": {
+            "stats_to_print": [
+                "Morale",
+                "CriticalHitChanceMelee",
+                "Finesse",
+                "PhysicalDamageMelee",
+                "PhysicalMitigation",
+                "TacticalMitigation"
+            ],
+            "stat_requirements": [
+                "PhysicalDamageMelee=180",
+                "CriticalHitChanceMelee=15.5",
+                "Finesse=30"
+            ],
+            "set_restrictions": []
+        }
+    }
+}

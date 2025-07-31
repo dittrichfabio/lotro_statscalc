@@ -1,0 +1,39 @@
+{
+    "available_items": [
+        {
+            "Name": "Major Essence of Might",
+            "Type": "Essence",
+            "Stats": {
+                "Might": 94
+            }
+        },
+        {
+            "Name": "Major Essence of Will",
+            "Type": "Essence",
+            "Stats": {
+                "Will": 94
+            }
+        },
+        {
+            "Name": "Major Essence of Morale",
+            "Type": "Essence",
+            "Stats": {
+                "Morale": 528
+            }
+        },
+        {
+            "Name": "Major Essence of Tactical Mitigation",
+            "Type": "Essence",
+            "Stats": {
+                "TacticalMitigationRating": 531
+            }
+        },
+        {
+            "Name": "Major Essence of Finesse",
+            "Type": "Essence",
+            "Stats": {
+                "FinesseRating": 708
+            }
+        }
+    ]
+}

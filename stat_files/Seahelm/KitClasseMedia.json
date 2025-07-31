@@ -1,0 +1,269 @@
+{
+	"available_items": [
+		{
+			"Name": "Fancy Cap of the Vanguard",
+			"Type": "Helm",
+			"Stats": {
+				"Armour": 616,
+				"Will": 287,
+				"Vitality": 198,
+				"TacticalMasteryRating": 826
+			}
+		},
+		{
+			"Name": "Embroidered Mantle of the Vanguard",
+			"Type": "Shoulders",
+			"Stats": {
+				"Armour": 616,
+				"Will": 287,
+				"Vitality": 198,
+				"TacticalMasteryRating": 826
+			}
+		},
+		{
+			"Name": "Padded Waistcoat",
+			"Type": "Chest",
+			"Stats": {
+				"Armour": 2135,
+				"Will": 287,
+				"Vitality": 198,
+				"Fate": 142
+			}
+		},
+		{
+			"Name": "Supple Gloves of the Vanguard",
+			"Type": "Gloves",
+			"Stats": {
+				"Armour": 1046,
+				"Will": 287,
+				"Vitality": 198,
+				"Fate": 167,
+				"FinesseRating": 862
+			}
+		},
+		{
+			"Name": "Corded Trousers",
+			"Type": "Leggings",
+			"Stats": {
+				"Armour": 1778,
+				"Will": 287,
+				"Vitality": 198,
+				"FinesseRating": 1509,
+				"CriticalRating": 648
+			}
+		},
+		{
+			"Name": "Superior Shoes of the Vanguard",
+			"Type": "Boots",
+			"Stats": {
+				"Armour": 882,
+				"Will": 287,
+				"Vitality": 198,
+				"CriticalRating": 1134,
+				"Fate": 95
+			}
+		},
+		{
+			"Name": "Woven Light Cloak of the Vanguard",
+			"Type": "Back",
+			"Stats": {
+				"Armour": 1778,
+				"Will": 287,
+				"Vitality": 198,
+				"CriticalRating": 1134,
+				"TacticalMasteryRating": 551
+			}
+		},
+		{
+			"Name": "Fancy Necklace of the Vanguard",
+			"Type": "Necklace",
+			"Stats": {
+				"Will": 287,
+				"Vitality": 198,
+				"Fate": 143
+			}
+		},
+		{
+			"Name": "Carved Jade Ring of the Vanguard",
+			"Type": "Ring",
+			"Stats": {
+				"Will": 287,
+				"Vitality": 198,
+				"CriticalRating": 1134,
+				"Fate": 95
+			}
+		},
+		{
+			"Name": "Curious Onyx Ring of the Vanguard",
+			"Type": "Ring",
+			"Stats": {
+				"Will": 287,
+				"Vitality": 198,
+				"TacticalMitigationRating": 647,
+				"TacticalMasteryRating": 969
+			}
+		},
+		{
+			"Name": "Delicate Gold Armlet of the Vanguard",
+			"Type": "Bracelet",
+			"Stats": {
+				"Will": 287,
+				"Vitality": 198,
+				"FinesseRating": 1509,
+				"Fate": 95
+			}
+		},
+		{
+			"Name": "Woven Silver Armlet",
+			"Type": "Bracelet",
+			"Stats": {
+				"Will": 287,
+				"Vitality": 198,
+				"CriticalRating": 648,
+				"Fate": 167
+			}
+		},
+		{
+			"Name": "Topaz Gold Ear Cuff of the Vanguard",
+			"Type": "Earring",
+			"Stats": {
+				"Will": 287,
+				"Vitality": 198,
+				"CriticalRating": 1134,
+				"TacticalMasteryRating": 551
+			}
+		},
+		{
+			"Name": "Lapis Silver Ear Cuff of the Vanguard",
+			"Type": "Earring",
+			"Stats": {
+				"Will": 287,
+				"Vitality": 198,
+				"TacticalMitigationRating": 647,
+				"TacticalMasteryRating": 969
+			}
+		},
+		{
+			"Name": "Fancy Cap of the Mordor",
+			"Type": "Helm",
+			"Stats": {
+				"Armour": 616,
+				"Will": 287,
+				"Vitality": 198,
+				"OutgoingHealingRating": 2234
+			}
+		},
+		{
+			"Name": "Embroidered Mantle of the Mordor",
+			"Type": "Shoulders",
+			"Stats": {
+				"Armour": 616,
+				"Will": 287,
+				"Vitality": 198,
+				"Fate": 142
+			}
+		},
+		{
+			"Name": "Supple Gloves of the Mordor",
+			"Type": "Gloves",
+			"Stats": {
+				"Armour": 1046,
+				"Will": 287,
+				"Vitality": 198,
+				"OutgoingHealingRating": 2611,
+				"FinesseRating": 631
+			}
+		},
+		{
+			"Name": "Superior Shoes of the Mordor",
+			"Type": "Boots",
+			"Stats": {
+				"Armour": 852,
+				"Will": 287,
+				"Vitality": 198,
+				"CriticalRating": 1134,
+				"OutgoingHealingRating": 1489
+			}
+		},
+		{
+			"Name": "Woven Light Cloak of the Mordor",
+			"Type": "Back",
+			"Stats": {
+				"Armour": 1778,
+				"Will": 287,
+				"Vitality": 198,
+				"CriticalRating": 1134,
+				"TacticalMitigationRating": 647
+			}
+		},
+		{
+			"Name": "Fancy Necklace of the Mordor",
+			"Type": "Necklace",
+			"Stats": {
+				"Will": 287,
+				"Vitality": 198,
+				"OutgoingHealingRating": 2234
+			}
+		},
+		{
+			"Name": "Carved Jade Ring of the Mordor",
+			"Type": "Ring",
+			"Stats": {
+				"Will": 287,
+				"Vitality": 198,
+				"OutgoingHealingRating": 2611,
+				"Fate": 95
+			}
+		},
+		{
+			"Name": "Curious Onyx Ring of the Mordor",
+			"Type": "Ring",
+			"Stats": {
+				"Will": 287,
+				"Vitality": 198,
+				"FinesseRating": 1509,
+				"OutgoingHealingRating": 1489
+			}
+		},
+		{
+			"Name": "Delicate Gold Armlet of the Mordor",
+			"Type": "Bracelet",
+			"Stats": {
+				"Will": 287,
+				"Vitality": 198,
+				"CriticalRating": 1134,
+				"Fate": 95
+			}
+		},
+		{
+			"Name": "Woven Silver Armlet of the Mordor",
+			"Type": "Bracelet",
+			"Stats": {
+				"Will": 287,
+				"Vitality": 198,
+				"CriticalRating": 1134,
+				"FinesseRating": 1509
+			}
+		},
+		{
+			"Name": "Topaz Gold Ear Cuff of the Mordor",
+			"Type": "Earring",
+			"Stats": {
+				"Will": 287,
+				"Vitality": 198,
+				"Fate": 167,
+				"TacticalMitigationRating": 647
+			}
+		},
+		{
+			"Name": "Lapis Silver Ear Cuff of the Mordor",
+			"Type": "Earring",
+			"Stats": {
+				"Will": 287,
+				"Vitality": 198,
+				"CriticalRating": 1134,
+				"OutgoingHealingRating": 1489
+			}
+		}
+	]
+}

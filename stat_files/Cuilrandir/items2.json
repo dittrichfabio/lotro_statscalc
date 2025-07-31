@@ -1,0 +1,88 @@
+[
+    {
+        "Type": "Helm",
+        "Options": [
+            {
+                "Name": "Anórien Combat Helmet",
+                "Armour": 455,
+                "Morale": 792,
+                "Fate": 63,
+                "PhysicalMasteryRating": 730,
+                "FinesseRating": 578
+            }
+        ]
+    },
+    {
+        "Type": "Shoulders",
+        "Options": [
+            {
+                "Name": "Anórien Combat Pauldrons",
+                "Armour": 455,
+                "Morale": 792,
+                "Fate": 63,
+                "PhysicalMasteryRating": 1093
+            }
+        ]
+    },
+    {
+        "Type": "Chest",
+        "Options": [
+            {
+                "Name": "Anórien Combat Armour",
+                "Armour": 1545,
+                "Morale": 1216,
+                "Fate": 63,
+                "PhysicalMasteryRating": 726
+            }
+        ]
+    },
+    {
+        "Type": "Gloves",
+        "Options": [
+            {
+                "Name": "Anórien Combat Gauntlets",
+                "Armour": 764,
+                "Morale": 1216,
+                "Fate": 63,
+                "PhysicalMasteryRating": 726
+            }
+        ]
+    },
+    {
+        "Type": "Legs",
+        "Options": [
+            {
+                "Name": "Anórien Combat Leggings",
+                "Armour": 1291,
+                "Morale": 1216,
+                "Fate": 63,
+                "PhysicalMasteryRating": 726
+            }
+        ]
+    },
+    {
+        "Type": "Boots",
+        "Options": [
+            {
+                "Name": "Anórien Combat Boots",
+                "Armour": 618,
+                "Morale": 1216,
+                "Fate": 63,
+                "CriticalRating": 428,
+                "FinesseRating": 578
+            }
+        ]
+    },
+    {
+        "Type": "Cloak",
+        "Options": [
+            {
+                "Name": "Flexible Cloak of the Citadel Guard Captain",
+                "Armour": 1169,
+                "Agility": 338,
+                "Vitality": 83,
+                "CriticalRating": 1189
+            }
+        ]
+    }
+]

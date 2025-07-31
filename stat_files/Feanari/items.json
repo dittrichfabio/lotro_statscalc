@@ -1,0 +1,65 @@
+{
+    "available_items": [
+        {
+            "Name": "Exquisite Radiant Dwarf-Make Shoulder Guards",
+            "Type": "Shoulders",
+            "Stats": {
+                "Armour": 41,
+                "Will": 21,
+                "Vitality": 14,
+                "TacticalMasteryRating": 77
+            }
+        },
+        {
+            "Name": "Exquisite Radiant Dwarf-Make Gloves",
+            "Type": "Gloves",
+            "Stats": {
+                "Armour": 69,
+                "Will": 21,
+                "Vitality": 14,
+                "TacticalMasteryRating": 77
+            }
+        },
+        {
+            "Name": "Exquisite Radiant Shoes",
+            "Type": "Boots",
+            "Stats": {
+                "Armour": 56,
+                "Will": 21,
+                "Vitality": 14,
+                "TacticalMasteryRating": 77
+            }
+        },
+
+        {
+            "Name": "Exquisite Radiant Elven Shoulder Guards",
+            "Type": "Shoulders",
+            "Stats": {
+                "Armour": 41,
+                "Will": 21,
+                "Vitality": 14,
+                "CriticalRating": 90
+            }
+        },
+        {
+            "Name": "Exquisite Radiant Westernesse Gloves",
+            "Type": "Gloves",
+            "Stats": {
+                "Armour": 69,
+                "Will": 21,
+                "Vitality": 14,
+                "CriticalRating": 90
+            }
+        },
+        {
+            "Name": "Exquisite Radiant Westernesse Shoes",
+            "Type": "Boots",
+            "Stats": {
+                "Armour": 56,
+                "Will": 21,
+                "Vitality": 14,
+                "CriticalRating": 90
+            }
+        }
+    ]
+}

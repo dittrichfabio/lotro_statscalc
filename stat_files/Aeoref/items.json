@@ -1,0 +1,201 @@
+{
+    "available_items": [
+        {
+            "Name": "Helm of the Hytbold Healer",
+            "Type": "Helm",
+            "Stats": {
+                "Armour": 331,
+                "Might": 95,
+                "Morale": 258,
+                "CriticalRating": 268,
+                "TacticalMasteryRating": 228
+            }
+        },
+        {
+            "Name": "Helm of the Hytbold Charge",
+            "Type": "Helm",
+            "Stats": {
+                "Armour": 331,
+                "Might": 171,
+                "Agility": 66,
+                "Morale": 258,
+                "FinesseRating": 358
+            }
+        },
+        {
+            "Name": "Helm of the Hytbold Leader",
+            "Type": "Helm",
+            "Stats": {
+                "Armour": 331,
+                "Might": 66,
+                "Vitality": 180,
+                "IncomingHealingRating": 286,
+                "ParryRating": 301
+            }
+        },
+        {
+            "Name": "Shoulderpads of the Hytbold Healer",
+            "Type": "Shoulders",
+            "Stats": {
+                "Armour": 331,
+                "Might": 95,
+                "Power": 65.25,
+                "TacticalMasteryRating": 228
+            }
+        },
+        {
+            "Name": "Shoulderpads of the Hytbold Charge",
+            "Type": "Shoulders",
+            "Stats": {
+                "Armour": 331,
+                "Might": 171,
+                "Agility": 66,
+                "Vitality": 45,
+                "Power": 32.625
+            }
+        },
+        {
+            "Name": "Shoulderpads of the Hytbold Leader",
+            "Type": "Shoulders",
+            "Stats": {
+                "Armour": 331,
+                "Agility": 47,
+                "Vitality": 180,
+                "Power": 32.625,
+                "TacticalMitigationRating": 269
+            }
+        },
+        {
+            "Name": "Jacket of the Hytbold Healer",
+            "Type": "Chest",
+            "Stats": {
+                "Armour": 1124,
+                "Might": 95,
+                "Morale": 258,
+                "CriticalRating": 268,
+                "FinesseRating": 358
+            }
+        },
+        {
+            "Name": "Jacket of the Hytbold Charge",
+            "Type": "Chest",
+            "Stats": {
+                "Armour": 1124,
+                "Might": 95,
+                "Morale": 361,
+                "CriticalRating": 268,
+                "FinesseRating": 215
+            }
+        },
+        {
+            "Name": "Jacket of the Hytbold Leader",
+            "Type": "Chest",
+            "Stats": {
+                "Armour": 1124,
+                "Might": 66,
+                "Vitality": 162,
+                "ParryRating": 376,
+                "FinesseRating": 358
+            }
+        },
+        {
+            "Name": "Gloves of the Hytbold Healer",
+            "Type": "Gloves",
+            "Stats": {
+                "Armour": 554,
+                "Might": 95,
+                "Vitality": 45,
+                "CriticalRating": 268,
+                "FinesseRating": 358
+            }
+        },
+        {
+            "Name": "Gloves of the Hytbold Charge",
+            "Type": "Gloves",
+            "Stats": {
+                "Armour": 554,
+                "Might": 95,
+                "Vitality": 63,
+                "CriticalRating": 268,
+                "FinesseRating": 215
+            }
+        },
+        {
+            "Name": "Gloves of the Hytbold Leader",
+            "Type": "Gloves",
+            "Stats": {
+                "Armour": 554,
+                "Might": 76,
+                "Vitality": 162,
+                "IncomingHealingRating": 286,
+                "FinesseRating": 358
+            }
+        },
+        {
+            "Name": "Leggings of the Hytbold Healer",
+            "Type": "Leggings",
+            "Stats": {
+                "Armour": 935,
+                "Might": 95,
+                "Morale": 258,
+                "Fate": 40,
+                "Power": 32.625
+            }
+        },
+        {
+            "Name": "Leggings of the Hytbold Charge",
+            "Type": "Leggings",
+            "Stats": {
+                "Armour": 935,
+                "Might": 95,
+                "Morale": 361,
+                "Fate": 40,
+                "PhysicalMasteryRating": 137
+            }
+        },
+        {
+            "Name": "Leggings of the Hytbold Leader",
+            "Type": "Leggings",
+            "Stats": {
+                "Armour": 935,
+                "Might": 47,
+                "Vitality": 180,
+                "Fate": 40,
+                "EvadeRating": 376
+            }
+        },
+        {
+            "Name": "Boots of the Hytbold Healer",
+            "Type": "Boots",
+            "Stats": {
+                "Armour": 448,
+                "Might": 95,
+                "Vitality": 45,
+                "Fate": 40,
+                "Power": 32.625
+            }
+        },
+        {
+            "Name": "Boots of the Hytbold Charge",
+            "Type": "Boots",
+            "Stats": {
+                "Armour": 448,
+                "Might": 95,
+                "Vitality": 45,
+                "Fate": 40,
+                "PhysicalMasteryRating": 228
+            }
+        },
+        {
+            "Name": "Boots of the Hytbold Leader",
+            "Type": "Boots",
+            "Stats": {
+                "Armour": 448,
+                "Agility": 47,
+                "Vitality": 180,
+                "Fate": 40,
+                "Morale": 258
+            }
+        }
+    ]
+}

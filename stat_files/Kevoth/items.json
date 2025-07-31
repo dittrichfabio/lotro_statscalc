@@ -1,0 +1,323 @@
+{
+    "available_items": [
+        {
+            "Name": "Polished Helm of the Expedition's Vanguard",
+            "Type": "Helm",
+            "Stats": {
+                "Armour": 996,
+                "Might": 287,
+                "Vitality": 198,
+                "PhysicalMasteryRating": 688
+
+            }
+        },
+        {
+            "Name": "Polished Helm of the Mordor's Bane",
+            "Type": "Helm",
+            "Stats": {
+                "Armour": 996,
+                "Might": 229,
+                "Vitality": 254,
+                "Fate": 119
+
+            }
+        },
+        {
+            "Name": "Engraved Pauldrons of the Expedition's Vanguard",
+            "Type": "Shoulders",
+            "Stats": {
+                "Armour": 996,
+                "Might": 287,
+                "Vitality": 198,
+                "PhysicalMasteryRating": 668
+            }
+        },
+        {
+            "Name": "Engraved Pauldrons of Mordor's Bane",
+            "Type": "Shoulders",
+            "Stats": {
+                "Armour": 996,
+                "Might": 229,
+                "Vitality": 254,
+                "BlockChanceRating": 1131
+            }
+        },
+        {
+            "Name": "Buttressed Chestplate of the Towers",
+            "Type": "Chest",
+            "Stats": {
+                "Armour": 3300,
+                "Might": 280,
+                "Vitality": 193,
+                "FinesseRating": 1052
+            }
+        },
+        {
+            "Name": "Articulated Gauntlets of the Expedition's Vanguard",
+            "Type": "Gloves",
+            "Stats": {
+                "Armour": 1680,
+                "Might": 287,
+                "Vitality": 198,
+                "Fate": 119,
+                "FinesseRating": 1077
+            }
+        },
+        {
+            "Name": "Articulated Gauntlets of Mordor's Bane",
+            "Type": "Gloves",
+            "Stats": {
+                "Armour": 1680,
+                "Might": 229,
+                "Vitality": 254,
+                "CriticalDefenceRating": 1077,
+                "Fate": 119
+            }
+        },
+        {
+            "Name": "Burnished Greaves of the Towers",
+            "Type": "Leggings",
+            "Stats": {
+                "Armour": 2745,
+                "Might": 280,
+                "Vitality": 193,
+                "Fate": 116,
+                "CriticalRating": 791
+            }
+        },
+        {
+            "Name": "Hardened Sabatons of the Expedition's Vanguard",
+            "Type": "Boots",
+            "Stats": {
+                "Armour": 1354,
+                "Might": 287,
+                "Vitality": 198,
+                "CriticalRating": 810,
+                "Fate": 119
+            }
+        },
+        {
+            "Name": "Hardened Sabatons of Mordor's Bane",
+            "Type": "Boots",
+            "Stats": {
+                "Armour": 1354,
+                "Might": 229,
+                "Vitality": 254,
+                "ParryChanceRating": 1131,
+                "EvadeChanceRating": 1131
+            }
+        },
+        {
+            "Name": "Embroidered Heavy Cloak of the Expedition's Vanguard",
+            "Type": "Back",
+            "Stats": {
+                "Armour": 1876,
+                "Might": 287,
+                "Vitality": 198,
+                "CriticalRating": 810,
+                "PhysicalMasteryRating": 668
+            }
+        },
+        {
+            "Name": "Embroidered Heavy Cloak of Mordor's Bane",
+            "Type": "Back",
+            "Stats": {
+                "Armour": 1876,
+                "Might": 229,
+                "Vitality": 254,
+                "ResistanceRating": 1457,
+                "CriticalDefenceRating": 1077
+            }
+        },
+
+        {
+            "Name": "Polished Torc of the Expedition's Vanguard",
+            "Type": "Necklace",
+            "Stats": {
+                "Might": 287,
+                "Vitality": 198,
+                "FinesseRating": 1077
+            }
+        },
+        {
+            "Name": "Polished Torc of Mordor's Bane",
+            "Type": "Necklace",
+            "Stats": {
+                "Might": 229,
+                "Vitality": 254,
+                "ResistanceRating": 1457
+            }
+        },
+
+        {
+            "Name": "Fire Opal Steel Ring of the Expedition's Vanguard",
+            "Type": "Ring",
+            "Stats": {
+                "Might": 315,
+                "Vitality": 226,
+                "CriticalRating": 1297,
+                "FinesseRating": 1077
+            }
+        },
+        {
+            "Name": "Fire Opal Steel Ring of Mordor's Bane",
+            "Type": "Ring",
+            "Stats": {
+                "Might": 258,
+                "Vitality": 311,
+                "BlockChanceRating": 1365,
+                "Fate": 142
+            }
+        },
+        {
+            "Name": "Amethyst Mithril Ring of the Expedition's Vanguard",
+            "Type": "Ring",
+            "Stats": {
+                "Might": 315,
+                "Vitality": 226,
+                "PhysicalMasteryRating": 1105,
+                "Fate": 119
+            }
+        },
+        {
+            "Name": "Amethyst Mithril Ring of Mordor's Bane",
+            "Type": "Ring",
+            "Stats": {
+                "Might": 258,
+                "Vitality": 311,
+                "CriticalDefenceRating": 1293,
+                "TacticalMitigationRating": 970
+            }
+        },
+
+        {
+            "Name": "Opal Gold Stud of the Expedition's Vanguard",
+            "Type": "Earring",
+            "Stats": {
+                "Might": 315,
+                "Vitality": 226,
+                "CriticalRating": 1297,
+                "FinesseRating": 1077
+            }
+        },
+        {
+            "Name": "Opal Gold Stud of Mordor's Bane",
+            "Type": "Earring",
+            "Stats": {
+                "Might": 258,
+                "Vitality": 311,
+                "CriticalDefenceRating": 1293,
+                "Fate": 142
+            }
+        },
+        {
+            "Name": "Rhodalite Silver Stud of the Expedition's Vanguard",
+            "Type": "Earring",
+            "Stats": {
+                "Might": 315,
+                "Vitality": 226,
+                "PhysicalMasteryRating": 1105,
+                "Fate": 119
+            }
+        },
+        {
+            "Name": "Rhodalite Silver Stud of Mordor's Bane",
+            "Type": "Earring",
+            "Stats": {
+                "Might": 258,
+                "Vitality": 311,
+                "Fate": 142,
+                "TacticalMitigationRating": 970
+            }
+        },
+        {
+            "Name": "Fire Opal Gold Ear Cuff of Mordor's Bane",
+            "Type": "Earring",
+            "Stats": {
+                "Will": 315,
+                "Vitality": 226,
+                "FinesseRating": 1726,
+                "TacticalMitigationRating": 808
+            }
+        },
+
+        {
+            "Name": "Alloyed Gold Bracer of the Expedition's Vanguard",
+            "Type": "Bracelet",
+            "Stats": {
+                "Might": 315,
+                "Vitality": 226,
+                "FinesseRating": 1726,
+                "CriticalRating": 810
+            }
+        },
+        {
+            "Name": "Alloyed Gold Bracer of Mordor's Bane",
+            "Type": "Bracelet",
+            "Stats": {
+                "Might": 258,
+                "Vitality": 311,
+                "ParryChanceRating": 1365,
+                "EvadeChanceRating": 1365
+            }
+        },
+        {
+            "Name": "Polished Silver Bracer of the Expedition's Vanguard",
+            "Type": "Bracelet",
+            "Stats": {
+                "Might": 315,
+                "Vitality": 226,
+                "Fate": 190,
+                "PhysicalMasteryRating": 688
+            }
+        },
+        {
+            "Name": "Polished Silver Bracer of Mordor's Bane",
+            "Type": "Bracelet",
+            "Stats": {
+                "Might": 258,
+                "Vitality": 311,
+                "ResistanceRating": 1752,
+                "CriticalDefenceRating": 1293
+            }
+        },
+        {
+            "Name": "Intricate Gold Armet the Expedition's Vanguard",
+            "Type": "Bracelet",
+            "Stats": {
+                "Will": 315,
+                "Vitality": 226,
+                "FinesseRating": 1726,
+                "Fate": 119
+            }
+        },
+
+        {
+            "Name": "Noble Emblem of the Expedition's Vanguard",
+            "Type": "Pocket",
+            "Stats": {
+                "Might": 287,
+                "Vitality": 198,
+                "FinesseRating": 1077
+            }
+        },
+        {
+            "Name": "Noble Emblem of Mordor's Bane",
+            "Type": "Pocket",
+            "Stats": {
+                "Might": 229,
+                "Vitality": 254,
+                "ParryChanceRating": 1131
+            }
+        },
+        {
+            "Name": "Glowing Phial of Mordor's Bane",
+            "Type": "Pocket",
+            "Stats": {
+                "Will": 287,
+                "Vitality": 198,
+                "FinesseRating": 1077
+            }
+        }
+    ]
+}

@@ -1,0 +1,43 @@
+{
+    "Class": "Warden",
+    "Level": 115.0,
+    "Stats": {
+        "Morale": 14356.869141,
+        "InCombatMoraleRegeneration": 21.7,
+        "NonCombatMoraleRegeneration": 298.3,
+        "Power": 864.0,
+        "InCombatPowerRegeneration": 13.3,
+        "NonCombatPowerRegeneration": 48.8,
+        "Armour": 2453.0,
+        "Might": 180.0,
+        "Agility": 996.0,
+        "Vitality": 1794.0,
+        "Will": 186.0,
+        "Fate": 318.0,
+        "CriticalRatingMelee": 6321.799805,
+        "CriticalRatingRange": 6321.799805,
+        "CriticalRatingTactical": 6321.799805,
+        "FinesseRating": 4527.399902,
+        "PhysicalMasteryRatingMelee": 9782.615234,
+        "PhysicalMasteryRatingRange": 9782.615234,
+        "TacticalMasteryRating": 1456.615479,
+        "OutgoingHealingRating": 4990.615234,
+        "ResistanceRating": 1283.599976,
+        "CriticalDefenceRating": 2967.866699,
+        "IncomingHealingRating": 2889.040039,
+        "BlockChanceRating": 2172.0,
+        "PartialBlockChanceRating": 2172.0,
+        "PartialBlockMitigationRating": 2172.0,
+        "ParryChanceRating": 2117.666504,
+        "PartialParryChanceRating": 2117.666504,
+        "PartialParryMitigationRating": 2117.666504,
+        "EvadeChanceRating": 885.893311,
+        "PartialEvadeChanceRating": 885.893311,
+        "PartialEvadeMitigationRating": 885.893311,
+        "PhysicalMitigationRating": 4463,
+        "TacticalMitigationRating": 4220.799805
+    },
+    "ExtraStats": {
+        "CriticalHitChanceMelee": 7.5
+    }
+}

@@ -1,0 +1,58 @@
+{
+    "items_to_pick": {
+        "Helm": 1,
+        "Shoulders": 1,
+        "Chest": 1,
+        "Gloves": 1,
+        "Leggings": 1,
+        "Boots": 1
+    },
+    "roles": {
+        "tank": {
+            "stats_to_print": [
+                "Morale",
+                "Finesse",
+                "Resistance",
+                "IncomingHealing",
+                "BlockChance",
+                "ParryChance",
+                "EvadeChance",
+                "PhysicalMitigation",
+                "TacticalMitigation"
+            ],
+            "stat_requirements": [
+                "TacticalMitigation=44",
+                "Morale=12000"
+            ]
+        },
+        "dps": {
+            "stats_to_print": [
+                "Morale",
+                "CriticalHitChanceMelee",
+                "Finesse",
+                "PhysicalDamageMelee",
+                "PhysicalMitigation",
+                "TacticalMitigation"
+            ],
+            "stat_requirements": [
+                "CriticalHitChanceMelee=21",
+                "PhysicalDamageMelee",
+                "Finesse=36"
+            ],
+            "set_restrictions": []
+        },
+        "healer": {
+            "stats_to_print": [
+                "Morale",
+                "CriticalHitChanceTactical",
+                "Finesse",
+                "TacticalMastery",
+                "TacticalOutgoingHealing",
+                "PhysicalMitigation",
+                "TacticalMitigation"
+            ],
+            "stat_requirements": [
+            ]
+        }
+    }
+}

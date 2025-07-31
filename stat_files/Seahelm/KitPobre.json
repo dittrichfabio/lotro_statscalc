@@ -1,0 +1,259 @@
+{
+	"available_items": [
+		{
+			"Name": "Fancy Cap of the Towers",
+			"Type": "Helm",
+			"Stats": {
+				"Armour": 601,
+				"Will": 280,
+				"Vitality": 193,
+				"TacticalMasteryRating": 806
+			}
+		},
+		{
+			"Name": "Embroidered Mantle of the Towers",
+			"Type": "Shoulders",
+			"Stats": {
+				"Armour": 601,
+				"Will": 280,
+				"Vitality": 193,
+				"TacticalMasteryRating": 806
+			}
+		},
+		{
+			"Name": "Padded Waistcoat",
+			"Type": "Chest",
+			"Stats": {
+				"Armour": 2084,
+				"Will": 280,
+				"Vitality": 193,
+				"Fate": 139
+			}
+		},
+		{
+			"Name": "Supple Gloves of the Towers",
+			"Type": "Gloves",
+			"Stats": {
+				"Armour": 1020,
+				"Will": 280,
+				"Vitality": 193,
+				"Fate": 163,
+				"TacticalMitigationRating": 631
+			}
+		},
+		{
+			"Name": "Corded Trousers",
+			"Type": "Leggings",
+			"Stats": {
+				"Armour": 1735,
+				"Will": 280,	
+				"Vitality": 193,
+				"EvadeChanceRating": 1549,
+				"CriticalRating": 633
+			}
+		},
+		{
+			"Name": "Superior Shoes of the Towers",
+			"Type": "Boots",
+			"Stats": {
+				"Armour": 831,
+				"Will": 193,
+				"Vitality": 193,
+				"CriticalRating": 1107,
+				"Fate": 93
+			}
+		},
+		{
+			"Name": "Woven Light Cloak of the Towers",
+			"Type": "Back",
+			"Stats": {
+				"Armour": 1735,
+				"Will": 280,
+				"Vitality": 193,
+				"CriticalRating": 1107,
+				"TacticalMasteryRating": 538
+			}
+		},
+		{
+			"Name": "Fancy Necklace of the Towers",
+			"Type": "Necklace",
+			"Stats": {
+				"Will": 280,
+				"Vitality": 193,
+				"EvadeChanceRating": 1332
+			}
+		},
+		{
+			"Name": "Carved Jade Ring of the Towers",
+			"Type": "Ring",
+			"Stats": {
+				"Will": 280,
+				"Vitality": 193,
+				"CriticalRating": 1107,
+				"Fate": 92
+			}
+		},
+		{
+			"Name": "Curious Onyx Ring of the Towers",
+			"Type": "Ring",
+			"Stats": {
+				"Will": 280,
+				"Vitality": 193,
+				"TacticalMitigationRating": 631,
+				"TacticalMasteryRating": 946
+			}
+		},
+		{
+			"Name": "Delicate Gold Armlet of the Towers",
+			"Type": "Bracelet",
+			"Stats": {
+				"Will": 280,
+				"Vitality": 193,
+				"EvadeChanceRating": 1549,
+				"Fate": 92
+			}
+		},
+		{
+			"Name": "Woven Silver Armlet",
+			"Type": "Bracelet",
+			"Stats": {
+				"Will": 280,
+				"Vitality": 193,
+				"CriticalRating": 633,
+				"Fate": 163
+			}
+		},
+		{
+			"Name": "Topaz Gold Ear Cuff of the Towers",
+			"Type": "Earring",
+			"Stats": {
+				"Will": 280,
+				"Vitality": 193,
+				"CriticalRating": 1107,
+				"TacticalMasteryRating": 538
+			}
+		},
+		{
+			"Name": "Lapis Silver Ear Cuff of the Towers",
+			"Type": "Earring",
+			"Stats": {
+				"Will": 280,
+				"Vitality": 193,
+				"TacticalMitigationRating": 631,
+				"TacticalMasteryRating": 946
+			}
+		},
+		{
+			"Name": "Fancy Cap of the Last Alliance",
+			"Type": "Helm",
+			"Stats": {
+				"Armour": 601,
+				"Will": 280,
+				"Vitality": 193,
+				"OutgoingHealingRating": 2180
+			}
+		},
+		{
+			"Name": "Embroidered Mantle of the Alliance",
+			"Type": "Shoulders",
+			"Stats": {
+				"Armour": 601,
+				"Will": 280,
+				"Vitality": 193,
+				"Fate": 139
+			}
+		},
+		{
+			"Name": "Supple Gloves of the Alliance",
+			"Type": "Gloves",
+			"Stats": {
+				"Armour": 1020,
+				"Will": 280,
+				"Vitality": 193,
+				"OutgoingHealingRating": 2549,
+				"TacticalMitigationRating": 631
+			}
+		},
+		{
+			"Name": "Superior Shoes of the Alliance",
+			"Type": "Boots",
+			"Stats": {
+				"Armour": 831,
+				"Will": 280,
+				"Vitality": 193,
+				"CriticalRating": 1107,
+				"OutgoingHealingRating": 1453
+			}
+		},
+		{
+			"Name": "Woven Light Cloak of the Alliance",
+			"Type": "Back",
+			"Stats": {
+				"Armour": 1735,
+				"Will": 280,
+				"Vitality": 193,
+				"CriticalRating": 1107,
+				"TacticalMitigationRating": 631
+			}
+		},
+		{
+			"Name": "Fancy Necklace of the Alliance",
+			"Type": "Necklace",
+			"Stats": {
+				"Will": 280,
+				"Vitality": 193,
+				"OutgoingHealingRating": 2180
+			}
+		},
+		{
+			"Name": "Carved Jade Ring of the Alliance",
+			"Type": "Ring",
+			"Stats": {
+				"Will": 280,
+				"Vitality": 193,
+				"OutgoingHealingRating": 2549,
+				"Fate": 92
+			}
+		},
+		{
+			"Name": "Curious Onyx Ring of the Alliance",
+			"Type": "Ring",
+			"Stats": {
+				"Will": 280,
+				"Vitality": 193,
+				"Fate": 163,
+				"OutgoingHealingRating": 1453
+			}
+		},
+		{
+			"Name": "Delicate Gold Armlet of the Alliance",
+			"Type": "Bracelet",
+			"Stats": {
+				"Will": 280,
+				"Vitality": 193,
+				"CriticalRating": 1107,
+				"Fate": 92
+			}
+		},
+		{
+			"Name": "Topaz Gold Ear Cuff of the Alliance",
+			"Type": "Earring",
+			"Stats": {
+				"Will": 280,
+				"Vitality": 193,
+				"Fate": 163,
+				"TacticalMitigationRating": 631
+			}
+		},
+		{
+			"Name": "Lapis Silver Ear Cuff of the Alliance",
+			"Type": "Earring",
+			"Stats": {
+				"Will": 280,
+				"Vitality": 193,
+				"CriticalRating": 1107,
+				"OutgoingHealingRating": 1453
+			}
+		}
+	]
+}

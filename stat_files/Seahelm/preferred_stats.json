@@ -1,0 +1,48 @@
+{
+    "items_to_pick": {
+        "Helm": 1,
+        "Shoulders": 1,
+        "Chest": 1,
+        "Gloves": 1,
+        "Leggings": 1,
+        "Boots": 1,
+        "Back": 1,
+        "Necklace": 1,
+        "Ring": 2,
+        "Earring": 2,
+        "Bracelet": 2
+    },
+    "roles": {
+        "dps": {
+            "stats_to_print": [
+                "Morale",
+                "CriticalHitChanceMelee",
+                "Finesse",
+                "PhysicalDamageMelee",
+                "PhysicalMitigation",
+                "TacticalMitigation"
+            ],
+            "stat_requirements": [
+                "CriticalHitChanceTactical=16",
+                "TacticalOffenceDamage=190"
+            ],
+            "set_restrictions": []
+        },
+        "healer": {
+            "stats_to_print": [
+                "Morale",
+                "CriticalHitChanceTactical",
+                "Finesse",
+                "TacticalMastery",
+                "TacticalOutgoingHealing",
+                "PhysicalMitigation",
+                "TacticalMitigation"
+            ],
+            "stat_requirements": [
+                "CriticalHitChanceTactical",
+                "TacticalOutgoingHealing",
+                "TacticalMitigation"
+            ]
+        }
+    }
+}

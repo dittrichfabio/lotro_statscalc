@@ -1,0 +1,296 @@
+{
+    "available_items": [
+        {
+            "Name": "Padded Coif of the Expedition's Vanguard",
+            "Type": "Helm",
+            "Stats": {
+                "Armour": 770,
+                "Agility": 287,
+                "Vitality": 198,
+                "PhysicalMasteryRating": 826
+            }
+        },
+        {
+            "Name": "Fine Camail of the Expedition's Vanguard",
+            "Type": "Shoulders",
+            "Stats": {
+                "Armour": 770,
+                "Agility": 287,
+                "Vitality": 198,
+                "PhysicalMasteryRating": 826
+            }
+        },
+        {
+            "Name": "Woven Silk Cloak of the Expedition's Vanguard",
+            "Type": "Back",
+            "Stats": {
+                "Armour": 1778,
+                "Agility": 287,
+                "Vitality": 198,
+                "CriticalRating": 1134,
+                "PhysicalMasteryRating": 551
+            }
+        },
+        {
+            "Name": "Heavy Hauberk of the Expedition's Vanguard",
+            "Type": "Chest",
+            "Stats": {
+                "Armour": 2667,
+                "Agility": 287,
+                "Vitality": 198,
+                "FinesseRating": 1293
+            }
+        },
+        {
+            "Name": "Dextrous Gages of the Expedition's Vanguard",
+            "Type": "Gloves",
+            "Stats": {
+                "Armour": 1308,
+                "Agility": 287,
+                "Vitality": 198,
+                "Fate": 167,
+                "FinesseRating": 862
+            }
+        },
+        {
+            "Name": "Flexible Leggings of the Expedition's Vanguard",
+            "Type": "Leggings",
+            "Stats": {
+                "Armour": 2227,
+                "Agility": 287,
+                "Vitality": 198,
+                "Fate": 167,
+                "CriticalRating": 648
+            }
+        },
+        {
+            "Name": "Lithe Boots of the Expedition's Vanguard",
+            "Type": "Boots",
+            "Stats": {
+                "Armour": 1068,
+                "Agility": 287,
+                "Vitality": 198,
+                "CriticalRating": 1134,
+                "Fate": 95
+            }
+        },
+        
+        {
+            "Name": "Padded Coif of Mordor's Bane",
+            "Type": "Helm",
+            "Stats": {
+                "Armour": 770,
+                "Agility": 287,
+                "Vitality": 226,
+                "ResistanceRating": 1457
+            }
+        },
+        {
+            "Name": "Fine Camail of Mordor's Bane",
+            "Type": "Shoulders",
+            "Stats": {
+                "Armour": 770,
+                "Agility": 287,
+                "Vitality": 226,
+                "ParryRating": 1131
+            }
+        },
+        {
+            "Name": "Woven Silk Cloak of Mordor's Bane",
+            "Type": "Back",
+            "Stats": {
+                "Armour": 1778,
+                "Agility": 287,
+                "Vitality": 226,
+                "CriticalDefenceRating": 1077,
+                "EvadeRating": 1131
+            }
+        },
+        {
+            "Name": "Heavy Hauberk of Mordor's Bane",
+            "Type": "Chest",
+            "Stats": {
+                "Armour": 2667,
+                "Agility": 287,
+                "Vitality": 226,
+                "ParryRating": 1131
+            }
+        },
+        {
+            "Name": "Dextrous Gages of Mordor's Bane",
+            "Type": "Gloves",
+            "Stats": {
+                "Armour": 1308,
+                "Agility": 287,
+                "Vitality": 226,
+                "EvadeRating": 1131,
+                "Fate": 119
+            }
+        },
+        {
+            "Name": "Flexible Leggings of Mordor's Bane",
+            "Type": "Leggings",
+            "Stats": {
+                "Armour": 2227,
+                "Agility": 287,
+                "Vitality": 226,
+                "EvadeRating": 1131,
+                "CriticalDefenceRating": 1077
+            }
+        },
+        {
+            "Name": "Lithe Boots of Mordor's Bane",
+            "Type": "Boots",
+            "Stats": {
+                "Armour": 1068,
+                "Agility": 287,
+                "Vitality": 226,
+                "CriticalDefenceRating": 1077,
+                "ResistanceRating": 1457
+            }
+        },
+
+        {
+            "Name": "Stylish Pendant of the Expedition's Vanguard",
+            "Type": "Necklace",
+            "Stats": {
+                "Agility": 287,
+                "Vitality": 198,
+                "FinesseRating": 1293
+            }
+        },
+        {
+            "Name": "Topaz Gold Ring of the Expedition's Vanguard",
+            "Type": "Ring",
+            "Stats": {
+                "Agility": 287,
+                "Vitality": 198,
+                "CriticalRating": 1134,
+                "FinesseRating": 862
+            }
+        },
+        {
+            "Name": "Lapis Silver Ring of the Expedition's Vanguard",
+            "Type": "Ring",
+            "Stats": {
+                "Agility": 287,
+                "Vitality": 198,
+                "PhysicalMasteryRating": 969,
+                "Fate": 95
+            }
+        },
+        {
+            "Name": "Dextrous Gold Bracelet of the Expedition's Vanguard",
+            "Type": "Bracelet",
+            "Stats": {
+                "Agility": 287,
+                "Vitality": 198,
+                "FinesseRating": 1509,
+                "CriticalRating": 648
+            }
+        },
+        {
+            "Name": "Agile Silver Bracelet of the Expedition's Vanguard",
+            "Type": "Bracelet",
+            "Stats": {
+                "Agility": 287,
+                "Vitality": 198,
+                "Fate": 167,
+                "PhysicalMasteryRating": 551
+            }
+        },
+        {
+            "Name": "Moonstone Gold Earring of the Expedition's Vanguard",
+            "Type": "Earring",
+            "Stats": {
+                "Agility": 287,
+                "Vitality": 198,
+                "CriticalRating": 1134,
+                "FinesseRating": 862
+            }
+        },
+        {
+            "Name": "Tourmaline Silver Earring of the Expedition's Vanguard",
+            "Type": "Earring",
+            "Stats": {
+                "Agility": 287,
+                "Vitality": 198,
+                "PhysicalMasteryRating": 969,
+                "Fate": 95
+            }
+        },
+
+        {
+            "Name": "Stylish Pendant of Mordor's Bane",
+            "Type": "Necklace",
+            "Stats": {
+                "Agility": 287,
+                "Vitality": 226,
+                "ResistanceRating": 1457
+            }
+        },
+        {
+            "Name": "Topaz Gold Ring of Mordor's Bane",
+            "Type": "Ring",
+            "Stats": {
+                "Agility": 287,
+                "Vitality": 226,
+                "EvadeRating": 1131,
+                "ResistanceRating": 1457
+            }
+        },
+        {
+            "Name": "Lapis Silver Ring of Mordor's Bane",
+            "Type": "Ring",
+            "Stats": {
+                "Agility": 287,
+                "Vitality": 226,
+                "CriticalDefenceRating": 1077,
+                "Fate": 119
+            }
+        },
+        {
+            "Name": "Dextrous Gold Bracelet of Mordor's Bane",
+            "Type": "Bracelet",
+            "Stats": {
+                "Agility": 287,
+                "Vitality": 226,
+                "ParryRating": 1131,
+                "ResistanceRating": 1457
+            }
+        },
+        {
+            "Name": "Agile Silver Bracelet of Mordor's Bane",
+            "Type": "Bracelet",
+            "Stats": {
+                "Agility": 287,
+                "Vitality": 226,
+                "ResistanceRating": 1457,
+                "EvadeRating": 1131
+            }
+        },
+        {
+            "Name": "Moonstone Gold Earring of Mordor's Bane",
+            "Type": "Earring",
+            "Stats": {
+                "Agility": 287,
+                "Vitality": 226,
+                "EvadeRating": 1131,
+                "CriticalDefenceRating": 1077
+            }
+        },
+        {
+            "Name": "Tourmaline Silver Earring of Mordor's Bane",
+            "Type": "Earring",
+            "Stats": {
+                "Agility": 287,
+                "Vitality": 226,
+                "CriticalDefenceRating": 1077,
+                "Fate": 119
+            }
+        }
+
+        
+        
+    ]
+}
