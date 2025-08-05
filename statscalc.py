@@ -4,16 +4,80 @@ import sys
 import json
 import math
 import click
+import requests
 import itertools
+from time import sleep
 from definitions import *
-from joblib import Parallel, delayed
+from bs4 import BeautifulSoup
 from functools import partial
+from joblib import Parallel, delayed
 
 
 @click.group()
 @click.version_option()
 def cli():
     """StatsCalc"""
+
+
+@cli.command('fetch_virtue_stats')
+def fetch_virtue_stats(delay=5.0):
+    """
+    For each virtue, fetches its lotro-wiki page (based on VIRTUES_NAMES_URLS values).
+    Extracts Rank and stats information from the pages.
+    Converts page stats to the same format used by the code (based on VIRTUES_STATS_NAME_FIX).
+    Saves it under stat_file/virtue_stats.json.
+    """
+    base_url = "https://lotro-wiki.com/wiki/"
+    all_virtue_data = {}
+
+    for virtue in VIRTUES_NAMES_URLS:
+        url = base_url + VIRTUES_NAMES_URLS.get(virtue)
+        print(f"Fetching {virtue} from {url}")
+        response = requests.get(url)
+        if not response.ok:
+            print(f"Failed to fetch {url}")
+            continue
+
+        soup = BeautifulSoup(response.text, "html.parser")
+        table = soup.find("table", class_="altRowsCenter")
+        if not table:
+            print(f"No virtue stat table found for {virtue}")
+            continue
+
+        rows = table.find_all("tr")
+        if len(rows) < 3:
+            print(f"Not enough rows in virtue table for {virtue}")
+            continue
+
+        # Extract the second row's stat names, and get only the first 3 stats (Active bonuses)
+        second_header_cells = rows[1].find_all(["th", "td"])
+        stat_names = [cell.get_text(strip=True) for cell in second_header_cells[:3]]
+
+        virtue_data = {}
+        for row in rows[2:]:  # Skip the two header rows
+            cols = row.find_all(["td", "th"])
+            if not cols or len(cols) < 4:
+                continue
+
+            rank_cell = cols[0].get_text(strip=True)
+            if not rank_cell.isdigit():
+                continue
+
+            rank = int(rank_cell)
+            stats = {}
+            for stat_name, cell in zip(stat_names, cols[1:4]):  # First 3 columns after Rank
+                value_text = cell.get_text(strip=True)
+                value = re.sub(r"[^\d]", "", value_text)
+                if value:
+                    stats[VIRTUES_STATS_NAME_FIX[stat_name]] = int(value)
+
+            virtue_data[rank] = stats
+
+        all_virtue_data[virtue] = virtue_data
+        sleep(delay)
+
+    with open("stat_files/virtue_stats.json", "w") as f:
+        json.dump(all_virtue_data, f, indent=2)
 
 @cli.command('calculate_stat_percentage')
 @click.argument('character_name', required=True)
@@ -364,9 +428,11 @@ def stuff():
     print(PfromR(r=r, a=stat_info["A"], b=b))
     print(PfromR(r=r2, a=stat_info["A"], b=b))
 
+#if __name__ == "__main__":
+#    character_name = "Cuilrandir"
+#    items_file = "stat_files/Cuilrandir/items.json"
+#    role = "dps"
+#    find_optimal_items(character_name, items_file, role)
 
 if __name__ == "__main__":
-    character_name = "Cuilrandir"
-    items_file = "stat_files/Cuilrandir/items.json"
-    role = "dps"
-    find_optimal_items(character_name, items_file, role)
+    cli()
