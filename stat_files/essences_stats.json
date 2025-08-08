@@ -1,0 +1,370 @@
+{
+  "Humble Sea-farer's Essence of Agility": {
+    "Agility": 1257
+  },
+  "Flickering Sea-farer's Essence of Agility": {
+    "Agility": 1352
+  },
+  "Sea-farer's Essence of Agility": {
+    "Agility": 1448
+  },
+  "Lively Sea-farer's Essence of Agility": {
+    "Agility": 1543
+  },
+  "Vivid Sea-farer's Essence of Agility": {
+    "Agility": 1639
+  },
+  "Humble Sea-farer's Essence of Block": {
+    "BlockRating": 3729
+  },
+  "Flickering Sea-farer's Essence of Block": {
+    "BlockRating": 4013
+  },
+  "Sea-farer's Essence of Block": {
+    "BlockRating": 4297
+  },
+  "Lively Sea-farer's Essence of Block": {
+    "BlockRating": 4581
+  },
+  "Vivid Sea-farer's Essence of Block": {
+    "BlockRating": 4865
+  },
+  "Petrified Essence of the Bull": {
+    "Vitality": 750,
+    "CriticalRating": -2156,
+    "Other": [
+      "On any Common damage:",
+      "50% chance to Negate 2,147 damage\n"
+    ]
+  },
+  "Petrified Essence of the Moon": {
+    "Vitality": 750,
+    "PhysicalMasteryRating": -1679,
+    "Other": [
+      "On every Harmful skill, Targeted at you,",
+      "+25% chance to +379 Power",
+      "Cooldown: 3s\n"
+    ]
+  },
+  "Petrified Essence of the Sun": {
+    "Vitality": 750,
+    "CriticalRating": -2156,
+    "Other": [
+      "On every Heal skill, Targeted at you,",
+      "+50% chance to +4289 Morale",
+      "Cooldown: 3s\n"
+    ]
+  },
+  "Petrified Essence of the Viper": {
+    "Vitality": 750,
+    "Fate": -315,
+    "Other": [
+      "On every Harmful skill, 15% chance to +8588 Morale",
+      "Cooldown: 3s\n"
+    ]
+  },
+  "Razor Scale of Courage": {
+    "Other": [
+      "+2% Area Effect Attack Damage",
+      "+2% Single Target Attack Damage",
+      "+2% Damage Over Time"
+    ],
+    "Vitality": -938
+  },
+  "Humble Sea-farer's Essence of Critical Defence": {
+    "CriticalDefenceRating": 3551
+  },
+  "Flickering Sea-farer's Essence of Critical Defence": {
+    "CriticalDefenceRating": 3821
+  },
+  "Sea-farer's Essence of Critical Defence": {
+    "CriticalDefenceRating": 4092
+  },
+  "Lively Sea-farer's Essence of Critical Defence": {
+    "CriticalDefenceRating": 4363
+  },
+  "Vivid Sea-farer's Essence of Critical Defence": {
+    "CriticalDefenceRating": 4633
+  },
+  "Humble Sea-farer's Essence of Critical Rating": {
+    "CriticalRating": 2661
+  },
+  "Flickering Sea-farer's Essence of Critical Rating": {
+    "CriticalRating": 2864
+  },
+  "Sea-farer's Essence of Critical Rating": {
+    "CriticalRating": 3068
+  },
+  "Lively Sea-farer's Essence of Critical Rating": {
+    "CriticalRating": 3271
+  },
+  "Vivid Sea-farer's Essence of Critical Rating": {
+    "CriticalRating": 3474
+  },
+  "Humble Sea-farer's Essence of Evasion": {
+    "EvadeChanceRating": 3729
+  },
+  "Flickering Sea-farer's Essence of Evasion": {
+    "EvadeChanceRating": 4013
+  },
+  "Sea-farer's Essence of Evasion": {
+    "EvadeChanceRating": 4297
+  },
+  "Lively Sea-farer's Essence of Evasion": {
+    "EvadeChanceRating": 4581
+  },
+  "Vivid Sea-farer's Essence of Evasion": {
+    "EvadeChanceRating": 4865
+  },
+  "Humble Sea-farer's Essence of Fate": {
+    "Fate": 1280
+  },
+  "Flickering Sea-farer's Essence of Fate": {
+    "Fate": 1385
+  },
+  "Sea-farer's Essence of Fate": {
+    "Fate": 1491
+  },
+  "Lively Sea-farer's Essence of Fate": {
+    "Fate": 1596
+  },
+  "Vivid Sea-farer's Essence of Fate": {
+    "Fate": 1701
+  },
+  "Sea-farer's Supplemental Essence of Fate": {
+    "Fate": 256
+  },
+  "Humble Sea-farer's Essence of Finesse": {
+    "FinesseRating": 3551
+  },
+  "Flickering Sea-farer's Essence of Finesse": {
+    "FinesseRating": 3821
+  },
+  "Sea-farer's Essence of Finesse": {
+    "FinesseRating": 4092
+  },
+  "Lively Sea-farer's Essence of Finesse": {
+    "FinesseRating": 4363
+  },
+  "Vivid Sea-farer's Essence of Finesse": {
+    "FinesseRating": 4633
+  },
+  "Humble Sea-farer's Essence of Healing": {
+    "OutgoingHealingRating": 6157
+  },
+  "Flickering Sea-farer's Essence of Healing": {
+    "OutgoingHealingRating": 6620
+  },
+  "Sea-farer's Essence of Healing": {
+    "OutgoingHealingRating": 7083
+  },
+  "Lively Sea-farer's Essence of Healing": {
+    "OutgoingHealingRating": 7546
+  },
+  "Vivid Sea-farer's Essence of Healing": {
+    "OutgoingHealingRating": 8009
+  },
+  "Humble Sea-farer's Essence of Might": {
+    "Might": 1257
+  },
+  "Flickering Sea-farer's Essence of Might": {
+    "Might": 1352
+  },
+  "Sea-farer's Essence of Might": {
+    "Might": 1448
+  },
+  "Lively Sea-farer's Essence of Might": {
+    "Might": 1543
+  },
+  "Vivid Sea-farer's Essence of Might": {
+    "Might": 1639
+  },
+  "Catacombs Burial Essence": {
+    "CriticalRating": 5393,
+    "Vitality": -188
+  },
+  "Serpentine Claw Essence": {
+    "CriticalRating": 4313,
+    "Other": [
+      "+2% AOE Damage"
+    ],
+    "Vitality": -188
+  },
+  "Serpentine Fang Essence": {
+    "CriticalRating": 4313,
+    "Other": [
+      "+2% Single Target Damage"
+    ],
+    "Vitality": -188
+  },
+  "Serpentine Feather Essence": {
+    "CriticalRating": 4313,
+    "Other": [
+      "+2% Outgoing Healing Effect Modifier"
+    ],
+    "Vitality": -188
+  },
+  "Serpentine Skull Essence": {
+    "CriticalRating": 4313,
+    "Other": [
+      "+2% Damage Threat"
+    ],
+    "Vitality": -188
+  },
+  "Hollowed Whistling Scale of Courage": {
+    "CriticalRating": 4313,
+    "Other": [
+      "+2.5% Damage Over Time"
+    ],
+    "Vitality": -375
+  },
+  "Scale of Courage": {
+    "Other": [
+      "+7550",
+      "Critical Rating"
+    ],
+    "Vitality": 375
+  },
+  "Tempered Scale of Courage": {
+    "Vitality": 1880,
+    "CriticalRating": -5393
+  },
+  "Humble Delver's Essence of Parry": {
+    "ParryRating": 3729
+  },
+  "Flickering Delver's Essence of Parry": {
+    "ParryRating": 4013
+  },
+  "Sea-farer's Essence of Parry": {
+    "ParryRating": 4297
+  },
+  "Lively Sea-farer's Essence of Parry": {
+    "ParryRating": 4581
+  },
+  "Vivid Sea-farer's Essence of Parry": {
+    "ParryRating": 4865
+  },
+  "Humble Sea-farer's Essence of Physical Mastery": {
+    "PhysicalMasteryRating": 2213
+  },
+  "Flickering Sea-farer's Essence of Physical Mastery": {
+    "PhysicalMasteryRating": 2350
+  },
+  "Sea-farer's Essence of Physical Mastery": {
+    "PhysicalMasteryRating": 2487
+  },
+  "Lively Sea-farer's Essence of Physical Mastery": {
+    "PhysicalMasteryRating": 2544
+  },
+  "Vivid Sea-farer's Essence of Physical Mastery": {
+    "PhysicalMasteryRating": 2702
+  },
+  "Humble Sea-farer's Essence of Physical Mitigation": {
+    "PhysicalMitigationRating": 2246
+  },
+  "Flickering Sea-farer's Essence of Physical Mitigation": {
+    "PhysicalMitigationRating": 2379
+  },
+  "Sea-farer's Essence of Physical Mitigation": {
+    "PhysicalMitigationRating": 2511
+  },
+  "Lively Sea-farer's Essence of Physical Mitigation": {
+    "PhysicalMitigationRating": 2544
+  },
+  "Vivid Sea-farer's Essence of Physical Mitigation": {
+    "PhysicalMitigationRating": 2702
+  },
+  "Humble Sea-farer's Essence of Resistance": {
+    "ResistanceRating": 4788
+  },
+  "Flickering Sea-farer's Essence of Resistance": {
+    "ResistanceRating": 5154
+  },
+  "Sea-farer's Essence of Resistance": {
+    "ResistanceRating": 5520
+  },
+  "Lively Sea-farer's Essence of Resistance": {
+    "ResistanceRating": 5887
+  },
+  "Vivid Sea-farer's Essence of Resistance": {
+    "ResistanceRating": 6253
+  },
+  "Humble Sea-farer's Essence of Restoration": {
+    "IncomingHealingRating": 3551
+  },
+  "Flickering Sea-farer's Essence of Restoration": {
+    "IncomingHealingRating": 3821
+  },
+  "Sea-farer's Essence of Restoration": {
+    "IncomingHealingRating": 4092
+  },
+  "Lively Sea-farer's Essence of Restoration": {
+    "IncomingHealingRating": 4363
+  },
+  "Vivid Sea-farer's Essence of Restoration": {
+    "IncomingHealingRating": 4633
+  },
+  "Humble Sea-farer's Essence of Tactical Mastery": {
+    "TacticalMasteryRating": 2213
+  },
+  "Flickering Sea-farer's Essence of Tactical Mastery": {
+    "TacticalMasteryRating": 2350
+  },
+  "Sea-farer's Essence of Tactical Mastery": {
+    "TacticalMasteryRating": 2487
+  },
+  "Lively Sea-farer's Essence of Tactical Mastery": {
+    "TacticalMasteryRating": 2544
+  },
+  "Vivid Sea-farer's Essence of Tactical Mastery": {
+    "TacticalMasteryRating": 2702
+  },
+  "Humble Sea-farer's Essence of Tactical Mitigation": {
+    "TacticalMitigationRating": 2246
+  },
+  "Flickering Sea-farer's Essence of Tactical Mitigation": {
+    "TacticalMitigationRating": 2379
+  },
+  "Sea-farer's Essence of Tactical Mitigation": {
+    "TacticalMitigationRating": 2511
+  },
+  "Lively Sea-farer's Essence of Tactical Mitigation": {
+    "TacticalMitigationRating": 2544
+  },
+  "Vivid Sea-farer's Essence of Tactical Mitigation": {
+    "TacticalMitigationRating": 2702
+  },
+  "Humble Sea-farer's Essence of Vitality": {
+    "Vitality": 1526
+  },
+  "Flickering Sea-farer's Essence of Vitality": {
+    "Vitality": 1651
+  },
+  "Sea-farer's Essence of Vitality": {
+    "Vitality": 1776
+  },
+  "Lively Sea-farer's Essence of Vitality": {
+    "Vitality": 1901
+  },
+  "Vivid Sea-farer's Essence of Vitality": {
+    "Vitality": 1984
+  },
+  "Sea-farer's Supplemental Essence of Vitality": {
+    "Vitality": 304
+  },
+  "Humble Sea-farer's Essence of Will": {
+    "Will": 1257
+  },
+  "Flickering Sea-farer's Essence of Will": {
+    "Will": 1352
+  },
+  "Sea-farer's Essence of Will": {
+    "Will": 1448
+  },
+  "Lively Sea-farer's Essence of Will": {
+    "Will": 1543
+  },
+  "Vivid Sea-farer's Essence of Will": {
+    "Will": 1639
+  }
+}

@@ -69,7 +69,7 @@ def fetch_virtue_stats(delay=5.0):
                 value_text = cell.get_text(strip=True)
                 value = re.sub(r"[^\d]", "", value_text)
                 if value:
-                    stats[VIRTUES_STATS_NAME_FIX[stat_name]] = int(value)
+                    stats[VIRTUES_ESSENCES_STATS_NAME_FIX[stat_name]] = int(value)
 
             virtue_data[rank] = stats
 
@@ -78,6 +78,52 @@ def fetch_virtue_stats(delay=5.0):
 
     with open("stat_files/virtue_stats.json", "w") as f:
         json.dump(all_virtue_data, f, indent=2)
+
+@cli.command('fetch_essence_stats')
+def fetch_essence_stats(delay=5.0):
+    url = "https://lotro-wiki.com/wiki/Essences_(Level_141-150)_Index"
+    response = requests.get(url)
+    if not response.ok:
+        print(f"Failed to fetch {url}")
+        sys.exit(1)
+
+    STAT_REGEX = re.compile(r"([+-])([0-9,]+) (.*)")
+    soup = BeautifulSoup(response.text, "html.parser")
+    tables = soup.find_all("table", class_="altRowsPad")
+    if not tables:
+        print(f"No essences table found.")
+        sys.exit(1)
+
+    all_essences_data = {}
+    #one table per essence type
+    #columns: tier, min level, name, stats
+    for table in tables: #for each essence type
+        rows = table.find_all("tr")
+        for row in rows[1:]: #for each essence in essence type
+            essence_stats = {} #TODO: find a way to add essence slot type
+            data = row.find_all("td")
+            essence_name = data[2].find("span", class_="ajaxttlink").get_text()
+            stats_text = data[3].get_text()
+            #add two spaces before + or - that is not at the beginning of the string or preceded by a space
+            stats_text = re.sub(r'(?<!^)(?<!\s)([+-])', r'  \1', stats_text)
+            #split multiple stats by double space
+            for stat_text in stats_text.split("  "):
+                #try to find regex that matches {sign}{value}{stat_name}
+                m = STAT_REGEX.match(stat_text)
+                if m: #if matched, fix stat name and add it to this essences' stats
+                    stat_name = VIRTUES_ESSENCES_STATS_NAME_FIX[m.groups()[2]]
+                    sign = m.groups()[0]
+                    stat_value = int(m.groups()[1].replace(",", ""))
+                    essence_stats[stat_name] = -1*stat_value if sign == "-" else stat_value
+                else: #if not matched, this is a stat that is won't be used for determining the best essences, so include it as "Other"
+                    if "Other" in essence_stats:
+                        essence_stats["Other"].append(stat_text)
+                    else:
+                        essence_stats["Other"] = [stat_text]
+            all_essences_data[essence_name] = essence_stats
+
+    with open("stat_files/essences_stats.json", "w") as f:
+        json.dump(all_essences_data, f, indent=2)
 
 @cli.command('calculate_stat_percentage')
 @click.argument('character_name', required=True)
