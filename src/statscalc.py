@@ -1,136 +1,31 @@
 import os
-import re
-import sys
 import json
-import math
 import click
-import requests
 import itertools
-from time import sleep
 from definitions import *
-from bs4 import BeautifulSoup
 from functools import partial
 from joblib import Parallel, delayed
-
+from lotro_wiki_interface import get_virtue_stats_from_wiki
 
 @click.group()
 @click.version_option()
 def cli():
     """StatsCalc"""
 
-
 @cli.command('fetch_virtue_stats')
-def fetch_virtue_stats(delay=5.0):
-    """
-    For each virtue, fetches its lotro-wiki page (based on VIRTUES_NAMES_URLS values).
-    Extracts Rank and stats information from the pages.
-    Converts page stats to the same format used by the code (based on VIRTUES_STATS_NAME_FIX).
-    Saves it under stat_file/virtue_stats.json.
-    """
-    base_url = "https://lotro-wiki.com/wiki/"
-    all_virtue_data = {}
-
-    for virtue in VIRTUES_NAMES_URLS:
-        url = base_url + VIRTUES_NAMES_URLS.get(virtue)
-        print(f"Fetching {virtue} from {url}")
-        response = requests.get(url)
-        if not response.ok:
-            print(f"Failed to fetch {url}")
-            continue
-
-        soup = BeautifulSoup(response.text, "html.parser")
-        table = soup.find("table", class_="altRowsCenter")
-        if not table:
-            print(f"No virtue stat table found for {virtue}")
-            continue
-
-        rows = table.find_all("tr")
-        if len(rows) < 3:
-            print(f"Not enough rows in virtue table for {virtue}")
-            continue
-
-        # Extract the second row's stat names, and get only the first 3 stats (Active bonuses)
-        second_header_cells = rows[1].find_all(["th", "td"])
-        stat_names = [cell.get_text(strip=True) for cell in second_header_cells[:3]]
-
-        virtue_data = {}
-        for row in rows[2:]:  # Skip the two header rows
-            cols = row.find_all(["td", "th"])
-            if not cols or len(cols) < 4:
-                continue
-
-            rank_cell = cols[0].get_text(strip=True)
-            if not rank_cell.isdigit():
-                continue
-
-            rank = int(rank_cell)
-            stats = {}
-            for stat_name, cell in zip(stat_names, cols[1:4]):  # First 3 columns after Rank
-                value_text = cell.get_text(strip=True)
-                value = re.sub(r"[^\d]", "", value_text)
-                if value:
-                    stats[VIRTUES_ESSENCES_STATS_NAME_FIX[stat_name]] = int(value)
-
-            virtue_data[rank] = stats
-
-        all_virtue_data[virtue] = virtue_data
-        sleep(delay)
-
-    with open("stat_files/virtue_stats.json", "w") as f:
-        json.dump(all_virtue_data, f, indent=2)
+def fetch_virtue_stat(delay=5.0):
+    get_virtue_stats_from_wiki(delay)
 
 @cli.command('fetch_essence_stats')
 def fetch_essence_stats(delay=5.0):
-    url = "https://lotro-wiki.com/wiki/Essences_(Level_141-150)_Index"
-    response = requests.get(url)
-    if not response.ok:
-        print(f"Failed to fetch {url}")
-        sys.exit(1)
-
-    STAT_REGEX = re.compile(r"([+-])([0-9,]+) (.*)")
-    soup = BeautifulSoup(response.text, "html.parser")
-    tables = soup.find_all("table", class_="altRowsPad")
-    if not tables:
-        print(f"No essences table found.")
-        sys.exit(1)
-
-    all_essences_data = {}
-    #one table per essence type
-    #columns: tier, min level, name, stats
-    for table in tables: #for each essence type
-        rows = table.find_all("tr")
-        for row in rows[1:]: #for each essence in essence type
-            essence_stats = {} #TODO: find a way to add essence slot type
-            data = row.find_all("td")
-            essence_name = data[2].find("span", class_="ajaxttlink").get_text()
-            stats_text = data[3].get_text()
-            #add two spaces before + or - that is not at the beginning of the string or preceded by a space
-            stats_text = re.sub(r'(?<!^)(?<!\s)([+-])', r'  \1', stats_text)
-            #split multiple stats by double space
-            for stat_text in stats_text.split("  "):
-                #try to find regex that matches {sign}{value}{stat_name}
-                m = STAT_REGEX.match(stat_text)
-                if m: #if matched, fix stat name and add it to this essences' stats
-                    stat_name = VIRTUES_ESSENCES_STATS_NAME_FIX[m.groups()[2]]
-                    sign = m.groups()[0]
-                    stat_value = int(m.groups()[1].replace(",", ""))
-                    essence_stats[stat_name] = -1*stat_value if sign == "-" else stat_value
-                else: #if not matched, this is a stat that is won't be used for determining the best essences, so include it as "Other"
-                    if "Other" in essence_stats:
-                        essence_stats["Other"].append(stat_text)
-                    else:
-                        essence_stats["Other"] = [stat_text]
-            all_essences_data[essence_name] = essence_stats
-
-    with open("stat_files/essences_stats.json", "w") as f:
-        json.dump(all_essences_data, f, indent=2)
+    get_virtue_stats_from_wiki(delay)
 
 @cli.command('calculate_stat_percentage')
 @click.argument('character_name', required=True)
 @click.argument('stat_name', required=True)
 @click.argument('stat_value', required=True)
 def calculate_stat_percentage(character_name, stat_name, stat_value):
-    character = json.load(open(os.path.join(STATSCALC, "stat_files", character_name, "char.json")))
+    character = json.load(open(os.path.join(STATSCALC, "resources", "character_files", character_name, "char.json"))) #TODO: not all characters have a char.json
     character_class = character["Class"]
     character_level = character["Level"]
     character_class_stats = CLASSES_STATS[character_class]
@@ -149,7 +44,7 @@ def calculate_stat_percentage(character_name, stat_name, stat_value):
 @click.argument('priority', required=False, default="P1", type=click.Choice(["P1", "P2", "P3"]))
 def simulate_equipping_items(character_name, items_file, priority):
     items = json.load(open(items_file))
-    character = json.load(open(os.path.join(STATSCALC, "stat_files", character_name, "char.json")))
+    character = json.load(open(os.path.join(STATSCALC, "resources", "character_files", character_name, "char.json"))) #TODO: not all characters have a char.json
     character_class = character["Class"]
     character_level = character["Level"]
     character_class_stats = CLASSES_STATS[character_class]
@@ -258,7 +153,7 @@ def compare_items(character_name, items_file, priorities_string):
 @click.argument('items_file', required=True)
 @click.argument('role', required=True)
 def find_optimal_items(character_name, items_file, role):
-    character = json.load(open(os.path.join(STATSCALC, "stat_files", character_name, f"{role}_stats.json")))
+    character = json.load(open(os.path.join(STATSCALC, "resources", "character_files", character_name, f"{role}_stats.json")))  #TODO: not all characters have a {role}_stats.json"
     character_class = character["Class"]
     character_level = character["Level"]
     character_class_stats = CLASSES_STATS[character_class]

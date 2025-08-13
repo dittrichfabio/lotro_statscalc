@@ -8,9 +8,6 @@ import math
 STAT= re.compile(r'\["(.*?)"] = (.*?)[,\n]')
 char_stat_sorting_order = ["Morale", "InCombatMoraleRegeneration", "NonCombatMoraleRegeneration", "Power", "InCombatPowerRegeneration", "NonCombatPowerRegeneration", "Armour", "Might", "Agility", "Vitality", "Will", "Fate", "CriticalRatingMelee", "CriticalRatingRange", "CriticalRatingTactical", "FinesseRating", "PhysicalMasteryRatingMelee", "PhysicalMasteryRatingRange", "TacticalMasteryRating", "OutgoingHealingRating", "ResistanceRating", "CriticalDefenceRating", "IncomingHealingRating", "BlockChanceRating", "PartialBlockChanceRating", "PartialBlockMitigationRating", "ParryChanceRating", "PartialParryChanceRating", "PartialParryMitigationRating", "EvadeChanceRating", "PartialEvadeChanceRating", "PartialEvadeMitigationRating", "PhysicalMitigationRating", "TacticalMitigationRating"]
 
-VIRTUES_NAMES_URLS = {"Charity": "Charity", "Compassion": "Compassion", "Confidence": "Confidence", "Determination": "Determination_(Virtue)", "Discipline": "Discipline", "Empathy": "Empathy", "Fidelity": "Fidelity", "Fortitude": "Fortitude", "Honesty": "Honesty", "Honour": "Honour", "Idealism": "Idealism", "Innocence": "Innocence", "Justice": "Justice", "Loyalty": "Loyalty", "Mercy": "Mercy", "Patience": "Patience", "Tolerance": "Tolerance", "Valour": "Valour", "Wisdom": "Wisdom", "Wit": "Wit", "Zeal": "Zeal"}
-VIRTUES_ESSENCES_STATS_NAME_FIX = {"Agility": "Agility", "Armour Value": "Armour", "Block Rating": "BlockRating", "Critical Defence": "CriticalDefenceRating", "Critical Rating": "CriticalRating", "Evade Rating": "EvadeChanceRating", "Fate": "Fate", "Finesse Rating": "FinesseRating", "in-Combat Morale Regen": "InCombatMoraleRegeneration", "Incoming Healing Rating": "IncomingHealingRating", "Maximum Morale": "Morale", "Maximum Power": "Power", "Might": "Might", "Outgoing Healing Rating": "OutgoingHealingRating", "Parry Rating": "ParryRating", "Physical Mastery Rating": "PhysicalMasteryRating", "Physical Mitigation": "PhysicalMitigationRating", "Resistance Rating": "ResistanceRating", "Tactical Mastery Rating": "TacticalMasteryRating", "Tactical Mitigation": "TacticalMitigationRating", "Vitality": "Vitality", "Will": "Will"}
-
 #Plugins data
 server = "Angmar"
 username = "ddmdarklink"
@@ -25,8 +22,8 @@ c = lambda PCap, a: PCap/(a-PCap)
 Ropt = lambda c, Rcap: (math.sqrt(c+1)-1)/c*Rcap
 
 STATSCALC = os.environ.get('STATSCALC')
-STATS_INFO = json.load(open(os.path.join(STATSCALC, "stat_files", "stats_info.json")))
-CLASSES_STATS = json.load(open(os.path.join(STATSCALC, "stat_files", "classes.json")))
+STATS_INFO = json.load(open(os.path.join(STATSCALC, "resources", "stat_files", "stats_info.json")))
+CLASSES_STATS = json.load(open(os.path.join(STATSCALC, "resources", "stat_files", "classes_stats.json")))
 
 #main stats that secondary and tertiary stats depend on
 MAIN_STATS = ["Armour", "Might", "Agility", "Vitality", "Will", "Fate"]
@@ -282,7 +279,7 @@ def process_combination(combination, item_types, items_per_type, character_stats
     return (combination, combination_value, overcapped_stats, overcap_value, new_stats)
 
 def load_preferred_stats(character_name, role):
-    preferred_stats_file = os.path.join(STATSCALC, "stat_files", character_name, "preferred_stats.json")
+    preferred_stats_file = os.path.join(STATSCALC, "resources", "character_files", character_name, "preferred_stats.json")
     if not os.path.exists(preferred_stats_file):
         print(f"{preferred_stats_file} does not exist, using all stats for comparing item combinations and printing them all at the end.")
         return VALID_STATS, None
