@@ -337,7 +337,7 @@ def convert_plugin_data_to_json(character_name, filename):
                 data[key] = value.strip('"')
         else:
             try:
-                stats[key] = float(value)
+                stats[key] = round(float(value))
             except ValueError:
                 stats[key] = value.strip('"')
     stats = {key: stats[key] for key in sorted(stats, key=lambda x: char_stat_sorting_order.index(x))}
