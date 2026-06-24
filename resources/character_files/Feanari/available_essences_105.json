@@ -1,0 +1,113 @@
+[
+    {
+        "Name": "Major Essence of Might",
+        "Might": 94
+    },
+    {
+        "Name": "Major Essence of Agility",
+        "Agility": 94
+    },
+    {
+        "Name": "Major Essence of Will",
+        "Will": 94
+    },
+    {
+        "Name": "Major Essence of Morale",
+        "Morale": 528
+    },
+    {
+        "Name": "Major Essence of Critical Rating",
+        "CriticalRating": 529
+    },
+    {
+        "Name": "Major Essence of Critical Defence",
+        "CriticalDefenceRating": 708
+    },
+    {
+        "Name": "Major Essence of Physical Mastery",
+        "PhysicalMasteryRating": 450
+    },
+    {
+        "Name": "Major Essence of Tactical Mastery",
+        "TacticalMasteryRating": 450
+    },
+    {
+        "Name": "Major Essence of Physical Mitigation",
+        "PhysicalMitigationRating": 531
+    },
+    {
+        "Name": "Major Essence of Tactical Mitigation",
+        "TacticalMitigationRating": 531
+    },
+    {
+        "Name": "Major Essence of Finesse",
+        "FinesseRating": 708
+    },
+    {
+        "Name": "Major Essence of Blocking",
+        "BlockRating": 743
+    },
+    {
+        "Name": "Major Essence of Parrying",
+        "ParryRating": 743
+    },
+    {
+        "Name": "Major Essence of Evasion",
+        "EvadeRating": 743
+    },
+    {
+        "Name": "Ithilien Essence of Might",
+        "Might": 88,
+        "PhysicalMasteryRating": 105
+    },
+    {
+        "Name": "Ithilien Essence of Agility",
+        "Agility": 88,
+        "PhysicalMasteryRating": 105
+    },
+    {
+        "Name": "Ithilien Essence of Will",
+        "Will": 88,
+        "TacticalMasteryRating": 105
+    },
+    {
+        "Name": "Ithilien Essence of Vitality",
+        "Vitality": 86,
+        "PhysicalMasteryRating": 105
+    },
+    {
+        "Name": "Ithilien Essence of Fate",
+        "Fate": 72,
+        "TacticalMasteryRating": 105
+    },
+    {
+        "Name": "Ithilien Essence of Morale",
+        "Morale": 493,
+        "Fate": 18
+    },
+    {
+        "Name": "Ithilien Essence of Critical Rating",
+        "CriticalRating": 495,
+        "CriticalDefenceRating": 165
+    },
+    {
+        "Name": "Ithilien Essence of Physical Mastery",
+        "PhysicalMasteryRating": 421,
+        "CriticalRating": 124
+    },
+    {
+        "Name": "Ithilien Essence of Tactical Mastery",
+        "TacticalMasteryRating": 421,
+        "CriticalRating": 124
+    },
+    {
+        "Name": "Ithilien Essence of Physical Mitigation",
+        "PhysicalMitigationRating": 496,
+        "CriticalDefenceRating": 165
+    },
+    {
+        "Name": "Ithilien Essence of Tactical Mitigation",
+        "TacticalMitigationRating": 496,
+        "CriticalDefenceRating": 165
+    }
+]

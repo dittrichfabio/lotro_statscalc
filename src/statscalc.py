@@ -316,9 +316,10 @@ def find_optimal_items(character_name, items_file, role):
 
 @cli.command('convert_plugin_data_to_json')
 @click.argument('character_name', required=True)
+@click.argument('server', required=False)
 @click.argument('filename', required=True)
-def convert_plugin_data_to_json(character_name, filename):
-    stats_file = os.path.join(plugin_char_path.format(character_name=character_name), "Stats.plugindata")
+def convert_plugin_data_to_json(character_name, server, filename):
+    stats_file = os.path.join(plugin_char_path.format(character_name=character_name, server=server), "Stats.plugindata")
     char_folder = os.path.join(STATSCALC, "stat_files", character_name)
     if not os.path.exists(char_folder):
         os.makedirs(char_folder)
