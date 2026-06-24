@@ -1,8 +1,6 @@
 {
     "items_to_pick": {
-        "Shoulders": 1,
-        "Gloves": 1,
-        "Boots": 1
+        "Essence": 24
     },
     "roles": {
         "dps": {
