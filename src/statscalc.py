@@ -152,7 +152,8 @@ def compare_items(character_name, items_file, priorities_string):
 @click.argument('character_name', required=True)
 @click.argument('items_file', required=True)
 @click.argument('role', required=True)
-def find_optimal_items(character_name, items_file, role):
+@click.option('--essences-file', required=False, default=None, help='Path to available essences JSON file')
+def find_optimal_items(character_name, items_file, role, essences_file):
     character = json.load(open(os.path.join(STATSCALC, "resources", "character_files", character_name, f"{role}_stats.json")))  #TODO: not all characters have a {role}_stats.json"
     character_class = character["Class"]
     character_level = character["Level"]
@@ -178,15 +179,16 @@ def find_optimal_items(character_name, items_file, role):
 
     requirements_ratings = get_ratings_for_requirements(stat_requirements, character_level, character_armour) if stat_requirements else {}
 
-    items_per_type, items_ids = prepare_items(items_file, items_to_pick)
+    items_per_type, items_ids, essence_quantity_limits = prepare_items(items_file, items_to_pick, essences_file)
 
-    #print(items_to_pick, "\n")
-    #print(items_per_type, "\n")
-    #print(items_ids, "\n")
+    print(items_to_pick, "\n")
+    print(items_per_type, "\n")
+    print(items_ids, "\n")
 
     item_types = [i.split('#')[0] for i in items_ids]
     list_of_possibilities = [items_ids[i] for i in items_ids]
     all_combinations = list(itertools.product(*list_of_possibilities))
+    #sys.exit(0)
 
     stats_rcap = get_all_stats_Rcap(character_level, character_armour)
 
@@ -261,7 +263,7 @@ def find_optimal_items(character_name, items_file, role):
 
 
     penalize_overcapping = True
-    partial_process_item = partial(process_combination, item_types=item_types, items_per_type=items_per_type, character_stats=character_stats, character_class_stats=character_class_stats, stats_rcap=stats_rcap, requirements_ratings=requirements_ratings, penalize_overcapping=penalize_overcapping)
+    partial_process_item = partial(process_combination, item_types=item_types, items_per_type=items_per_type, character_stats=character_stats, character_class_stats=character_class_stats, stats_rcap=stats_rcap, requirements_ratings=requirements_ratings, penalize_overcapping=penalize_overcapping, essence_quantity_limits=essence_quantity_limits)
     combination_results = Parallel(n_jobs=-1)(delayed(partial_process_item)(combination) for combination in all_combinations)
     combination_values = [(i[0], i[1]) for i in combination_results]
     combination_values = dict(combination_values)

@@ -18,6 +18,8 @@
                 "TacticalOffenceDamage=200",
                 "CriticalHitChanceTactical=25",
                 "Finesse=30",
+                "PhysicalMitigation=40",
+                "TacticalMitigation=40",
                 "Morale"
             ],
             "set_restrictions": []

@@ -115,9 +115,15 @@ def compute_stat_percentage(stat_name, stat_value, character_armour, character_l
         computed_stats[stat_name] += extra_stats[stat_name]
     return computed_stats, overcapped_stats
 
-def prepare_items(items_file, items_to_pick):
+def prepare_items(items_file, items_to_pick, essences_file=None):
     items_json = json.load(open(items_file))
     available_items = items_json.get("available_items")
+    
+    # Validate essences file if Essence is in items_to_pick
+    if "Essence" in items_to_pick and items_to_pick["Essence"] > 0:
+        if essences_file is None:
+            print(f"Essence is in items_to_pick but no essences file was provided. Please provide --essences-file argument. Aborting!")
+            sys.exit(1)
 
     items_per_type = {}
     for item in items_to_pick:
@@ -130,6 +136,13 @@ def prepare_items(items_file, items_to_pick):
 
     items_per_type = {i:[] for i in items_to_pick}
     items_ids = {i:[] for i in items_to_pick}
+    
+    # Load essences if file is provided
+    available_essences = []
+    if essences_file is not None:
+        available_essences = json.load(open(essences_file))
+    
+    # Process regular items from items.json
     for item in available_items:
         item_name = item.get("Name", False)
         item_type = item.get("Type", "Unset")
@@ -145,15 +158,16 @@ def prepare_items(items_file, items_to_pick):
                 print(f"Stat {stat} of {item_name} is not valid. Aborting!")
                 sys.exit(1)
 
-        if items_to_pick[item_type] != 0:
-            if items_per_type[item_type] == []:
-                items_per_type[item_type] = [{"Name": item_name, "Stats": item_stats}]
-            else:
-                items_per_type[item_type].append({"Name": item_name, "Stats": item_stats})
-            if items_ids[item_type] == []:
-                items_ids[item_type].append(0)
-            else:
-                items_ids[item_type].append(items_ids[item_type][-1]+1)
+        if item_type in items_to_pick:
+            if items_to_pick[item_type] != 0:
+                if items_per_type[item_type] == []:
+                    items_per_type[item_type] = [{"Name": item_name, "Stats": item_stats}]
+                else:
+                    items_per_type[item_type].append({"Name": item_name, "Stats": item_stats})
+                if items_ids[item_type] == []:
+                    items_ids[item_type].append(0)
+                else:
+                    items_ids[item_type].append(items_ids[item_type][-1]+1)
             #items_to_pick[item_type] -= 1
         #    else:
         #        for i in range(1,items_to_pick[item_type]+1):
@@ -180,12 +194,46 @@ def prepare_items(items_file, items_to_pick):
         #         for i in range(1,items_to_pick[item_type]+1):
         #             items_per_type[item_type+f"{i}"].append({"Name": item_name, "Stats": item_stats})
         #             items_ids[item_type+f"{i}"].append(items_ids[item_type+f"{i}"][-1]+1)
+
+    # Process essences from essences file
+    essence_quantity_limits = {}
+    for essence in available_essences:
+        essence_name = essence.get("Name", False)
+        essence_type = essence.get("Type", "Unset")
+        essence_stats = essence.get("Stats", False)
+        quantity_available = essence.get("QuantityAvailable", -1)
+        print(essence_name)
+        
+        if not essence_name:
+            print(f"Missing name for essence {essence}. Aborting!")
+            sys.exit(1)
+        if essence_type != "Essence":
+            print(f"Type {essence_type} of {essence_name} is not Essence. Aborting!")
+            sys.exit(1)
+        for stat in essence_stats:
+            if stat not in VALID_STATS:
+                print(f"Stat {stat} of {essence_name} is not valid. Aborting!")
+                sys.exit(1)
+        
+        # Track quantity limits for each essence
+        essence_quantity_limits[essence_name] = quantity_available
+        
+        if "Essence" in items_to_pick and items_to_pick["Essence"] != 0:
+            if items_per_type["Essence"] == []:
+                items_per_type["Essence"] = [{"Name": essence_name, "Stats": essence_stats}]
+            else:
+                items_per_type["Essence"].append({"Name": essence_name, "Stats": essence_stats})
+            if items_ids["Essence"] == []:
+                items_ids["Essence"].append(0)
+            else:
+                items_ids["Essence"].append(items_ids["Essence"][-1]+1)
+    
     expanded_items_ids = {}
     for item in items_to_pick:
         for i in range(1, items_to_pick[item]+1):
             expanded_items_ids[f"{item}#{i}"] = items_ids[item]
 
-    return items_per_type, expanded_items_ids
+    return items_per_type, expanded_items_ids, essence_quantity_limits
 
 def get_all_stats_Rcap(character_level, character_armour):
     level_index = lvl_index(character_level)
@@ -236,10 +284,16 @@ def define_combination_value(new_stats, requirements_ratings):
             value += new_stats[r]
     return value
 
-def process_combination(combination, item_types, items_per_type, character_stats, character_class_stats, stats_rcap, requirements_ratings, penalize_overcapping):
+def process_combination(combination, item_types, items_per_type, character_stats, character_class_stats, stats_rcap, requirements_ratings, penalize_overcapping, essence_quantity_limits=None):
     #if comb_num % 1000 == 0:
     #    print(comb_num)
     #print(combination)
+    
+    # Validate essence quantity limits if provided
+    if essence_quantity_limits is not None:
+        if not validate_essence_quantities(combination, item_types, items_per_type, essence_quantity_limits):
+            return (combination, -1, {}, 0, {})
+    
     combination_items = []
     for index, item_type_index in enumerate(combination):
         item_type_name = item_types[index]
@@ -315,3 +369,24 @@ def add_item_stats(*dicts):
             else:
                 result[key] = value
     return result
+
+def validate_essence_quantities(combination, item_types, items_per_type, essence_quantity_limits):
+    """
+    Validate that a combination respects essence quantity limits.
+    Returns True if valid, False otherwise.
+    """
+    essence_counts = {}
+    
+    for index, item_type_index in enumerate(combination):
+        item_type_name = item_types[index]
+        if item_type_name == "Essence":
+            item = items_per_type[item_type_name][item_type_index]
+            essence_name = item["Name"]
+            essence_counts[essence_name] = essence_counts.get(essence_name, 0) + 1
+            
+            # Check if this essence exceeds its quantity limit
+            quantity_limit = essence_quantity_limits.get(essence_name, -1)
+            if quantity_limit != -1 and essence_counts[essence_name] > quantity_limit:
+                return False
+    
+    return True
