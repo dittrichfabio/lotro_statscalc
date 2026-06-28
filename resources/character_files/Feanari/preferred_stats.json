@@ -15,6 +15,10 @@
                 "TacticalMitigation"
             ],
             "stat_requirements": [
+                "CriticalHitChanceTactical=25",
+                "Morale"
+            ],
+            "stat_requirements_bkp": [
                 "TacticalOffenceDamage=200",
                 "CriticalHitChanceTactical=25",
                 "Finesse=30",
