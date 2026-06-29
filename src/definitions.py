@@ -7,7 +7,49 @@ import math
 import itertools
 
 STAT= re.compile(r'\["(.*?)"] = (.*?)[,\n]')
-char_stat_sorting_order = ["Morale", "InCombatMoraleRegeneration", "NonCombatMoraleRegeneration", "Power", "InCombatPowerRegeneration", "NonCombatPowerRegeneration", "Armour", "Might", "Agility", "Vitality", "Will", "Fate", "CriticalRatingMelee", "CriticalRatingRange", "CriticalRatingTactical", "FinesseRating", "PhysicalMasteryRatingMelee", "PhysicalMasteryRatingRange", "TacticalMasteryRating", "OutgoingHealingRating", "ResistanceRating", "CriticalDefenceRating", "IncomingHealingRating", "BlockChanceRating", "PartialBlockChanceRating", "PartialBlockMitigationRating", "ParryChanceRating", "PartialParryChanceRating", "PartialParryMitigationRating", "EvadeChanceRating", "PartialEvadeChanceRating", "PartialEvadeMitigationRating", "PhysicalMitigationRating", "TacticalMitigationRating"]
+char_stat_sorting_order = [
+    # Primary stats
+    "Armour",
+    "Morale",
+    "InCombatMoraleRegeneration",
+    "NonCombatMoraleRegeneration",
+    "Power",
+    "InCombatPowerRegeneration",
+    "NonCombatPowerRegeneration",
+    # Main stats
+    "Might",
+    "Agility",
+    "Vitality",
+    "Will",
+    "Fate",
+    # Critical ratings
+    "CriticalRatingMelee",
+    "CriticalRatingRange",
+    "CriticalRatingTactical",
+    # Mastery ratings
+    "FinesseRating",
+    "PhysicalMasteryRatingMelee",
+    "PhysicalMasteryRatingRange",
+    "TacticalMasteryRating",
+    "OutgoingHealingRating",
+    # Defence ratings
+    "ResistanceRating",
+    "CriticalDefenceRating",
+    "IncomingHealingRating",
+    # Avoidance ratings
+    "BlockChanceRating",
+    "PartialBlockChanceRating",
+    "PartialBlockMitigationRating",
+    "ParryChanceRating",
+    "PartialParryChanceRating",
+    "PartialParryMitigationRating",
+    "EvadeChanceRating",
+    "PartialEvadeChanceRating",
+    "PartialEvadeMitigationRating",
+    # Mitigation ratings
+    "PhysicalMitigationRating",
+    "TacticalMitigationRating"
+]
 
 #Plugins data
 server = "Angmar"
@@ -26,23 +68,191 @@ STATSCALC = os.environ.get('STATSCALC')
 STATS_INFO = json.load(open(os.path.join(STATSCALC, "resources", "stat_files", "stats_info.json")))
 CLASSES_STATS = json.load(open(os.path.join(STATSCALC, "resources", "stat_files", "classes_stats.json")))
 
-#main stats that secondary and tertiary stats depend on
-MAIN_STATS = ["Armour", "Might", "Agility", "Vitality", "Will", "Fate"]
-#secondary stats that are computed from main ones, but can also be found in items
-SECONDARY_STATS = ["Morale", "InCombatMoraleRegeneration", "NonCombatMoraleRegeneration", "Power", "InCombatPowerRegeneration", "NonCombatPowerRegeneration", "CriticalRating", "FinesseRating", "PhysicalMasteryRating", "TacticalMasteryRating", "OutgoingHealingRating", "ResistanceRating", "CriticalDefenceRating", "IncomingHealingRating", "BlockChanceRating", "ParryChanceRating", "EvadeChanceRating", "PhysicalMitigationRating", "TacticalMitigationRating"]
-#tertiary stats that cannot be found in items and are derived from some secondary stats
-TERTIARY_STATS = ["CriticalRatingMelee", "DevastatingRatingMelee", "CriticalMagnitudeRatingMelee", "CriticalRatingRange", "DevastatingRatingRange", "CriticalMagnitudeRatingRange", "CriticalRatingTactical", "DevastatingRatingTactical", "CriticalMagnitudeRatingTactical", "PhysicalMasteryRatingMelee", "PhysicalMasteryRatingRange", "BlockChanceRating", "ParryChanceRating", "EvadeChanceRating", "PartialBlockChanceRating", "PartialParryChanceRating", "PartialEvadeChanceRating", "PartialBlockMitigationRating", "PartialParryMitigationRating", "PartialEvadeMitigationRating"]
-#the relationship between secondary and tertiary stats
-SECONDARY2TERTIARY_MAPPING = {"CriticalRating": ["CriticalRatingMelee", "CriticalRatingRange", "CriticalRatingTactical"], "PhysicalMasteryRating": ["PhysicalMasteryRatingMelee", "PhysicalMasteryRatingRange"], "BlockChanceRating": ["BlockChanceRating", "PartialBlockChanceRating", "PartialBlockMitigationRating"], "ParryChanceRating": ["ParryChanceRating", "PartialParryChanceRating", "PartialParryMitigationRating"], "EvadeChanceRating": ["EvadeChanceRating", "PartialEvadeChanceRating", "PartialEvadeMitigationRating"]}
-#the relationship between tertiary and secondary stats
-TERTIARY2SECONDARY_MAPPING = {tstat:stat for stat in SECONDARY2TERTIARY_MAPPING for tstat in SECONDARY2TERTIARY_MAPPING[stat]}
-#final stats in form of percentage and the secondary or tertiary stat it is associated to
-#FINAL_STATS = ["CriticalHitChanceMelee", "DevastatingHitChanceMelee", "Critical&DevastatingHitMagnitudeMelee", "CriticalHitChanceRange", "DevastatingHitChanceRange", "Critical&DevastatingHitMagnitudeRange", "CriticalHitChanceTactical", "DevastatingHitChanceTactical", "Critical&DevastatingHitMagnitudeTactical", "Finesse", "PhysicalDamageMelee", "PhysicalDamageRange", "TacticalOffenceDamage", "TacticalOutgoingHealing", "Resistance", "CriticalDefence", "IncomingHealing", "BlockChance", "PartialBlockChance", "PartialBlockMitigation", "ParryChance", "PartialParryChance", "PartialParryMitigation", "EvadeChance", "PartialEvadeChance", "PartialEvadeMitigation", "PhysicalMitigation", "TacticalMitigation"]
-FINAL_STATS = {"CriticalHitChanceMelee": "CriticalRatingMelee", "DevastatingHitChanceMelee": "DevastatingRatingMelee", "Critical&DevastatingHitMagnitudeMelee": "CriticalMagnitudeRatingMelee", "CriticalHitChanceRange": "CriticalRatingRange", "DevastatingHitChanceRange": "DevastatingRatingRange", "Critical&DevastatingHitMagnitudeRange": "CriticalMagnitudeRatingRange", "CriticalHitChanceTactical": "CriticalRatingTactical", "DevastatingHitChanceTactical": "DevastatingRatingTactical", "Critical&DevastatingHitMagnitudeTactical": "CriticalMagnitudeRatingTactical", "Finesse": "FinesseRating", "PhysicalDamageMelee": "PhysicalMasteryRatingMelee", "PhysicalDamageRange": "PhysicalMasteryRatingRange", "TacticalOffenceDamage": "TacticalMasteryRating", "TacticalOutgoingHealing": "OutgoingHealingRating", "Resistance": "ResistanceRating", "CriticalDefence": "CriticalDefenceRating", "IncomingHealing": "IncomingHealingRating", "BlockChance": "BlockChanceRating", "PartialBlockChance": "PartialBlockChanceRating", "PartialBlockMitigation": "PartialBlockMitigationRating", "ParryChance": "ParryChanceRating", "PartialParryChance": "PartialParryChanceRating", "PartialParryMitigation": "PartialParryMitigationRating", "EvadeChance": "EvadeChanceRating", "PartialEvadeChance": "PartialEvadeChanceRating", "PartialEvadeMitigation": "PartialEvadeMitigationRating", "PhysicalMitigation": "PhysicalMitigationRating", "TacticalMitigation": "TacticalMitigationRating"}
-FINAL_STATS.update({stat:"" for stat in MAIN_STATS})
-FINAL_STATS.update({"Morale": "", "InCombatMoraleRegeneration": "", "NonCombatMoraleRegeneration": "", "Power": "", "InCombatPowerRegeneration": "", "NonCombatPowerRegeneration": ""})
-RATING2PERCENTAGE_FINAL_STATS = {FINAL_STATS[stat]:stat for stat in FINAL_STATS if FINAL_STATS[stat]}
-VALID_STATS = list(set(MAIN_STATS+SECONDARY_STATS+list(FINAL_STATS.keys())))
+# =============================================================================
+# STAT HIERARCHY
+# =============================================================================
+# Stats are organized in a hierarchy:
+# - Main stats: Base attributes that contribute to secondary stats based on class
+# - Secondary stats: Can be found on gear, contribute to tertiary stats
+# - Tertiary stats: Derived from secondary stats, cannot be found on gear
+# - Final stats: Percentage-based values computed from rating stats
+
+# Main stats - these contribute to different stats depending on class
+# (Class-specific contributions are defined in classes_stats.json)
+MAIN_STATS = ["Might", "Agility", "Vitality", "Will", "Fate"]
+
+# Secondary stats - can be found on gear
+SECONDARY_STATS = [
+    # Primary stats
+    "Armour",
+    "Morale",
+    "Power",
+    # Regeneration stats
+    "InCombatMoraleRegeneration",
+    "NonCombatMoraleRegeneration",
+    "InCombatPowerRegeneration",
+    "NonCombatPowerRegeneration",
+    # Rating stats
+    "CriticalRating",
+    "FinesseRating",
+    "PhysicalMasteryRating",
+    "TacticalMasteryRating",
+    "ResistanceRating",
+    "CriticalDefenceRating",
+    "IncomingHealingRating",
+    "BlockChanceRating",
+    "ParryChanceRating",
+    "EvadeChanceRating",
+    "PhysicalMitigationRating",
+    "TacticalMitigationRating",
+    "OutgoingHealingRating"
+]
+
+# Tertiary stats - derived from secondary stats, cannot be found on gear
+TERTIARY_STATS = [
+    # Critical rating breakdown
+    "CriticalRatingMelee",
+    "DevastatingRatingMelee",
+    "CriticalMagnitudeRatingMelee",
+    "CriticalRatingRange",
+    "DevastatingRatingRange",
+    "CriticalMagnitudeRatingRange",
+    "CriticalRatingTactical",
+    "DevastatingRatingTactical",
+    "CriticalMagnitudeRatingTactical",
+    # Physical mastery breakdown
+    "PhysicalMasteryRatingMelee",
+    "PhysicalMasteryRatingRange",
+    # Tactical mastery breakdown
+    "TacticalOffenceRating",
+    "TacticalOutgoingHealingRating",
+    # Avoidance breakdown
+    "BlockChanceRating",
+    "PartialBlockChanceRating",
+    "PartialBlockMitigationRating",
+    "ParryChanceRating",
+    "PartialParryChanceRating",
+    "PartialParryMitigationRating",
+    "EvadeChanceRating",
+    "PartialEvadeChanceRating",
+    "PartialEvadeMitigationRating"
+]
+
+# Mapping from secondary stats to their tertiary stat components
+SECONDARY2TERTIARY_MAPPING = {
+    "CriticalRating": [
+        "CriticalRatingMelee",
+        "CriticalRatingRange",
+        "CriticalRatingTactical",
+        "DevastatingRatingMelee",
+        "DevastatingRatingRange",
+        "DevastatingRatingTactical",
+        "CriticalMagnitudeRatingMelee",
+        "CriticalMagnitudeRatingRange",
+        "CriticalMagnitudeRatingTactical"
+    ],
+    "PhysicalMasteryRating": [
+        "PhysicalMasteryRatingMelee",
+        "PhysicalMasteryRatingRange"
+    ],
+    "TacticalMasteryRating": [
+        "TacticalOffenceRating",
+        "TacticalOutgoingHealingRating"
+    ],
+    "BlockChanceRating": [
+        "BlockChanceRating",
+        "PartialBlockChanceRating",
+        "PartialBlockMitigationRating"
+    ],
+    "ParryChanceRating": [
+        "ParryChanceRating",
+        "PartialParryChanceRating",
+        "PartialParryMitigationRating"
+    ],
+    "EvadeChanceRating": [
+        "EvadeChanceRating",
+        "PartialEvadeChanceRating",
+        "PartialEvadeMitigationRating"
+    ]
+}
+
+# Reverse mapping from tertiary to secondary stats
+TERTIARY2SECONDARY_MAPPING = {
+    tstat: stat
+    for stat in SECONDARY2TERTIARY_MAPPING
+    for tstat in SECONDARY2TERTIARY_MAPPING[stat]
+}
+
+# Final stats - percentage-based values computed from rating stats
+# Maps final stat name to its associated rating stat (empty string if no rating)
+FINAL_STATS = {
+    # Critical hit chances and magnitudes
+    "CriticalHitChanceMelee": "CriticalRatingMelee",
+    "DevastatingHitChanceMelee": "DevastatingRatingMelee",
+    "Critical&DevastatingHitMagnitudeMelee": "CriticalMagnitudeRatingMelee",
+    "CriticalHitChanceRange": "CriticalRatingRange",
+    "DevastatingHitChanceRange": "DevastatingRatingRange",
+    "Critical&DevastatingHitMagnitudeRange": "CriticalMagnitudeRatingRange",
+    "CriticalHitChanceTactical": "CriticalRatingTactical",
+    "DevastatingHitChanceTactical": "DevastatingRatingTactical",
+    "Critical&DevastatingHitMagnitudeTactical": "CriticalMagnitudeRatingTactical",
+    # Finesse
+    "Finesse": "FinesseRating",
+    # Physical damage
+    "PhysicalDamageMelee": "PhysicalMasteryRatingMelee",
+    "PhysicalDamageRange": "PhysicalMasteryRatingRange",
+    # Tactical offence and healing
+    "TacticalOffenceDamage": "TacticalMasteryRating",
+    "TacticalOutgoingHealing": "OutgoingHealingRating",
+    # Resistance and defence
+    "Resistance": "ResistanceRating",
+    "CriticalDefenceMelee": "CriticalDefenceRating",
+    "CriticalDefenceRanged": "CriticalDefenceRating",
+    "CriticalDefenceTactical": "CriticalDefenceRating",
+    "IncomingHealing": "IncomingHealingRating",
+    # Avoidance
+    "BlockChance": "BlockChanceRating",
+    "PartialBlockChance": "PartialBlockChanceRating",
+    "PartialBlockMitigation": "PartialBlockMitigationRating",
+    "ParryChance": "ParryChanceRating",
+    "PartialParryChance": "PartialParryChanceRating",
+    "PartialParryMitigation": "PartialParryMitigationRating",
+    "EvadeChance": "EvadeChanceRating",
+    "PartialEvadeChance": "PartialEvadeChanceRating",
+    "PartialEvadeMitigation": "PartialEvadeMitigationRating",
+    # Mitigation
+    "PhysicalMitigation": "PhysicalMitigationRating",
+    "OrcCraftMitigation": "PhysicalMitigationRating",
+    "FellWroughtMitigation": "PhysicalMitigationRating",
+    "TacticalMitigation": "TacticalMitigationRating",
+    "FireMitigation": "TacticalMitigationRating",
+    "LightningMitigation": "TacticalMitigationRating",
+    "FrostMitigation": "TacticalMitigationRating",
+    "AcidMitigation": "TacticalMitigationRating",
+    "ShadowMitigation": "TacticalMitigationRating"
+}
+
+# Add main stats and direct stats (no rating conversion)
+FINAL_STATS.update({stat: "" for stat in MAIN_STATS})
+FINAL_STATS.update({
+    "Armour": "",
+    "Morale": "",
+    "InCombatMoraleRegeneration": "",
+    "NonCombatMoraleRegeneration": "",
+    "Power": "",
+    "InCombatPowerRegeneration": "",
+    "NonCombatPowerRegeneration": ""
+})
+
+# Reverse mapping from rating to final stats
+RATING2PERCENTAGE_FINAL_STATS = {
+    FINAL_STATS[stat]: stat
+    for stat in FINAL_STATS
+    if FINAL_STATS[stat]
+}
+
+# All valid stats across all tiers
+VALID_STATS = list(set(MAIN_STATS + SECONDARY_STATS + TERTIARY_STATS + list(FINAL_STATS.keys())))
 VALID_ITEM_MAX_QUANTITY = {"Boots": 1,  "Chest": 1,  "Gloves": 1,  "Helm": 1,  "Leggings": 1,  "Shoulders": 1,  "Back": 1,  "Ring": 2,  "Earring": 2,  "Bracelet": 2,  "Necklace": 1,  "Pocket": 1, "Essence": 999}
 VALID_ITEM_TYPES = list(VALID_ITEM_MAX_QUANTITY.keys())
 
