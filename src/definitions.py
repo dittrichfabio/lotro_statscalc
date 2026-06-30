@@ -1141,16 +1141,24 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
         if req != -1 and stat in total_rating:
             prob += total_rating[stat] >= req
 
-    # Auxiliary continuous variables for capped totals used in objective
-    # cap_var[stat] = min(total_rating[stat], stats_rcap[stat])
-    # Modelled as: cap_var <= total_rating[stat]  AND  cap_var <= stats_rcap[stat]
-    # Maximising cap_var drives it to the tighter of the two bounds.
+    # Auxiliary continuous variables for capped totals used in objective.
+    # For stats with a hard minimum requirement: cap at the requirement — no benefit to overshoot.
+    # For unconstrained stats (req == -1): cap at stats_rcap so diminishing returns apply at cap.
     cap_var = {}
     for stat in opt_stats:
-        if stat in stats_rcap:
+        req = requirements_ratings.get(stat, -1)
+        if req != -1:
+            # Constrained stat: objective ceiling is the requirement rating itself
+            obj_cap = req
+        elif stat in stats_rcap:
+            obj_cap = stats_rcap[stat]
+        else:
+            obj_cap = None
+
+        if obj_cap is not None:
             v = pulp.LpVariable(f"cap_{stat}", lowBound=0)
             prob += v <= total_rating[stat]
-            prob += v <= stats_rcap[stat]
+            prob += v <= obj_cap
             cap_var[stat] = v
         else:
             cap_var[stat] = total_rating[stat]
