@@ -26,6 +26,12 @@ char_stat_sorting_order = [
     "CriticalRatingMelee",
     "CriticalRatingRange",
     "CriticalRatingTactical",
+    "DevastatingRatingMelee",
+    "DevastatingRatingRange",
+    "DevastatingRatingTactical",
+    "CriticalMagnitudeRatingMelee",
+    "CriticalMagnitudeRatingRange",
+    "CriticalMagnitudeRatingTactical",
     # Mastery ratings
     "FinesseRating",
     "PhysicalMasteryRatingMelee",
@@ -176,6 +182,24 @@ SECONDARY2TERTIARY_MAPPING = {
     ]
 }
 
+# For tertiary stats absent from the character JSON, maps each one to the existing
+# stat it should inherit its base value from (same combat-type variant).
+TERTIARY_STAT_BASE_MAP = {
+    "DevastatingRatingMelee":          "CriticalRatingMelee",
+    "CriticalMagnitudeRatingMelee":    "CriticalRatingMelee",
+    "DevastatingRatingRange":          "CriticalRatingRange",
+    "CriticalMagnitudeRatingRange":    "CriticalRatingRange",
+    "DevastatingRatingTactical":       "CriticalRatingTactical",
+    "CriticalMagnitudeRatingTactical": "CriticalRatingTactical",
+    "TacticalOutgoingHealingRating":   "TacticalOffenceRating",
+    "PartialBlockChanceRating":        "BlockChanceRating",
+    "PartialBlockMitigationRating":    "BlockChanceRating",
+    "PartialParryChanceRating":        "ParryChanceRating",
+    "PartialParryMitigationRating":    "ParryChanceRating",
+    "PartialEvadeChanceRating":        "EvadeChanceRating",
+    "PartialEvadeMitigationRating":    "EvadeChanceRating",
+}
+
 # Reverse mapping from tertiary to secondary stats
 TERTIARY2SECONDARY_MAPPING = {
     tstat: stat
@@ -270,6 +294,11 @@ def equip_items(character_stats, character_class_stats, items):
     new_stats = copy.deepcopy(character_stats)
     if "available_items" in items:
         items = items["available_items"]
+    for tertiary_list in SECONDARY2TERTIARY_MAPPING.values():
+        for tstat in tertiary_list:
+            if tstat not in new_stats:
+                base_stat = TERTIARY_STAT_BASE_MAP.get(tstat)
+                new_stats[tstat] = new_stats.get(base_stat, 0) if base_stat else 0
     for item in items:
         item_stats = item.get("Stats")
         for item_stat in item_stats:
@@ -288,10 +317,7 @@ def compute_percentage(base_stats, character_armour, character_level, extra_stat
     computed_stats = {i:0 for i in FINAL_STATS}
     overcapped_stats = {}
     for stat in computed_stats:
-        if stat in ["PhysicalMitigation", "TacticalMitigation"]:
-            stat_info = STATS_INFO[f"{character_armour}{stat}"]
-        else:
-            stat_info = STATS_INFO[f"{stat}"]
+        stat_info = STATS_INFO[get_stats_info_key(stat, character_armour)]
         a = stat_info["A"]
         b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
         computed_stats[stat] = round(PfromR(r=base_stats[computed_stats[stat]["AssociatedSecondaryStat"]], a=a, b=b), 1)
@@ -309,10 +335,7 @@ def compute_stat_percentage(stat_name, stat_value, character_armour, character_l
     level_index = lvl_index(character_level)
     computed_stats = {stat_name:0}
     overcapped_stats = {}
-    if stat_name in ["PhysicalMitigation", "TacticalMitigation"]:
-        stat_info = STATS_INFO[f"{character_armour}{stat_name}"]
-    else:
-        stat_info = STATS_INFO[f"{stat_name}"]
+    stat_info = STATS_INFO[get_stats_info_key(stat_name, character_armour)]
     a = stat_info["A"]
     b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
     computed_stats[stat_name] = round(PfromR(r=stat_value, a=a, b=b), 1)
@@ -445,15 +468,34 @@ def prepare_items(items_file, items_to_pick, essences_file=None):
 
     return items_per_type, expanded_items_ids, essence_quantity_limits
 
+# Maps final stat names that differ from their stats_info.json key to the correct key.
+# Stats that share an entry (e.g. all CriticalDefence variants, element mitigations)
+# are redirected here; the armour-prefix logic for Mitigation stats is applied after.
+STATS_INFO_KEY_OVERRIDES = {
+    "CriticalDefenceMelee":    "CriticalDefence",
+    "CriticalDefenceRanged":   "CriticalDefence",
+    "CriticalDefenceTactical": "CriticalDefence",
+    "OrcCraftMitigation":      "PhysicalMitigation",
+    "FellWroughtMitigation":   "PhysicalMitigation",
+    "FireMitigation":          "TacticalMitigation",
+    "LightningMitigation":     "TacticalMitigation",
+    "FrostMitigation":         "TacticalMitigation",
+    "AcidMitigation":          "TacticalMitigation",
+    "ShadowMitigation":        "TacticalMitigation",
+}
+
+def get_stats_info_key(fstat, character_armour):
+    key = STATS_INFO_KEY_OVERRIDES.get(fstat, fstat)
+    if key in ["PhysicalMitigation", "TacticalMitigation"]:
+        return f"{character_armour}{key}"
+    return key
+
 def get_all_stats_Rcap(character_level, character_armour):
     level_index = lvl_index(character_level)
     stats_rcap = {}
     for fstat in FINAL_STATS:
         if FINAL_STATS[fstat]:
-            if fstat in ["PhysicalMitigation", "TacticalMitigation"]:
-                stat_info = STATS_INFO[f"{character_armour}{fstat}"]
-            else:
-                stat_info = STATS_INFO[f"{fstat}"]
+            stat_info = STATS_INFO[get_stats_info_key(fstat, character_armour)]
             a = stat_info["A"]
             b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
             stats_rcap[FINAL_STATS[fstat]] = Rcap(PCap=stat_info["PCap"], a=a, b=b)
@@ -466,13 +508,10 @@ def get_ratings_for_requirements(stat_requirements, character_level, character_a
         fstat = r.split('=')[0]
         percentage = float(r.split('=')[1]) if len(r.split('=')) == 2 else -1
         if percentage != -1:
-            if fstat in ["PhysicalMitigation", "TacticalMitigation"]:
-                stat_info = STATS_INFO[f"{character_armour}{fstat}"]
-            elif fstat in ["Morale"]:
+            if fstat in ["Morale"]:
                 requirements_ratings[fstat] = percentage
                 continue
-            else:
-                stat_info = STATS_INFO[f"{fstat}"]
+            stat_info = STATS_INFO[get_stats_info_key(fstat, character_armour)]
             a = stat_info["A"]
             b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
             requirements_ratings[FINAL_STATS[fstat]] = RfromP(p=percentage, a=a, b=b)
@@ -1023,86 +1062,123 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
                                   character_stats, character_class_stats, stats_rcap, requirements_ratings,
                                   essence_quantity_limits, stat_requirements, character_level, character_armour):
     """
-    Integer Linear Programming using pulp for essence optimization.
+    Integer Linear Programming using pulp for gear/essence optimization.
+
+    Stat requirements are converted to required ratings via RfromP before this function
+    is called (see get_ratings_for_requirements). The optimization is therefore entirely
+    linear in rating space — no piecewise approximation is needed.
+
+    Hard constraints enforce minimum ratings from requirements_ratings.
+    The objective maximizes capped total ratings (matching the stats_rcap cap logic).
     """
     try:
         import pulp
     except ImportError:
         print("pulp library not found. Please install it with: pip install pulp")
         return None, -1, {}, 0, {}
-    
-    num_slots = len(item_types)
-    num_essences = len(items_per_type["Essence"])
-    
-    # Create problem
-    prob = pulp.LpProblem("EssenceOptimization", pulp.LpMaximize)
-    
-    # Decision variables: x[i][j] = 1 if essence j is in slot i
-    x = pulp.LpVariable.dicts("x", [(i, j) for i in range(num_slots) for j in range(num_essences)], 
-                             cat='Binary')
-    
-    # Constraint: each slot must have exactly one essence
-    for i in range(num_slots):
-        prob += pulp.lpSum(x[(i, j)] for j in range(num_essences)) == 1
-    
-    # Constraint: respect quantity limits
-    for j, essence in enumerate(items_per_type["Essence"]):
-        essence_name = essence["Name"]
-        quantity_limit = essence_quantity_limits.get(essence_name, -1)
-        if quantity_limit != -1:
-            prob += pulp.lpSum(x[(i, j)] for i in range(num_slots)) <= quantity_limit
-    
-    # Objective: maximize combination value
-    # Simplified objective: sum of stat contributions weighted by requirements
-    objective = 0
-    
-    # Get stats with goals (higher weight)
-    stats_with_goals = {}
-    stats_without_goals = set()
-    if stat_requirements:
-        for req in stat_requirements:
-            if '=' in req:
-                stat_name, target = req.split('=')
-                stats_with_goals[stat_name] = float(target)
-            else:
-                stats_without_goals.add(req)
-    
-    for i in range(num_slots):
-        for j, essence in enumerate(items_per_type["Essence"]):
-            essence_value = 0
-            for stat, value in essence["Stats"].items():
-                if stat in stats_with_goals:
-                    # Penalize going over goal - simplified for ILP
-                    # Since ILP is linear, we use a lower weight for goal stats
-                    essence_value += value * 1.2  # Moderate weight for goal stats
-                elif stat in stats_without_goals:
-                    essence_value += value * 1.5  # Higher weight for non-goal stats (to maximize them)
+
+    # Stats we care about: those in requirements_ratings, or all character stats if none defined
+    if requirements_ratings:
+        opt_stats = set(requirements_ratings.keys())
+    else:
+        opt_stats = set(character_stats.keys())
+
+    # Pre-compute each item's contribution to each opt_stat, mirroring equip_items logic
+    slot_item_contrib = []
+    for i, t in enumerate(item_types):
+        item_contribs = []
+        for item in items_per_type[t]:
+            contrib = {s: 0.0 for s in opt_stats}
+            for item_stat, value in item["Stats"].items():
+                if item_stat in SECONDARY2TERTIARY_MAPPING:
+                    for tertiary_stat in SECONDARY2TERTIARY_MAPPING[item_stat]:
+                        if tertiary_stat in contrib:
+                            contrib[tertiary_stat] += value
                 else:
-                    essence_value += value
-            objective += essence_value * x[(i, j)]
-    
-    prob += objective
-    
-    # Solve
+                    if item_stat in contrib:
+                        contrib[item_stat] += value
+                if item_stat in MAIN_STATS:
+                    for secondary_stat, multiplier in character_class_stats[item_stat].items():
+                        if secondary_stat in contrib:
+                            contrib[secondary_stat] += math.floor(value * multiplier)
+            item_contribs.append(contrib)
+        slot_item_contrib.append(item_contribs)
+
+    prob = pulp.LpProblem("GearOptimization", pulp.LpMaximize)
+
+    # Decision variables: x[(i, j)] = 1 if slot i uses item j
+    x = {}
+    for i, t in enumerate(item_types):
+        for j in range(len(items_per_type[t])):
+            x[(i, j)] = pulp.LpVariable(f"x_{i}_{j}", cat='Binary')
+
+    # Constraint: each slot has exactly one item
+    for i, t in enumerate(item_types):
+        prob += pulp.lpSum(x[(i, j)] for j in range(len(items_per_type[t]))) == 1
+
+    # Constraint: essence quantity limits
+    essence_slots = [i for i, t in enumerate(item_types) if t == "Essence"]
+    if essence_slots:
+        for j, essence in enumerate(items_per_type["Essence"]):
+            essence_name = essence["Name"]
+            quantity_limit = essence_quantity_limits.get(essence_name, -1)
+            if quantity_limit != -1:
+                prob += pulp.lpSum(x[(i, j)] for i in essence_slots) <= quantity_limit
+
+    # Compute total rating per stat as an LP affine expression
+    total_rating = {}
+    for stat in opt_stats:
+        base = character_stats.get(stat, 0.0)
+        gear_contrib = pulp.lpSum(
+            slot_item_contrib[i][j][stat] * x[(i, j)]
+            for i, t in enumerate(item_types)
+            for j in range(len(items_per_type[t]))
+        )
+        total_rating[stat] = base + gear_contrib
+
+    # Hard constraints: minimum required ratings
+    for stat, req in requirements_ratings.items():
+        if req != -1 and stat in total_rating:
+            prob += total_rating[stat] >= req
+
+    # Auxiliary continuous variables for capped totals used in objective
+    # cap_var[stat] = min(total_rating[stat], stats_rcap[stat])
+    # Modelled as: cap_var <= total_rating[stat]  AND  cap_var <= stats_rcap[stat]
+    # Maximising cap_var drives it to the tighter of the two bounds.
+    cap_var = {}
+    for stat in opt_stats:
+        if stat in stats_rcap:
+            v = pulp.LpVariable(f"cap_{stat}", lowBound=0)
+            prob += v <= total_rating[stat]
+            prob += v <= stats_rcap[stat]
+            cap_var[stat] = v
+        else:
+            cap_var[stat] = total_rating[stat]
+
+    # Objective: maximise sum of capped ratings for all optimised stats
+    prob += pulp.lpSum(cap_var[stat] for stat in opt_stats)
+
     prob.solve(pulp.PULP_CBC_CMD(msg=False))
-    
+
     if pulp.LpStatus[prob.status] != 'Optimal':
-        print("No optimal solution found")
+        print(f"ILP: no optimal solution found (status: {pulp.LpStatus[prob.status]})")
         return None, -1, {}, 0, {}
-    
-    # Extract solution
+
+    # Extract solution: for each slot pick the chosen item index
     best_combination = []
-    for i in range(num_slots):
-        for j in range(num_essences):
-            if pulp.value(x[(i, j)]) == 1:
-                best_combination.append(j)
+    for i, t in enumerate(item_types):
+        chosen = 0
+        for j in range(len(items_per_type[t])):
+            if round(pulp.value(x[(i, j)]) or 0) == 1:
+                chosen = j
                 break
-    
+        best_combination.append(chosen)
+
     best_combination = tuple(best_combination)
-    
-    # Evaluate the solution
+
+    # Evaluate via process_combination for a consistent result format
     result = process_combination(best_combination, item_types, items_per_type,
                                  character_stats, character_class_stats, stats_rcap,
                                  requirements_ratings, True, essence_quantity_limits)
-    
+
     return result

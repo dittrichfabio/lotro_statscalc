@@ -212,14 +212,12 @@ def find_optimal_essences(character_name, essences_file, role, algorithm):
         for stat in best_combination_stats:
             fstat = RATING2PERCENTAGE_FINAL_STATS.get(stat, stat)
             if fstat != stat:
-                if fstat in ["PhysicalMitigation", "TacticalMitigation"]:
-                    stat_info = STATS_INFO[f"{character_armour}{fstat}"]
-                else:
-                    stat_info = STATS_INFO.get(fstat, False)
-                a = stat_info["A"]
-                b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
-                percentage = PfromR(r=best_combination_stats[stat], a=a, b=b)
-                print(f"{fstat} {round(percentage, 2)}%\n\t{stat} {best_combination_stats[stat]}")
+                stat_info = STATS_INFO.get(get_stats_info_key(fstat, character_armour))
+                if stat_info:
+                    a = stat_info["A"]
+                    b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
+                    percentage = PfromR(r=best_combination_stats[stat], a=a, b=b)
+                    print(f"{fstat} {round(percentage, 2)}%\n\t{stat} {best_combination_stats[stat]}")
             else:
                 if fstat in stats_to_print:
                     print(f"{stat} {best_combination_stats[stat]}")
@@ -331,11 +329,8 @@ def find_optimal_items(character_name, items_file, role, essences_file, algorith
         for stat in best_combination_stats:
             fstat = RATING2PERCENTAGE_FINAL_STATS.get(stat, stat)
             if fstat != stat:
-                #if fstat in stats_to_print:
-                    if fstat in ["PhysicalMitigation", "TacticalMitigation"]:
-                        stat_info = STATS_INFO[f"{character_armour}{fstat}"]
-                    else:
-                        stat_info = STATS_INFO.get(fstat, False)
+                stat_info = STATS_INFO.get(get_stats_info_key(fstat, character_armour))
+                if stat_info:
                     a = stat_info["A"]
                     b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
                     percentage = PfromR(r=best_combination_stats[stat], a=a, b=b)
@@ -374,7 +369,10 @@ def convert_plugin_data_to_json(character_name, server, filename):
                 stats[key] = round(float(value))
             except ValueError:
                 stats[key] = value.strip('"')
-    stats = {key: stats[key] for key in sorted(stats, key=lambda x: char_stat_sorting_order.index(x))}
+    for missing_stat, base_stat in TERTIARY_STAT_BASE_MAP.items():
+        if missing_stat not in stats and base_stat in stats:
+            stats[missing_stat] = stats[base_stat]
+    stats = {key: stats[key] for key in sorted(stats, key=lambda x: char_stat_sorting_order.index(x)) if key in char_stat_sorting_order}
     data["Stats"] = stats
 
     with open(os.path.join(char_folder, filename), 'w') as f:
