@@ -161,7 +161,7 @@ def find_optimal_gear(character_name, gear_file, role):
     character_stats = character["Stats"]
     level_index = lvl_index(character_level)
 
-    stat_requirements, stats_to_print, items_to_pick = load_preferred_stats(character_name, role)
+    stat_requirements, stats_to_print, optimization_choices = load_preferred_stats(character_name, role)
 
     requirements_ratings = get_ratings_for_requirements(stat_requirements, character_level, character_armour) if stat_requirements else {}
 
@@ -183,16 +183,11 @@ def find_optimal_gear(character_name, gear_file, role):
     virtues_items = resolve_virtue_items(virtues_dict) if virtues_dict else None
 
     # Prepare items with essences and virtues
-    items_per_type, items_ids, essence_quantity_limits = prepare_items(
-        gear_file, items_to_pick, virtues_items=virtues_items
+    items_per_type, items_ids, essence_quantity_limits = prepare_optimization_choices(
+        gear_file, optimization_choices, virtues_items=virtues_items
     )
 
-    print(items_to_pick, "\n")
-    print(items_per_type, "\n")
-    print(items_ids, "\n")
-
     item_types = [i.split('#')[0] for i in items_ids]
-    list_of_possibilities = [items_ids[i] for i in items_ids]
     
     stats_rcap = get_all_stats_Rcap(character_level, character_armour)
 

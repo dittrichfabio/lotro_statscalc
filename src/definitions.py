@@ -342,7 +342,7 @@ def compute_stat_percentage(stat_name, stat_value, character_armour, character_l
         computed_stats[stat_name] += extra_stats[stat_name]
     return computed_stats, overcapped_stats
 
-def prepare_items(gear_file, items_to_pick, virtues_items=None):
+def prepare_optimization_choices(gear_file, optimization_choices, virtues_items=None):
     gear_json = json.load(open(gear_file))
     available_items = gear_json.get("available_items", [])
     
@@ -352,22 +352,22 @@ def prepare_items(gear_file, items_to_pick, virtues_items=None):
         available_essences = gear_json["available_essences"]
     
     # Validate essences are available if Essence is in items_to_pick
-    if "Essence" in items_to_pick and items_to_pick["Essence"] > 0:
+    if "Essence" in optimization_choices and optimization_choices["Essence"] > 0:
         if not available_essences:
             print(f"Essence is in items_to_pick but no essences were found. Aborting!")
             sys.exit(1)
 
     items_per_type = {}
-    for item in items_to_pick:
+    for item in optimization_choices:
         if item not in VALID_ITEM_TYPES:
             print(f"Item {item} is invalid. Valid types: {VALID_ITEM_TYPES}. Aborting!")
             sys.exit(1)
-        if items_to_pick[item] > VALID_ITEM_MAX_QUANTITY[item]:
-            print(f"Item {item} can have a max of {VALID_ITEM_MAX_QUANTITY[item]}, but {items_to_pick[item]} were requested. Aborting!")
+        if optimization_choices[item] > VALID_ITEM_MAX_QUANTITY[item]:
+            print(f"Item {item} can have a max of {VALID_ITEM_MAX_QUANTITY[item]}, but {optimization_choices[item]} were requested. Aborting!")
             sys.exit(1)
 
-    items_per_type = {i:[] for i in items_to_pick}
-    items_ids = {i:[] for i in items_to_pick}
+    items_per_type = {i:[] for i in optimization_choices}
+    items_ids = {i:[] for i in optimization_choices}
     
     # Process regular items from items.json
     for item in available_items:
@@ -385,8 +385,8 @@ def prepare_items(gear_file, items_to_pick, virtues_items=None):
                 print(f"Stat {stat} of {item_name} is not valid. Aborting!")
                 sys.exit(1)
 
-        if item_type in items_to_pick:
-            if items_to_pick[item_type] != 0:
+        if item_type in optimization_choices:
+            if optimization_choices[item_type] != 0:
                 if items_per_type[item_type] == []:
                     items_per_type[item_type] = [{"Name": item_name, "Stats": item_stats}]
                 else:
@@ -444,7 +444,7 @@ def prepare_items(gear_file, items_to_pick, virtues_items=None):
         # Track quantity limits for each essence
         essence_quantity_limits[essence_name] = quantity_available
         
-        if "Essence" in items_to_pick and items_to_pick["Essence"] != 0:
+        if "Essence" in optimization_choices and optimization_choices["Essence"] != 0:
             if items_per_type["Essence"] == []:
                 items_per_type["Essence"] = [{"Name": essence_name, "Stats": essence_stats}]
             else:
@@ -476,7 +476,7 @@ def prepare_items(gear_file, items_to_pick, virtues_items=None):
             # Track quantity limits for each virtue (enforce no duplicates)
             essence_quantity_limits[virtue_name] = quantity_available
             
-            if "Virtue" in items_to_pick and items_to_pick["Virtue"] != 0:
+            if "Virtue" in optimization_choices and optimization_choices["Virtue"] != 0:
                 if items_per_type["Virtue"] == []:
                     items_per_type["Virtue"] = [{"Name": virtue_name, "Stats": virtue_stats}]
                 else:
@@ -487,8 +487,8 @@ def prepare_items(gear_file, items_to_pick, virtues_items=None):
                     items_ids["Virtue"].append(items_ids["Virtue"][-1]+1)
     
     expanded_items_ids = {}
-    for item in items_to_pick:
-        for i in range(1, items_to_pick[item]+1):
+    for item in optimization_choices:
+        for i in range(1, optimization_choices[item]+1):
             expanded_items_ids[f"{item}#{i}"] = items_ids[item]
 
     return items_per_type, expanded_items_ids, essence_quantity_limits
@@ -652,10 +652,9 @@ def load_preferred_stats(character_name, role):
         print(f"Role {role} does not define 'stats_to_print', printing all stats at the end.")
         stats_to_print = VALID_STATS
     
-    # Use optimization_choices with fallback to items_to_pick for backward compatibility
-    items_to_pick = preferred_stats.get("optimization_choices", preferred_stats.get("items_to_pick"))
+    optimization_choices = preferred_stats.get("optimization_choices")
 
-    return stat_requirements, stats_to_print, items_to_pick
+    return stat_requirements, stats_to_print, optimization_choices
 
 def expand_item_combinations(items_file):
     pass
