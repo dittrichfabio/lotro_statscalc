@@ -73,6 +73,7 @@ Ropt = lambda c, Rcap: (math.sqrt(c+1)-1)/c*Rcap
 STATSCALC = os.environ.get('STATSCALC')
 STATS_INFO = json.load(open(os.path.join(STATSCALC, "resources", "stat_files", "stats_info.json")))
 CLASSES_STATS = json.load(open(os.path.join(STATSCALC, "resources", "stat_files", "classes_stats.json")))
+VIRTUE_STATS = json.load(open(os.path.join(STATSCALC, "resources", "stat_files", "virtue_stats.json")))
 
 # =============================================================================
 # STAT HIERARCHY
@@ -277,7 +278,7 @@ RATING2PERCENTAGE_FINAL_STATS = {
 
 # All valid stats across all tiers
 VALID_STATS = list(set(MAIN_STATS + SECONDARY_STATS + TERTIARY_STATS + list(FINAL_STATS.keys())))
-VALID_ITEM_MAX_QUANTITY = {"Boots": 1,  "Chest": 1,  "Gloves": 1,  "Helm": 1,  "Leggings": 1,  "Shoulders": 1,  "Back": 1,  "Ring": 2,  "Earring": 2,  "Bracelet": 2,  "Necklace": 1,  "Pocket": 1, "Essence": 999}
+VALID_ITEM_MAX_QUANTITY = {"Boots": 1,  "Chest": 1,  "Gloves": 1,  "Helm": 1,  "Leggings": 1,  "Shoulders": 1,  "Back": 1,  "Ring": 2,  "Earring": 2,  "Bracelet": 2,  "Necklace": 1,  "Pocket": 1, "Essence": 999, "Virtue": 5}
 VALID_ITEM_TYPES = list(VALID_ITEM_MAX_QUANTITY.keys())
 
 
@@ -349,14 +350,19 @@ def compute_stat_percentage(stat_name, stat_value, character_armour, character_l
         computed_stats[stat_name] += extra_stats[stat_name]
     return computed_stats, overcapped_stats
 
-def prepare_items(items_file, items_to_pick, essences_file=None):
-    items_json = json.load(open(items_file))
-    available_items = items_json.get("available_items")
+def prepare_items(gear_file, items_to_pick, virtues_items=None):
+    gear_json = json.load(open(gear_file))
+    available_items = gear_json.get("available_items", [])
     
-    # Validate essences file if Essence is in items_to_pick
+    # Load essences from separate file or from unified gear file
+    available_essences = []
+    if "available_essences" in gear_json:
+        available_essences = gear_json["available_essences"]
+    
+    # Validate essences are available if Essence is in items_to_pick
     if "Essence" in items_to_pick and items_to_pick["Essence"] > 0:
-        if essences_file is None:
-            print(f"Essence is in items_to_pick but no essences file was provided. Please provide --essences-file argument. Aborting!")
+        if not available_essences:
+            print(f"Essence is in items_to_pick but no essences were found. Aborting!")
             sys.exit(1)
 
     items_per_type = {}
@@ -370,11 +376,6 @@ def prepare_items(items_file, items_to_pick, essences_file=None):
 
     items_per_type = {i:[] for i in items_to_pick}
     items_ids = {i:[] for i in items_to_pick}
-    
-    # Load essences if file is provided
-    available_essences = []
-    if essences_file is not None:
-        available_essences = json.load(open(essences_file))
     
     # Process regular items from items.json
     for item in available_items:
@@ -460,6 +461,38 @@ def prepare_items(items_file, items_to_pick, essences_file=None):
                 items_ids["Essence"].append(0)
             else:
                 items_ids["Essence"].append(items_ids["Essence"][-1]+1)
+    
+    # Process virtues from virtues_items (if provided)
+    if virtues_items is not None:
+        for virtue in virtues_items:
+            virtue_name = virtue.get("Name", False)
+            virtue_type = virtue.get("Type", "Unset")
+            virtue_stats = virtue.get("Stats", False)
+            quantity_available = virtue.get("QuantityAvailable", -1)
+            
+            if not virtue_name:
+                print(f"Missing name for virtue {virtue}. Aborting!")
+                sys.exit(1)
+            if virtue_type != "Virtue":
+                print(f"Type {virtue_type} of {virtue_name} is not Virtue. Aborting!")
+                sys.exit(1)
+            for stat in virtue_stats:
+                if stat not in VALID_STATS:
+                    print(f"Stat {stat} of {virtue_name} is not valid. Aborting!")
+                    sys.exit(1)
+            
+            # Track quantity limits for each virtue (enforce no duplicates)
+            essence_quantity_limits[virtue_name] = quantity_available
+            
+            if "Virtue" in items_to_pick and items_to_pick["Virtue"] != 0:
+                if items_per_type["Virtue"] == []:
+                    items_per_type["Virtue"] = [{"Name": virtue_name, "Stats": virtue_stats}]
+                else:
+                    items_per_type["Virtue"].append({"Name": virtue_name, "Stats": virtue_stats})
+                if items_ids["Virtue"] == []:
+                    items_ids["Virtue"].append(0)
+                else:
+                    items_ids["Virtue"].append(items_ids["Virtue"][-1]+1)
     
     expanded_items_ids = {}
     for item in items_to_pick:
@@ -581,6 +614,31 @@ def process_combination(combination, item_types, items_per_type, character_stats
     #print(combination_value)
     return (combination, combination_value, overcapped_stats, overcap_value, new_stats)
 
+def resolve_virtue_items(virtues_dict):
+    """
+    Convert a virtues dict (e.g., {"Honour": 20, "Valour": 18}) to a list of virtue items
+    with stats resolved from VIRTUE_STATS. Each virtue is treated as an item with Type="Virtue"
+    and QuantityAvailable=1 (no duplicates allowed).
+    """
+    virtue_items = []
+    for virtue_name, rank in virtues_dict.items():
+        if virtue_name not in VIRTUE_STATS:
+            print(f"Virtue {virtue_name} not found in VIRTUE_STATS. Skipping.")
+            continue
+        rank_str = str(rank)
+        if rank_str not in VIRTUE_STATS[virtue_name]:
+            print(f"Rank {rank} not found for virtue {virtue_name}. Skipping.")
+            continue
+        
+        virtue_stats = VIRTUE_STATS[virtue_name][rank_str]
+        virtue_items.append({
+            "Name": virtue_name,
+            "Type": "Virtue",
+            "QuantityAvailable": 1,
+            "Stats": virtue_stats
+        })
+    return virtue_items
+
 def load_preferred_stats(character_name, role):
     preferred_stats_file = os.path.join(STATSCALC, "resources", "character_files", character_name, "preferred_stats.json")
     if not os.path.exists(preferred_stats_file):
@@ -602,7 +660,8 @@ def load_preferred_stats(character_name, role):
         print(f"Role {role} does not define 'stats_to_print', printing all stats at the end.")
         stats_to_print = VALID_STATS
     
-    items_to_pick = preferred_stats["items_to_pick"]
+    # Use optimization_choices with fallback to items_to_pick for backward compatibility
+    items_to_pick = preferred_stats.get("optimization_choices", preferred_stats.get("items_to_pick"))
 
     return stat_requirements, stats_to_print, items_to_pick
 
@@ -640,424 +699,6 @@ def validate_essence_quantities(combination, item_types, items_per_type, essence
     
     return True
 
-def prepare_essences_only(essences_file, items_to_pick):
-    """
-    Prepare essences only (essence-specific version of prepare_items).
-    Returns items_per_type, items_ids, essence_quantity_limits
-    """
-    available_essences = json.load(open(essences_file))
-    
-    # Validate that only Essence is in items_to_pick
-    if len(items_to_pick) != 1 or "Essence" not in items_to_pick:
-        print(f"prepare_essences_only should only be used with Essence items. Found: {items_to_pick}. Aborting!")
-        sys.exit(1)
-    
-    if items_to_pick["Essence"] > VALID_ITEM_MAX_QUANTITY["Essence"]:
-        print(f"Essence can have a max of {VALID_ITEM_MAX_QUANTITY['Essence']}, but {items_to_pick['Essence']} were requested. Aborting!")
-        sys.exit(1)
-
-    items_per_type = {"Essence": []}
-    items_ids = {"Essence": []}
-    essence_quantity_limits = {}
-    
-    for essence in available_essences:
-        essence_name = essence.get("Name", False)
-        essence_type = essence.get("Type", "Unset")
-        essence_stats = essence.get("Stats", False)
-        quantity_available = essence.get("QuantityAvailable", -1)
-        
-        if not essence_name:
-            print(f"Missing name for essence {essence}. Aborting!")
-            sys.exit(1)
-        if essence_type != "Essence":
-            print(f"Type {essence_type} of {essence_name} is not Essence. Aborting!")
-            sys.exit(1)
-        for stat in essence_stats:
-            if stat not in VALID_STATS:
-                print(f"Stat {stat} of {essence_name} is not valid. Aborting!")
-                sys.exit(1)
-        
-        # Track quantity limits for each essence
-        essence_quantity_limits[essence_name] = quantity_available
-        
-        if items_per_type["Essence"] == []:
-            items_per_type["Essence"] = [{"Name": essence_name, "Stats": essence_stats}]
-        else:
-            items_per_type["Essence"].append({"Name": essence_name, "Stats": essence_stats})
-        if items_ids["Essence"] == []:
-            items_ids["Essence"].append(0)
-        else:
-            items_ids["Essence"].append(items_ids["Essence"][-1]+1)
-    
-    expanded_items_ids = {}
-    for i in range(1, items_to_pick["Essence"]+1):
-        expanded_items_ids[f"Essence#{i}"] = items_ids["Essence"]
-
-    return items_per_type, expanded_items_ids, essence_quantity_limits
-
-def prune_essences_by_requirements(items_per_type, stat_requirements):
-    """
-    Prune essences that don't contribute to any required stat.
-    Returns filtered items_per_type and mapping of old to new indices.
-    """
-    if not stat_requirements:
-        return items_per_type, {i: i for i in range(len(items_per_type["Essence"]))}
-    
-    # Extract required stats (both with and without goals)
-    required_stats = set()
-    for req in stat_requirements:
-        stat_name = req.split('=')[0]
-        required_stats.add(stat_name)
-    
-    # Map to secondary stats if needed
-    required_secondary_stats = set()
-    for stat in required_stats:
-        if stat in FINAL_STATS:
-            secondary_stat = FINAL_STATS[stat]
-            if secondary_stat:
-                required_secondary_stats.add(secondary_stat)
-        else:
-            required_secondary_stats.add(stat)
-    
-    # Filter essences
-    filtered_essences = []
-    index_mapping = {}
-    new_index = 0
-    
-    for old_index, essence in enumerate(items_per_type["Essence"]):
-        essence_stats = essence["Stats"]
-        contributes = False
-        
-        for stat in essence_stats:
-            if stat in required_secondary_stats or stat in required_stats:
-                contributes = True
-                break
-        
-        if contributes:
-            filtered_essences.append(essence)
-            index_mapping[old_index] = new_index
-            new_index += 1
-    
-    return {"Essence": filtered_essences}, index_mapping
-
-def find_optimal_combination_brute_force(item_types, items_per_type, items_ids, list_of_possibilities, 
-                                           character_stats, character_class_stats, stats_rcap, requirements_ratings,
-                                           essence_quantity_limits, stat_requirements, character_level, character_armour):
-    """
-    Brute force algorithm with pruning for essence optimization.
-    Uses generator to avoid memory explosion.
-    Penalizes stats exceeding goal values.
-    """
-    # Separate stats with goals and without goals
-    stats_with_goals = {}
-    stats_without_goals = set()
-    if stat_requirements:
-        for req in stat_requirements:
-            if '=' in req:
-                stat_name, target = req.split('=')
-                stats_with_goals[stat_name] = float(target)
-            else:
-                stats_without_goals.add(req)
-    
-    # Prune essences that don't contribute to required stats
-    filtered_items_per_type, index_mapping = prune_essences_by_requirements(items_per_type, stat_requirements)
-    
-    # Update items_ids with new indices
-    filtered_items_ids = {}
-    for key in items_ids:
-        filtered_items_ids[key] = [index_mapping.get(idx, idx) for idx in items_ids[key]]
-    
-    filtered_list_of_possibilities = [filtered_items_ids[i] for i in filtered_items_ids]
-    
-    # Use generator instead of list
-    all_combinations = itertools.product(*filtered_list_of_possibilities)
-    
-    penalize_overcapping = True
-    best_combination = None
-    best_combination_value = -1
-    best_combination_overcapped_stats = {}
-    best_combination_overcap_value = 0
-    best_combination_stats = {}
-    
-    for combination in all_combinations:
-        # Validate essence quantity limits using original items_per_type
-        if not validate_essence_quantities(combination, item_types, items_per_type, essence_quantity_limits):
-            continue
-        
-        # Process combination
-        result = process_combination(combination, item_types, filtered_items_per_type, 
-                                     character_stats, character_class_stats, stats_rcap, 
-                                     requirements_ratings, penalize_overcapping, essence_quantity_limits)
-        
-        base_value = result[1]
-        final_stats = result[4]
-        
-        # Apply penalty for stats exceeding goals
-        penalty = 0
-        for stat, target in stats_with_goals.items():
-            # Map stat name to actual stat name if needed
-            actual_stat = stat
-            if stat in FINAL_STATS:
-                actual_stat = FINAL_STATS[stat]
-            
-            # Check if this stat is a tertiary stat that needs to be summed from secondary stats
-            if actual_stat in TERTIARY2SECONDARY_MAPPING:
-                # Sum all secondary stats that contribute to this tertiary stat
-                total_value = 0
-                for sec_stat, tert_stats in SECONDARY2TERTIARY_MAPPING.items():
-                    if actual_stat in tert_stats:
-                        total_value += final_stats.get(sec_stat, 0)
-                current_value = total_value
-            else:
-                current_value = final_stats.get(actual_stat, 0)
-            
-            # For final stats (percentage-based), the target is already in percentage
-            # We need to check if the current rating would exceed the target percentage
-            # For now, skip penalty for percentage-based stats as the conversion is complex
-            # The base value already handles this via requirements_ratings
-            if actual_stat not in FINAL_STATS.values():
-                # Only apply penalty for non-percentage stats
-                if current_value > target:
-                    excess = current_value - target
-                    penalty += excess * 2  # Moderate penalty for exceeding goal
-        
-        adjusted_value = base_value - penalty
-        
-        if adjusted_value > best_combination_value:
-            best_combination = result[0]
-            best_combination_value = adjusted_value
-            best_combination_overcapped_stats = result[2]
-            best_combination_overcap_value = result[3]
-            best_combination_stats = result[4]
-    
-    return best_combination, best_combination_value, best_combination_overcapped_stats, best_combination_overcap_value, best_combination_stats
-
-def find_optimal_combination_greedy(item_types, items_per_type, items_ids,
-                                     character_stats, character_class_stats, stats_rcap, requirements_ratings,
-                                     essence_quantity_limits, stat_requirements, character_level, character_armour):
-    """
-    Greedy algorithm: pick best essence for each slot sequentially.
-    Prioritizes stats with goals, then maximizes non-goal stats.
-    Penalizes stats that exceed their goal values.
-    """
-    # Separate stats with goals and without goals
-    stats_with_goals = {}
-    stats_without_goals = set()
-    
-    if stat_requirements:
-        for req in stat_requirements:
-            if '=' in req:
-                stat_name, target = req.split('=')
-                stats_with_goals[stat_name] = float(target)
-            else:
-                stats_without_goals.add(req)
-    
-    # Calculate current stats
-    current_stats = copy.deepcopy(character_stats)
-    
-    best_combination = []
-    essence_counts = {}
-    
-    # Get number of essence slots
-    num_slots = len(item_types)
-    
-    for slot in range(num_slots):
-        best_essence_idx = None
-        best_essence_score = -float('inf')
-        
-        for essence_idx in range(len(items_per_type["Essence"])):
-            essence = items_per_type["Essence"][essence_idx]
-            essence_name = essence["Name"]
-            
-            # Check quantity limits
-            current_count = essence_counts.get(essence_name, 0)
-            quantity_limit = essence_quantity_limits.get(essence_name, -1)
-            if quantity_limit != -1 and current_count >= quantity_limit:
-                continue
-            
-            # Calculate score based on contribution to stats with goals
-            score = 0
-            for stat, value in essence["Stats"].items():
-                # Check if this stat matches any goal stat (direct or mapped)
-                matched_goal = None
-                is_percentage_stat = False
-                for goal_stat, target in stats_with_goals.items():
-                    actual_goal_stat = goal_stat
-                    if goal_stat in FINAL_STATS:
-                        actual_goal_stat = FINAL_STATS[goal_stat]
-                        is_percentage_stat = True
-                    if stat == actual_goal_stat or stat == goal_stat:
-                        matched_goal = target
-                        break
-                
-                if matched_goal is not None:
-                    # For percentage-based stats, don't apply penalty - let the base value handle it
-                    if is_percentage_stat:
-                        # Give moderate weight for percentage stats
-                        score += value * 1.5
-                    else:
-                        # Prioritize reaching goals, but penalize going over for rating stats
-                        current_value = current_stats.get(stat, 0)
-                        target = matched_goal
-                        if current_value < target:
-                            # Higher score for stats that help reach goals
-                            score += value * 2
-                        elif current_value + value <= target:
-                            # Still beneficial if not exceeding goal
-                            score += value * 1.5
-                        else:
-                            # Penalize going over goal (opportunity cost)
-                            excess = (current_value + value) - target
-                            score += value - (excess * 2)  # Moderate penalty for excess
-                elif stat in stats_without_goals:
-                    # Secondary priority
-                    score += value
-            
-            if score > best_essence_score:
-                best_essence_score = score
-                best_essence_idx = essence_idx
-        
-        if best_essence_idx is not None:
-            best_combination.append(best_essence_idx)
-            essence = items_per_type["Essence"][best_essence_idx]
-            essence_name = essence["Name"]
-            essence_counts[essence_name] = essence_counts.get(essence_name, 0) + 1
-            
-            # Update current stats
-            for stat, value in essence["Stats"].items():
-                current_stats[stat] = current_stats.get(stat, 0) + value
-    
-    # Evaluate the final combination
-    result = process_combination(tuple(best_combination), item_types, items_per_type,
-                                 character_stats, character_class_stats, stats_rcap,
-                                 requirements_ratings, True, essence_quantity_limits)
-    
-    return result
-
-def find_optimal_combination_simulated_annealing(item_types, items_per_type, items_ids,
-                                                   character_stats, character_class_stats, stats_rcap, requirements_ratings,
-                                                   essence_quantity_limits, stat_requirements, character_level, character_armour):
-    """
-    Simulated annealing algorithm for essence optimization.
-    Uses custom fitness function that penalizes stats exceeding goal values.
-    """
-    import random
-    import math
-    
-    # Separate stats with goals and without goals
-    stats_with_goals = {}
-    stats_without_goals = set()
-    if stat_requirements:
-        for req in stat_requirements:
-            if '=' in req:
-                stat_name, target = req.split('=')
-                stats_with_goals[stat_name] = float(target)
-            else:
-                stats_without_goals.add(req)
-    
-    def custom_fitness(combination):
-        """Custom fitness function that penalizes exceeding goal values."""
-        # Get base result
-        result = process_combination(combination, item_types, items_per_type,
-                                     character_stats, character_class_stats, stats_rcap,
-                                     requirements_ratings, True, essence_quantity_limits)
-        base_value = result[1]
-        final_stats = result[4]
-        
-        # Apply penalty for stats exceeding goals
-        penalty = 0
-        for stat, target in stats_with_goals.items():
-            # Map stat name to actual stat name if needed
-            actual_stat = stat
-            if stat in FINAL_STATS:
-                actual_stat = FINAL_STATS[stat]
-            
-            # Check if this stat is a tertiary stat that needs to be summed from secondary stats
-            if actual_stat in TERTIARY2SECONDARY_MAPPING:
-                # Sum all secondary stats that contribute to this tertiary stat
-                total_value = 0
-                for sec_stat, tert_stats in SECONDARY2TERTIARY_MAPPING.items():
-                    if actual_stat in tert_stats:
-                        total_value += final_stats.get(sec_stat, 0)
-                current_value = total_value
-            else:
-                current_value = final_stats.get(actual_stat, 0)
-            
-            # For final stats (percentage-based), the target is already in percentage
-            # We need to check if the current rating would exceed the target percentage
-            # For now, skip penalty for percentage-based stats as the conversion is complex
-            # The base value already handles this via requirements_ratings
-            if actual_stat not in FINAL_STATS.values():
-                # Only apply penalty for non-percentage stats
-                if current_value > target:
-                    excess = current_value - target
-                    penalty += excess * 2  # Moderate penalty for exceeding goal
-        
-        return base_value - penalty, result
-    
-    # Initialize with random combination
-    num_slots = len(item_types)
-    num_essences = len(items_per_type["Essence"])
-    
-    current_combination = tuple(random.randint(0, num_essences - 1) for _ in range(num_slots))
-    
-    # Validate initial combination
-    while not validate_essence_quantities(current_combination, item_types, items_per_type, essence_quantity_limits):
-        current_combination = tuple(random.randint(0, num_essences - 1) for _ in range(num_slots))
-    
-    # Evaluate initial combination
-    current_value, current_result = custom_fitness(current_combination)
-    
-    best_combination = current_combination
-    best_value = current_value
-    best_result = current_result
-    
-    # Simulated annealing parameters
-    initial_temp = 1000.0
-    cooling_rate = 0.995
-    min_temp = 0.1
-    iterations_per_temp = 100
-    
-    temp = initial_temp
-    
-    while temp > min_temp:
-        for _ in range(iterations_per_temp):
-            # Generate neighbor by swapping one essence
-            neighbor = list(current_combination)
-            swap_idx = random.randint(0, num_slots - 1)
-            new_essence_idx = random.randint(0, num_essences - 1)
-            neighbor[swap_idx] = new_essence_idx
-            neighbor = tuple(neighbor)
-            
-            # Validate neighbor
-            if not validate_essence_quantities(neighbor, item_types, items_per_type, essence_quantity_limits):
-                continue
-            
-            # Evaluate neighbor
-            neighbor_value, neighbor_result = custom_fitness(neighbor)
-            
-            # Accept or reject
-            if neighbor_value > current_value:
-                current_combination = neighbor
-                current_value = neighbor_value
-                current_result = neighbor_result
-                
-                if neighbor_value > best_value:
-                    best_combination = neighbor
-                    best_value = neighbor_value
-                    best_result = neighbor_result
-            else:
-                delta = neighbor_value - current_value
-                probability = math.exp(delta / temp)
-                if random.random() < probability:
-                    current_combination = neighbor
-                    current_value = neighbor_value
-                    current_result = neighbor_result
-        
-        temp *= cooling_rate
-    
-    return best_result
-
 def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
                                   character_stats, character_class_stats, stats_rcap, requirements_ratings,
                                   essence_quantity_limits, stat_requirements, character_level, character_armour):
@@ -1083,9 +724,16 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
     else:
         opt_stats = set(character_stats.keys())
 
-    # Pre-compute each item's contribution to each opt_stat, mirroring equip_items logic
+    # Separate virtue slots from gear/essence slots to avoid symmetry issues in ILP
+    virtue_slot_indices = [i for i, t in enumerate(item_types) if t == "Virtue"]
+    n_virtue_slots = len(virtue_slot_indices)
+
+    # Pre-compute each non-virtue item's contribution to each opt_stat
     slot_item_contrib = []
     for i, t in enumerate(item_types):
+        if t == "Virtue":
+            slot_item_contrib.append([])
+            continue
         item_contribs = []
         for item in items_per_type[t]:
             contrib = {s: 0.0 for s in opt_stats}
@@ -1104,24 +752,57 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
             item_contribs.append(contrib)
         slot_item_contrib.append(item_contribs)
 
+    # Pre-compute each virtue's contribution to each opt_stat
+    virtue_contrib = []
+    if n_virtue_slots and "Virtue" in items_per_type:
+        for virtue in items_per_type["Virtue"]:
+            contrib = {s: 0.0 for s in opt_stats}
+            for item_stat, value in virtue["Stats"].items():
+                if item_stat in SECONDARY2TERTIARY_MAPPING:
+                    for tertiary_stat in SECONDARY2TERTIARY_MAPPING[item_stat]:
+                        if tertiary_stat in contrib:
+                            contrib[tertiary_stat] += value
+                else:
+                    if item_stat in contrib:
+                        contrib[item_stat] += value
+                if item_stat in MAIN_STATS:
+                    for secondary_stat, multiplier in character_class_stats[item_stat].items():
+                        if secondary_stat in contrib:
+                            contrib[secondary_stat] += math.floor(value * multiplier)
+            virtue_contrib.append(contrib)
+
     prob = pulp.LpProblem("GearOptimization", pulp.LpMaximize)
 
-    # Decision variables: x[(i, j)] = 1 if slot i uses item j
+    # Decision variables: x[(i, j)] = 1 if non-virtue slot i uses item j
     x = {}
     for i, t in enumerate(item_types):
+        if t == "Virtue":
+            continue
         for j in range(len(items_per_type[t])):
             x[(i, j)] = pulp.LpVariable(f"x_{i}_{j}", cat='Binary')
 
-    # Constraint: each slot has exactly one item
+    # Virtue variables: y[j] = 1 if virtue j is selected (avoids slot symmetry)
+    y = {}
+    if n_virtue_slots and "Virtue" in items_per_type:
+        for j in range(len(items_per_type["Virtue"])):
+            y[j] = pulp.LpVariable(f"y_{j}", cat='Binary')
+
+    # Constraint: each non-virtue slot has exactly one item
     for i, t in enumerate(item_types):
+        if t == "Virtue":
+            continue
         prob += pulp.lpSum(x[(i, j)] for j in range(len(items_per_type[t]))) == 1
+
+    # Constraint: pick exactly n_virtue_slots virtues (replaces per-slot virtue constraints)
+    if y:
+        prob += pulp.lpSum(y[j] for j in y) == n_virtue_slots
 
     # Constraint: essence quantity limits
     essence_slots = [i for i, t in enumerate(item_types) if t == "Essence"]
     if essence_slots:
-        for j, essence in enumerate(items_per_type["Essence"]):
-            essence_name = essence["Name"]
-            quantity_limit = essence_quantity_limits.get(essence_name, -1)
+        for j, item in enumerate(items_per_type["Essence"]):
+            item_name = item["Name"]
+            quantity_limit = essence_quantity_limits.get(item_name, -1)
             if quantity_limit != -1:
                 prob += pulp.lpSum(x[(i, j)] for i in essence_slots) <= quantity_limit
 
@@ -1132,9 +813,14 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
         gear_contrib = pulp.lpSum(
             slot_item_contrib[i][j][stat] * x[(i, j)]
             for i, t in enumerate(item_types)
+            if t != "Virtue"
             for j in range(len(items_per_type[t]))
         )
-        total_rating[stat] = base + gear_contrib
+        virtue_total = pulp.lpSum(
+            virtue_contrib[j][stat] * y[j]
+            for j in y
+        ) if y else 0
+        total_rating[stat] = base + gear_contrib + virtue_total
 
     # Hard constraints: minimum required ratings
     for stat, req in requirements_ratings.items():
@@ -1173,13 +859,23 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
         return None, -1, {}, 0, {}
 
     # Extract solution: for each slot pick the chosen item index
+    # For virtue slots, assign chosen virtues (from y variables) sequentially
+    chosen_virtue_indices = []
+    if y:
+        chosen_virtue_indices = [j for j in y if round(pulp.value(y[j]) or 0) == 1]
+
     best_combination = []
+    virtue_slot_cursor = 0
     for i, t in enumerate(item_types):
-        chosen = 0
-        for j in range(len(items_per_type[t])):
-            if round(pulp.value(x[(i, j)]) or 0) == 1:
-                chosen = j
-                break
+        if t == "Virtue":
+            chosen = chosen_virtue_indices[virtue_slot_cursor] if virtue_slot_cursor < len(chosen_virtue_indices) else 0
+            virtue_slot_cursor += 1
+        else:
+            chosen = 0
+            for j in range(len(items_per_type[t])):
+                if round(pulp.value(x[(i, j)]) or 0) == 1:
+                    chosen = j
+                    break
         best_combination.append(chosen)
 
     best_combination = tuple(best_combination)

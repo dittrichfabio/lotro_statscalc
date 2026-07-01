@@ -42,5 +42,28 @@
         "PartialEvadeMitigationRating": 8494,
         "PhysicalMitigationRating": 11228,
         "TacticalMitigationRating": 6920
+    },
+    "Virtues": {
+        "Charity": 50,
+        "Compassion": 50,
+        "Confidence": 50,
+        "Determination": 50,
+        "Discipline": 50,
+        "Empathy": 50,
+        "Fidelity": 50,
+        "Fortitude": 50,
+        "Honesty": 50,
+        "Honour": 50,
+        "Idealism": 50,
+        "Innocence": 50,
+        "Justice": 50,
+        "Loyalty": 50,
+        "Mercy": 50,
+        "Patience": 50,
+        "Tolerance": 50,
+        "Valour": 50,
+        "Wisdom": 50,
+        "Wit": 50,
+        "Zeal": 50
     }
 }

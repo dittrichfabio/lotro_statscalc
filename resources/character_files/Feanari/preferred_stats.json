@@ -1,6 +1,7 @@
 {
-    "items_to_pick": {
-        "Essence": 24
+    "optimization_choices": {
+        "Essence": 24,
+        "Virtue": 5
     },
     "roles": {
         "dps": {
@@ -15,15 +16,15 @@
                 "TacticalMitigation"
             ],
             "stat_requirements": [
-                "TacticalOffenceDamage=200",
                 "CriticalHitChanceTactical=25",
                 "Finesse=30",
-                "PhysicalMitigation=40",
                 "TacticalMitigation=40",
                 "Morale"
             ],
             "stat_requirements_bkp": [
+                "TacticalOffenceDamage=200",
                 "CriticalHitChanceTactical=25",
+                "PhysicalMitigation=40",
                 "Morale"
             ],
             "set_restrictions": []

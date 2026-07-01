@@ -137,94 +137,6 @@ def find_best_essences(character_name, items_file, priorities_string):
     priorities = priorities_string.split("|")
 
 
-@cli.command('find_optimal_essences')
-@click.argument('character_name', required=True)
-@click.argument('essences_file', required=True)
-@click.argument('role', required=True)
-@click.option('--algorithm', required=False, default='brute_force', type=click.Choice(['brute_force', 'greedy', 'simulated_annealing', 'ilp']), help='Optimization algorithm to use')
-def find_optimal_essences(character_name, essences_file, role, algorithm):
-    character = json.load(open(os.path.join(STATSCALC, "resources", "character_files", character_name, f"{role}_stats.json")))
-    character_class = character["Class"]
-    character_level = character["Level"]
-    character_class_stats = CLASSES_STATS[character_class]
-    character_armour = character_class_stats["Type"]
-    character_stats = character["Stats"]
-    level_index = lvl_index(character_level)
-    stats_to_print = []
-
-    stat_requirements, stats_to_print, items_to_pick = load_preferred_stats(character_name, role)
-
-    requirements_ratings = get_ratings_for_requirements(stat_requirements, character_level, character_armour) if stat_requirements else {}
-
-    # Prepare essences only
-    items_per_type, items_ids, essence_quantity_limits = prepare_essences_only(essences_file, items_to_pick)
-
-    print(items_to_pick, "\n")
-    print(items_per_type, "\n")
-    print(items_ids, "\n")
-
-    item_types = [i.split('#')[0] for i in items_ids]
-    list_of_possibilities = [items_ids[i] for i in items_ids]
-    
-    stats_rcap = get_all_stats_Rcap(character_level, character_armour)
-
-    # Route to appropriate algorithm
-    if algorithm == 'brute_force':
-        best_combination, best_combination_value, best_combination_overcapped_stats, best_combination_overcap_value, best_combination_stats = find_optimal_combination_brute_force(
-            item_types, items_per_type, items_ids, list_of_possibilities, 
-            character_stats, character_class_stats, stats_rcap, requirements_ratings, 
-            essence_quantity_limits, stat_requirements, character_level, character_armour
-        )
-    elif algorithm == 'greedy':
-        best_combination, best_combination_value, best_combination_overcapped_stats, best_combination_overcap_value, best_combination_stats = find_optimal_combination_greedy(
-            item_types, items_per_type, items_ids, 
-            character_stats, character_class_stats, stats_rcap, requirements_ratings,
-            essence_quantity_limits, stat_requirements, character_level, character_armour
-        )
-    elif algorithm == 'simulated_annealing':
-        best_combination, best_combination_value, best_combination_overcapped_stats, best_combination_overcap_value, best_combination_stats = find_optimal_combination_simulated_annealing(
-            item_types, items_per_type, items_ids,
-            character_stats, character_class_stats, stats_rcap, requirements_ratings,
-            essence_quantity_limits, stat_requirements, character_level, character_armour
-        )
-    elif algorithm == 'ilp':
-        best_combination, best_combination_value, best_combination_overcapped_stats, best_combination_overcap_value, best_combination_stats = find_optimal_combination_ilp(
-            item_types, items_per_type, items_ids,
-            character_stats, character_class_stats, stats_rcap, requirements_ratings,
-            essence_quantity_limits, stat_requirements, character_level, character_armour
-        )
-
-    # Print results
-    if best_combination_value > 0:
-        total_best_combination_value = 0
-        for stat in best_combination_stats:
-            total_best_combination_value += best_combination_stats[stat]
-        print(f"Found best combination {best_combination} with value {best_combination_value} and overcap {best_combination_overcap_value}. Total combination value: {total_best_combination_value}")
-        print("Overcapped stats:")
-        for i in best_combination_overcapped_stats:
-            print(i, best_combination_overcapped_stats[i])
-        print()
-        for index, item_type_index in enumerate(best_combination):
-            item_type_name = item_types[index]
-            item = items_per_type[item_type_name][item_type_index]
-            print(item["Name"])
-        print()
-        for stat in best_combination_stats:
-            fstat = RATING2PERCENTAGE_FINAL_STATS.get(stat, stat)
-            if fstat != stat:
-                stat_info = STATS_INFO.get(get_stats_info_key(fstat, character_armour))
-                if stat_info:
-                    a = stat_info["A"]
-                    b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
-                    percentage = PfromR(r=best_combination_stats[stat], a=a, b=b)
-                    print(f"{fstat} {round(percentage, 2)}%\n\t{stat} {best_combination_stats[stat]}")
-            else:
-                if fstat in stats_to_print:
-                    print(f"{stat} {best_combination_stats[stat]}")
-    else:
-        print(f"Couldn't find a combination that satisfies {stat_requirements}.")
-
-
 @cli.command('compare_items')
 @click.argument('character_name', required=True)
 @click.argument('items_file', required=True)
@@ -236,39 +148,44 @@ def compare_items(character_name, items_file, priorities_string):
     priorities = priorities_string.split("|")
 
 
-@cli.command('find_optimal_items')
+@cli.command('find_optimal_gear')
 @click.argument('character_name', required=True)
-@click.argument('items_file', required=True)
+@click.argument('gear_file', required=True)
 @click.argument('role', required=True)
-@click.option('--essences-file', required=False, default=None, help='Path to available essences JSON file')
-@click.option('--algorithm', required=False, default='brute_force', type=click.Choice(['brute_force', 'greedy', 'simulated_annealing', 'ilp']), help='Optimization algorithm to use')
-def find_optimal_items(character_name, items_file, role, essences_file, algorithm):
-    character = json.load(open(os.path.join(STATSCALC, "resources", "character_files", character_name, f"{role}_stats.json")))  #TODO: not all characters have a {role}_stats.json"
+def find_optimal_gear(character_name, gear_file, role):
+    character = json.load(open(os.path.join(STATSCALC, "resources", "character_files", character_name, f"{role}_stats.json")))
     character_class = character["Class"]
     character_level = character["Level"]
     character_class_stats = CLASSES_STATS[character_class]
     character_armour = character_class_stats["Type"]
     character_stats = character["Stats"]
     level_index = lvl_index(character_level)
-    #extra_stats = character["ExtraStats"]
-    stats_to_print = []
 
     stat_requirements, stats_to_print, items_to_pick = load_preferred_stats(character_name, role)
 
-    #print(stat_requirements)
-    #print(stats_to_print)
-    #print(items_to_pick)
-
-    #TODO: redefine how value is computed to have the same value added independent of stat
-
-    #TODO: when loading preferred_stats, make sure that stat actually exist
-
-    #TODO: add a way to define how many of each type we want to equip
-    #combination (1, 1, 0, 0, 0, 2) would be invalid if we want 2 0s, 2 1s, 2 2s
-
     requirements_ratings = get_ratings_for_requirements(stat_requirements, character_level, character_armour) if stat_requirements else {}
 
-    items_per_type, items_ids, essence_quantity_limits = prepare_items(items_file, items_to_pick, essences_file)
+    # Load unified gear file
+    gear_json = json.load(open(gear_file))
+    available_items = gear_json.get("available_items", [])
+    available_essences = gear_json.get("available_essences", [])
+    buffs = gear_json.get("buffs", [])
+
+    # Apply active buffs as flat stat additions to character stats
+    for buff in buffs:
+        if buff.get("active", False):
+            buff_stats = buff.get("Stats", {})
+            for stat, value in buff_stats.items():
+                character_stats[stat] = character_stats.get(stat, 0) + value
+
+    # Resolve virtue items from character's available virtues
+    virtues_dict = character.get("Virtues", {})
+    virtues_items = resolve_virtue_items(virtues_dict) if virtues_dict else None
+
+    # Prepare items with essences and virtues
+    items_per_type, items_ids, essence_quantity_limits = prepare_items(
+        gear_file, items_to_pick, virtues_items=virtues_items
+    )
 
     print(items_to_pick, "\n")
     print(items_per_type, "\n")
@@ -279,39 +196,14 @@ def find_optimal_items(character_name, items_file, role, essences_file, algorith
     
     stats_rcap = get_all_stats_Rcap(character_level, character_armour)
 
-    # Route to selected algorithm
-    if algorithm == 'brute_force':
-        best_combination, best_combination_value, best_combination_overcapped_stats, best_combination_overcap_value, best_combination_stats = find_optimal_combination_brute_force(
-            item_types, items_per_type, items_ids, list_of_possibilities,
-            character_stats, character_class_stats, stats_rcap, requirements_ratings,
-            essence_quantity_limits, stat_requirements, character_level, character_armour
-        )
-    elif algorithm == 'greedy':
-        best_combination, best_combination_value, best_combination_overcapped_stats, best_combination_overcap_value, best_combination_stats = find_optimal_combination_greedy(
-            item_types, items_per_type, items_ids,
-            character_stats, character_class_stats, stats_rcap, requirements_ratings,
-            essence_quantity_limits, stat_requirements, character_level, character_armour
-        )
-    elif algorithm == 'simulated_annealing':
-        best_combination, best_combination_value, best_combination_overcapped_stats, best_combination_overcap_value, best_combination_stats = find_optimal_combination_simulated_annealing(
-            item_types, items_per_type, items_ids,
-            character_stats, character_class_stats, stats_rcap, requirements_ratings,
-            essence_quantity_limits, stat_requirements, character_level, character_armour
-        )
-    elif algorithm == 'ilp':
-        best_combination, best_combination_value, best_combination_overcapped_stats, best_combination_overcap_value, best_combination_stats = find_optimal_combination_ilp(
-            item_types, items_per_type, items_ids,
-            character_stats, character_class_stats, stats_rcap, requirements_ratings,
-            essence_quantity_limits, stat_requirements, character_level, character_armour
-        )
-    else:
-        print(f"Unknown algorithm: {algorithm}")
-        return
-    
-    #TODO: print stats increases from base along with each new stat
-    #TODO: not all avoidance results not being printed... some rounding differences...
-    #TODO: make char.json be a param so that we can use different stat files
+    # Use ILP algorithm
+    best_combination, best_combination_value, best_combination_overcapped_stats, best_combination_overcap_value, best_combination_stats = find_optimal_combination_ilp(
+        item_types, items_per_type, items_ids,
+        character_stats, character_class_stats, stats_rcap, requirements_ratings,
+        essence_quantity_limits, stat_requirements, character_level, character_armour
+    )
 
+    # Print results
     if best_combination_value > 0:
         total_best_combination_value = 0
         for stat in best_combination_stats:
