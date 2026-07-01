@@ -130,9 +130,6 @@ TERTIARY_STATS = [
     # Physical mastery breakdown
     "PhysicalMasteryRatingMelee",
     "PhysicalMasteryRatingRange",
-    # Tactical mastery breakdown
-    "TacticalOffenceRating",
-    "TacticalOutgoingHealingRating",
     # Avoidance breakdown
     "BlockChanceRating",
     "PartialBlockChanceRating",
@@ -162,10 +159,6 @@ SECONDARY2TERTIARY_MAPPING = {
         "PhysicalMasteryRatingMelee",
         "PhysicalMasteryRatingRange"
     ],
-    "TacticalMasteryRating": [
-        "TacticalOffenceRating",
-        "TacticalOutgoingHealingRating"
-    ],
     "BlockChanceRating": [
         "BlockChanceRating",
         "PartialBlockChanceRating",
@@ -192,7 +185,6 @@ TERTIARY_STAT_BASE_MAP = {
     "CriticalMagnitudeRatingRange":    "CriticalRatingRange",
     "DevastatingRatingTactical":       "CriticalRatingTactical",
     "CriticalMagnitudeRatingTactical": "CriticalRatingTactical",
-    "TacticalOutgoingHealingRating":   "TacticalOffenceRating",
     "PartialBlockChanceRating":        "BlockChanceRating",
     "PartialBlockMitigationRating":    "BlockChanceRating",
     "PartialParryChanceRating":        "ParryChanceRating",
