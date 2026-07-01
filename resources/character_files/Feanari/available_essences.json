@@ -1,0 +1,213 @@
+[
+    {
+        "Name": "Major Essence of Might",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "Might": 94
+        }
+    },
+    {
+        "Name": "Major Essence of Agility",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "Agility": 94
+        }
+    },
+    {
+        "Name": "Major Essence of Will",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "Will": 94
+        }
+    },
+    {
+        "Name": "Major Essence of Morale",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "Morale": 528
+        }
+    },
+    {
+        "Name": "Major Essence of Critical Rating",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "CriticalRating": 529
+        }
+    },
+    {
+        "Name": "Major Essence of Critical Defence",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "CriticalDefenceRating": 708
+        }
+    },
+    {
+        "Name": "Major Essence of Physical Mastery",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "PhysicalMasteryRating": 450
+        }
+    },
+    {
+        "Name": "Major Essence of Tactical Mastery",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "TacticalMasteryRating": 450
+        }
+    },
+    {
+        "Name": "Major Essence of Physical Mitigation",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "PhysicalMitigationRating": 531
+        }
+    },
+    {
+        "Name": "Major Essence of Tactical Mitigation",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "TacticalMitigationRating": 531
+        }
+    },
+    {
+        "Name": "Major Essence of Finesse",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "FinesseRating": 708
+        }
+    },
+    {
+        "Name": "Major Essence of Blocking",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "BlockChanceRating": 743
+        }
+    },
+    {
+        "Name": "Major Essence of Parrying",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "ParryChanceRating": 743
+        }
+    },
+    {
+        "Name": "Major Essence of Evasion",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "EvadeChanceRating": 743
+        }
+    },
+    {
+        "Name": "Ithilien Essence of Might",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "Might": 88,
+            "PhysicalMasteryRating": 105
+        }
+    },
+    {
+        "Name": "Ithilien Essence of Agility",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "Agility": 88,
+            "PhysicalMasteryRating": 105
+        }
+    },
+    {
+        "Name": "Ithilien Essence of Will",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "Will": 88,
+            "TacticalMasteryRating": 105
+        }
+    },
+    {
+        "Name": "Ithilien Essence of Vitality",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "Vitality": 86,
+            "PhysicalMasteryRating": 105
+        }
+    },
+    {
+        "Name": "Ithilien Essence of Fate",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "Fate": 72,
+            "TacticalMasteryRating": 105
+        }
+    },
+    {
+        "Name": "Ithilien Essence of Morale",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "Morale": 493,
+            "Fate": 18
+        }
+    },
+    {
+        "Name": "Ithilien Essence of Critical Rating",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "CriticalRating": 495,
+            "CriticalDefenceRating": 165
+        }
+    },
+    {
+        "Name": "Ithilien Essence of Physical Mastery",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "PhysicalMasteryRating": 421,
+            "CriticalRating": 124
+        }
+    },
+    {
+        "Name": "Ithilien Essence of Tactical Mastery",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "TacticalMasteryRating": 421,
+            "CriticalRating": 124
+        }
+    },
+    {
+        "Name": "Ithilien Essence of Physical Mitigation",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "PhysicalMitigationRating": 496,
+            "CriticalDefenceRating": 165
+        }
+    },
+    {
+        "Name": "Ithilien Essence of Tactical Mitigation",
+        "Type": "Essence",
+        "QuantityAvailable": -1,
+        "Stats": {
+            "TacticalMitigationRating": 496,
+            "CriticalDefenceRating": 165
+        }
+    }
+]

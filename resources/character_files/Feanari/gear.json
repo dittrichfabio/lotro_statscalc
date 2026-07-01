@@ -1,0 +1,251 @@
+{
+    "available_items": [
+        {
+            "Name": "Exquisite Radiant Dwarf-Make Shoulder Guards",
+            "Type": "Shoulders",
+            "Stats": {
+                "Armour": 41,
+                "Will": 21,
+                "Vitality": 14,
+                "TacticalMasteryRating": 77
+            }
+        },
+        {
+            "Name": "Exquisite Radiant Dwarf-Make Gloves",
+            "Type": "Gloves",
+            "Stats": {
+                "Armour": 69,
+                "Will": 21,
+                "Vitality": 14,
+                "TacticalMasteryRating": 77
+            }
+        },
+        {
+            "Name": "Exquisite Radiant Shoes",
+            "Type": "Boots",
+            "Stats": {
+                "Armour": 56,
+                "Will": 21,
+                "Vitality": 14,
+                "TacticalMasteryRating": 77
+            }
+        },
+        {
+            "Name": "Exquisite Radiant Elven Shoulder Guards",
+            "Type": "Shoulders",
+            "Stats": {
+                "Armour": 41,
+                "Will": 21,
+                "Vitality": 14,
+                "CriticalRating": 90
+            }
+        },
+        {
+            "Name": "Exquisite Radiant Westernesse Gloves",
+            "Type": "Gloves",
+            "Stats": {
+                "Armour": 69,
+                "Will": 21,
+                "Vitality": 14,
+                "CriticalRating": 90
+            }
+        },
+        {
+            "Name": "Exquisite Radiant Westernesse Shoes",
+            "Type": "Boots",
+            "Stats": {
+                "Armour": 56,
+                "Will": 21,
+                "Vitality": 14,
+                "CriticalRating": 90
+            }
+        }
+    ],
+    "available_essences": [
+        {
+            "Name": "Major Essence of Might",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "Might": 94
+            }
+        },
+        {
+            "Name": "Major Essence of Agility",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "Agility": 94
+            }
+        },
+        {
+            "Name": "Major Essence of Will",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "Will": 94
+            }
+        },
+        {
+            "Name": "Major Essence of Morale",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "Morale": 528
+            }
+        },
+        {
+            "Name": "Major Essence of Critical Rating",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "CriticalRating": 529
+            }
+        },
+        {
+            "Name": "Major Essence of Critical Defence",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "CriticalDefenceRating": 708
+            }
+        },
+        {
+            "Name": "Major Essence of Physical Mastery",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "PhysicalMasteryRating": 450
+            }
+        },
+        {
+            "Name": "Major Essence of Tactical Mastery",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "TacticalMasteryRating": 450
+            }
+        },
+        {
+            "Name": "Major Essence of Physical Mitigation",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "PhysicalMitigationRating": 531
+            }
+        },
+        {
+            "Name": "Major Essence of Tactical Mitigation",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "TacticalMitigationRating": 531
+            }
+        },
+        {
+            "Name": "Major Essence of Finesse",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "FinesseRating": 708
+            }
+        },
+        {
+            "Name": "Ithilien Essence of Will",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "Will": 88,
+                "TacticalMasteryRating": 105
+            }
+        },
+        {
+            "Name": "Ithilien Essence of Critical Rating",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "CriticalRating": 495,
+                "CriticalDefenceRating": 165
+            }
+        },
+        {
+            "Name": "Ithilien Essence of Tactical Mastery",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "TacticalMasteryRating": 421,
+                "CriticalRating": 124
+            }
+        },
+        {
+            "Name": "Ithilien Essence of Tactical Mitigation",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "TacticalMitigationRating": 496,
+                "CriticalDefenceRating": 165
+            }
+        }
+    ],
+    "buffs": [
+        {
+            "Name": "Scroll of Anórien Battle Lore",
+            "active": true,
+            "Stats": {
+                "TacticalMasteryRating": 439,
+                "PhysicalMasteryRating": 439
+            }
+        },
+        {
+            "Name": "Scroll of Anórien Warding Lore",
+            "active": true,
+            "Stats": {
+                "TacticalMitigationRating": 257,
+                "PhysicalMitigationRating": 257
+            }
+        },
+        {
+            "Name": "Anórien Beans and Tater Soup",
+            "active": true,
+            "Stats": {
+                "ResistanceRating": 2610
+            }
+        },
+        {
+            "Name": "Superior Anórien Beans and Tater Soup",
+            "active": true,
+            "Stats": {
+                "ResistanceRating": 2610
+            }
+        },
+        {
+            "Name": "Feast of Anórien",
+            "active": true,
+            "Stats": {
+                "Agility": 166,
+                "Might": 166,
+                "Will": 166,
+                "Fate": 135
+            }
+        },
+        {
+            "Name": "Superior Feast of Anórien",
+            "active": true,
+            "Stats": {
+                "Agility": 166,
+                "Might": 166,
+                "Will": 166,
+                "Fate": 135,
+                "Vitality": 162
+            }
+        },
+        {
+            "Name": "Westemnet Edhelharn Token",
+            "active": false,
+            "Stats": {
+                "ResistanceRating": 328,
+                "Hope": 6
+            }
+        }
+    ]
+}

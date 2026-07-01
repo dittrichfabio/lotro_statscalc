@@ -148,139 +148,62 @@ def compare_items(character_name, items_file, priorities_string):
     priorities = priorities_string.split("|")
 
 
-@cli.command('find_optimal_items')
+@cli.command('find_optimal_gear')
 @click.argument('character_name', required=True)
-@click.argument('items_file', required=True)
+@click.argument('gear_file', required=True)
 @click.argument('role', required=True)
-def find_optimal_items(character_name, items_file, role):
-    character = json.load(open(os.path.join(STATSCALC, "resources", "character_files", character_name, f"{role}_stats.json")))  #TODO: not all characters have a {role}_stats.json"
+def find_optimal_gear(character_name, gear_file, role):
+    character = json.load(open(os.path.join(STATSCALC, "resources", "character_files", character_name, f"{role}_stats.json")))
     character_class = character["Class"]
     character_level = character["Level"]
     character_class_stats = CLASSES_STATS[character_class]
     character_armour = character_class_stats["Type"]
     character_stats = character["Stats"]
     level_index = lvl_index(character_level)
-    #extra_stats = character["ExtraStats"]
-    stats_to_print = []
 
     stat_requirements, stats_to_print, items_to_pick = load_preferred_stats(character_name, role)
 
-    #print(stat_requirements)
-    #print(stats_to_print)
-    #print(items_to_pick)
-
-    #TODO: redefine how value is computed to have the same value added independent of stat
-
-    #TODO: when loading preferred_stats, make sure that stat actually exist
-
-    #TODO: add a way to define how many of each type we want to equip
-    #combination (1, 1, 0, 0, 0, 2) would be invalid if we want 2 0s, 2 1s, 2 2s
-
     requirements_ratings = get_ratings_for_requirements(stat_requirements, character_level, character_armour) if stat_requirements else {}
 
-    items_per_type, items_ids = prepare_items(items_file, items_to_pick)
+    # Load unified gear file
+    gear_json = json.load(open(gear_file))
+    available_items = gear_json.get("available_items", [])
+    available_essences = gear_json.get("available_essences", [])
+    buffs = gear_json.get("buffs", [])
 
-    #print(items_to_pick, "\n")
-    #print(items_per_type, "\n")
-    #print(items_ids, "\n")
+    # Apply active buffs as flat stat additions to character stats
+    for buff in buffs:
+        if buff.get("active", False):
+            buff_stats = buff.get("Stats", {})
+            for stat, value in buff_stats.items():
+                character_stats[stat] = character_stats.get(stat, 0) + value
+
+    # Resolve virtue items from character's available virtues
+    virtues_dict = character.get("Virtues", {})
+    virtues_items = resolve_virtue_items(virtues_dict) if virtues_dict else None
+
+    # Prepare items with essences and virtues
+    items_per_type, items_ids, essence_quantity_limits = prepare_items(
+        gear_file, items_to_pick, virtues_items=virtues_items
+    )
+
+    print(items_to_pick, "\n")
+    print(items_per_type, "\n")
+    print(items_ids, "\n")
 
     item_types = [i.split('#')[0] for i in items_ids]
     list_of_possibilities = [items_ids[i] for i in items_ids]
-    all_combinations = list(itertools.product(*list_of_possibilities))
-
+    
     stats_rcap = get_all_stats_Rcap(character_level, character_armour)
 
-    #print(requirements_ratings)
-    #print(stats_rcap)
+    # Use ILP algorithm
+    best_combination, best_combination_value, best_combination_overcapped_stats, best_combination_overcap_value, best_combination_stats = find_optimal_combination_ilp(
+        item_types, items_per_type, items_ids,
+        character_stats, character_class_stats, stats_rcap, requirements_ratings,
+        essence_quantity_limits, stat_requirements, character_level, character_armour
+    )
 
-    #print(len(all_combinations))
-    #print(stats_rcap["FinesseRating"])
-    #print(character_stats["FinesseRating"])
-    #print(requirements_ratings["FinesseRating"])
-    #print((requirements_ratings["FinesseRating"]-character_stats["FinesseRating"])/708)
-    #sys.exit(0)
-
-    #TODO: prune all_combinations here
-    #for instance, if we need items with a particular stat to get to the desired value, combinations that don't add that stat should be removed
-    combination_extra_stats = []
-    #for comb_num, combination in enumerate(all_combinations):
-    #    print(combination)
-    #    sys.exit(0)
-
-    #print(stats_rcap)
-    #sys.exit(0)
-
-    best_combination = None
-    best_combination_value = -1
-    best_combination_stats = None
-    #for comb_num, combination in enumerate(all_combinations):
-    #    #if comb_num % 1000 == 0:
-    #    #    print(comb_num)
-    #    #print(combination)
-    #    combination_items = []
-    #    for index, item_type_index in enumerate(combination):
-    #        item_type_name = item_types[index]
-    #        item = items_per_type[item_type_name][item_type_index]
-    #        #print(item_type_name)
-    #        #print(item)
-    #        #print(item_type_name, item_type_index, item)
-    #        combination_items.append(item)
-    #    #print(combination_items)
-    #    #print(character_stats)
-    #    new_stats = equip_items(character_stats, character_class_stats, combination_items)
-    #    #print(new_stats)
-    #    for stat in new_stats:
-    #        if stat in stats_rcap:
-    #            if new_stats[stat] > stats_rcap[stat]:
-    #                new_stats[stat] = stats_rcap[stat]
-    #    #print(new_stats)
-    #    combination_value = define_combination_value(new_stats, requirements_ratings)
-    #    if combination_value > best_combination_value:
-    #        best_combination = combination
-    #        best_combination_value = combination_value
-    #        best_combination_stats = new_stats
-
-    #all_combinations = [(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1)]
-
-
-    #Aeoref:
-    #DPS: 2 1s, 2 2s -> (1, 2, 0, 0, 1, 2)
-    #all_combinations = [c for c in all_combinations if c.count(0)>=0 and c.count(1)>=2 and c.count(2)>=2] 
-    
-    #Healer: 4 0s    -> (0, 1, 0, 0, 2, 0)
-    #all_combinations = [c for c in all_combinations if c.count(0)>=4 and c.count(1)>=0 and c.count(2)>=0]
-
-    #Tank: 2 0s 4 2s  -> (2, 2, 0, 0, 2, 2)
-    #all_combinations = [c for c in all_combinations if c.count(0)>=2 and c.count(1)>=0 and c.count(2)>=4]
-
-
-    #Kevoth
-    #Tank: (1, 1, 0, 1, 0, 1, 1, 1, 3, 3, 4, 4, 4, 4, 2)
-    #DPS:  (0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 1)
-
-
-
-    penalize_overcapping = True
-    partial_process_item = partial(process_combination, item_types=item_types, items_per_type=items_per_type, character_stats=character_stats, character_class_stats=character_class_stats, stats_rcap=stats_rcap, requirements_ratings=requirements_ratings, penalize_overcapping=penalize_overcapping)
-    combination_results = Parallel(n_jobs=-1)(delayed(partial_process_item)(combination) for combination in all_combinations)
-    combination_values = [(i[0], i[1]) for i in combination_results]
-    combination_values = dict(combination_values)
-    overcaped_stats = [(i[0], i[2]) for i in combination_results]
-    overcaped_stats = dict(overcaped_stats)
-    overcap_value = [(i[0], i[3]) for i in combination_results]
-    overcap_value = dict(overcap_value)
-    new_stats = [(i[0], i[4]) for i in combination_results]
-    new_stats = dict(new_stats)
-    best_combination = sorted(combination_values, key=combination_values.get, reverse=True)[0]
-    best_combination_value = combination_values.get(best_combination)
-    best_combination_overcapped_stats = overcaped_stats.get(best_combination)
-    best_combination_overcap_value = overcap_value.get(best_combination)
-    best_combination_stats = new_stats.get(best_combination)
-    
-    #TODO: print stats increases from base along with each new stat
-    #TODO: not all avoidance results not being printed... some rounding differences...
-    #TODO: make char.json be a param so that we can use different stat files
-
+    # Print results
     if best_combination_value > 0:
         total_best_combination_value = 0
         for stat in best_combination_stats:
@@ -298,11 +221,8 @@ def find_optimal_items(character_name, items_file, role):
         for stat in best_combination_stats:
             fstat = RATING2PERCENTAGE_FINAL_STATS.get(stat, stat)
             if fstat != stat:
-                #if fstat in stats_to_print:
-                    if fstat in ["PhysicalMitigation", "TacticalMitigation"]:
-                        stat_info = STATS_INFO[f"{character_armour}{fstat}"]
-                    else:
-                        stat_info = STATS_INFO.get(fstat, False)
+                stat_info = STATS_INFO.get(get_stats_info_key(fstat, character_armour))
+                if stat_info:
                     a = stat_info["A"]
                     b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
                     percentage = PfromR(r=best_combination_stats[stat], a=a, b=b)
@@ -316,9 +236,10 @@ def find_optimal_items(character_name, items_file, role):
 
 @cli.command('convert_plugin_data_to_json')
 @click.argument('character_name', required=True)
+@click.argument('server', required=False)
 @click.argument('filename', required=True)
-def convert_plugin_data_to_json(character_name, filename):
-    stats_file = os.path.join(plugin_char_path.format(character_name=character_name), "Stats.plugindata")
+def convert_plugin_data_to_json(character_name, server, filename):
+    stats_file = os.path.join(plugin_char_path.format(character_name=character_name, server=server), "Stats.plugindata")
     char_folder = os.path.join(STATSCALC, "stat_files", character_name)
     if not os.path.exists(char_folder):
         os.makedirs(char_folder)
@@ -337,10 +258,13 @@ def convert_plugin_data_to_json(character_name, filename):
                 data[key] = value.strip('"')
         else:
             try:
-                stats[key] = float(value)
+                stats[key] = round(float(value))
             except ValueError:
                 stats[key] = value.strip('"')
-    stats = {key: stats[key] for key in sorted(stats, key=lambda x: char_stat_sorting_order.index(x))}
+    for missing_stat, base_stat in TERTIARY_STAT_BASE_MAP.items():
+        if missing_stat not in stats and base_stat in stats:
+            stats[missing_stat] = stats[base_stat]
+    stats = {key: stats[key] for key in sorted(stats, key=lambda x: char_stat_sorting_order.index(x)) if key in char_stat_sorting_order}
     data["Stats"] = stats
 
     with open(os.path.join(char_folder, filename), 'w') as f:

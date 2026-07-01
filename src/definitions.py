@@ -4,9 +4,58 @@ import sys
 import copy
 import json
 import math
+import itertools
 
 STAT= re.compile(r'\["(.*?)"] = (.*?)[,\n]')
-char_stat_sorting_order = ["Morale", "InCombatMoraleRegeneration", "NonCombatMoraleRegeneration", "Power", "InCombatPowerRegeneration", "NonCombatPowerRegeneration", "Armour", "Might", "Agility", "Vitality", "Will", "Fate", "CriticalRatingMelee", "CriticalRatingRange", "CriticalRatingTactical", "FinesseRating", "PhysicalMasteryRatingMelee", "PhysicalMasteryRatingRange", "TacticalMasteryRating", "OutgoingHealingRating", "ResistanceRating", "CriticalDefenceRating", "IncomingHealingRating", "BlockChanceRating", "PartialBlockChanceRating", "PartialBlockMitigationRating", "ParryChanceRating", "PartialParryChanceRating", "PartialParryMitigationRating", "EvadeChanceRating", "PartialEvadeChanceRating", "PartialEvadeMitigationRating", "PhysicalMitigationRating", "TacticalMitigationRating"]
+char_stat_sorting_order = [
+    # Primary stats
+    "Armour",
+    "Morale",
+    "InCombatMoraleRegeneration",
+    "NonCombatMoraleRegeneration",
+    "Power",
+    "InCombatPowerRegeneration",
+    "NonCombatPowerRegeneration",
+    # Main stats
+    "Might",
+    "Agility",
+    "Vitality",
+    "Will",
+    "Fate",
+    # Critical ratings
+    "CriticalRatingMelee",
+    "CriticalRatingRange",
+    "CriticalRatingTactical",
+    "DevastatingRatingMelee",
+    "DevastatingRatingRange",
+    "DevastatingRatingTactical",
+    "CriticalMagnitudeRatingMelee",
+    "CriticalMagnitudeRatingRange",
+    "CriticalMagnitudeRatingTactical",
+    # Mastery ratings
+    "FinesseRating",
+    "PhysicalMasteryRatingMelee",
+    "PhysicalMasteryRatingRange",
+    "TacticalMasteryRating",
+    "OutgoingHealingRating",
+    # Defence ratings
+    "ResistanceRating",
+    "CriticalDefenceRating",
+    "IncomingHealingRating",
+    # Avoidance ratings
+    "BlockChanceRating",
+    "PartialBlockChanceRating",
+    "PartialBlockMitigationRating",
+    "ParryChanceRating",
+    "PartialParryChanceRating",
+    "PartialParryMitigationRating",
+    "EvadeChanceRating",
+    "PartialEvadeChanceRating",
+    "PartialEvadeMitigationRating",
+    # Mitigation ratings
+    "PhysicalMitigationRating",
+    "TacticalMitigationRating"
+]
 
 #Plugins data
 server = "Angmar"
@@ -24,25 +73,204 @@ Ropt = lambda c, Rcap: (math.sqrt(c+1)-1)/c*Rcap
 STATSCALC = os.environ.get('STATSCALC')
 STATS_INFO = json.load(open(os.path.join(STATSCALC, "resources", "stat_files", "stats_info.json")))
 CLASSES_STATS = json.load(open(os.path.join(STATSCALC, "resources", "stat_files", "classes_stats.json")))
+VIRTUE_STATS = json.load(open(os.path.join(STATSCALC, "resources", "stat_files", "virtue_stats.json")))
 
-#main stats that secondary and tertiary stats depend on
-MAIN_STATS = ["Armour", "Might", "Agility", "Vitality", "Will", "Fate"]
-#secondary stats that are computed from main ones, but can also be found in items
-SECONDARY_STATS = ["Morale", "InCombatMoraleRegeneration", "NonCombatMoraleRegeneration", "Power", "InCombatPowerRegeneration", "NonCombatPowerRegeneration", "CriticalRating", "FinesseRating", "PhysicalMasteryRating", "TacticalMasteryRating", "OutgoingHealingRating", "ResistanceRating", "CriticalDefenceRating", "IncomingHealingRating", "BlockChanceRating", "ParryChanceRating", "EvadeChanceRating", "PhysicalMitigationRating", "TacticalMitigationRating"]
-#tertiary stats that cannot be found in items and are derived from some secondary stats
-TERTIARY_STATS = ["CriticalRatingMelee", "DevastatingRatingMelee", "CriticalMagnitudeRatingMelee", "CriticalRatingRange", "DevastatingRatingRange", "CriticalMagnitudeRatingRange", "CriticalRatingTactical", "DevastatingRatingTactical", "CriticalMagnitudeRatingTactical", "PhysicalMasteryRatingMelee", "PhysicalMasteryRatingRange", "BlockChanceRating", "ParryChanceRating", "EvadeChanceRating", "PartialBlockChanceRating", "PartialParryChanceRating", "PartialEvadeChanceRating", "PartialBlockMitigationRating", "PartialParryMitigationRating", "PartialEvadeMitigationRating"]
-#the relationship between secondary and tertiary stats
-SECONDARY2TERTIARY_MAPPING = {"CriticalRating": ["CriticalRatingMelee", "CriticalRatingRange", "CriticalRatingTactical"], "PhysicalMasteryRating": ["PhysicalMasteryRatingMelee", "PhysicalMasteryRatingRange"], "BlockChanceRating": ["BlockChanceRating", "PartialBlockChanceRating", "PartialBlockMitigationRating"], "ParryChanceRating": ["ParryChanceRating", "PartialParryChanceRating", "PartialParryMitigationRating"], "EvadeChanceRating": ["EvadeChanceRating", "PartialEvadeChanceRating", "PartialEvadeMitigationRating"]}
-#the relationship between tertiary and secondary stats
-TERTIARY2SECONDARY_MAPPING = {tstat:stat for stat in SECONDARY2TERTIARY_MAPPING for tstat in SECONDARY2TERTIARY_MAPPING[stat]}
-#final stats in form of percentage and the secondary or tertiary stat it is associated to
-#FINAL_STATS = ["CriticalHitChanceMelee", "DevastatingHitChanceMelee", "Critical&DevastatingHitMagnitudeMelee", "CriticalHitChanceRange", "DevastatingHitChanceRange", "Critical&DevastatingHitMagnitudeRange", "CriticalHitChanceTactical", "DevastatingHitChanceTactical", "Critical&DevastatingHitMagnitudeTactical", "Finesse", "PhysicalDamageMelee", "PhysicalDamageRange", "TacticalOffenceDamage", "TacticalOutgoingHealing", "Resistance", "CriticalDefence", "IncomingHealing", "BlockChance", "PartialBlockChance", "PartialBlockMitigation", "ParryChance", "PartialParryChance", "PartialParryMitigation", "EvadeChance", "PartialEvadeChance", "PartialEvadeMitigation", "PhysicalMitigation", "TacticalMitigation"]
-FINAL_STATS = {"CriticalHitChanceMelee": "CriticalRatingMelee", "DevastatingHitChanceMelee": "DevastatingRatingMelee", "Critical&DevastatingHitMagnitudeMelee": "CriticalMagnitudeRatingMelee", "CriticalHitChanceRange": "CriticalRatingRange", "DevastatingHitChanceRange": "DevastatingRatingRange", "Critical&DevastatingHitMagnitudeRange": "CriticalMagnitudeRatingRange", "CriticalHitChanceTactical": "CriticalRatingTactical", "DevastatingHitChanceTactical": "DevastatingRatingTactical", "Critical&DevastatingHitMagnitudeTactical": "CriticalMagnitudeRatingTactical", "Finesse": "FinesseRating", "PhysicalDamageMelee": "PhysicalMasteryRatingMelee", "PhysicalDamageRange": "PhysicalMasteryRatingRange", "TacticalOffenceDamage": "TacticalMasteryRating", "TacticalOutgoingHealing": "OutgoingHealingRating", "Resistance": "ResistanceRating", "CriticalDefence": "CriticalDefenceRating", "IncomingHealing": "IncomingHealingRating", "BlockChance": "BlockChanceRating", "PartialBlockChance": "PartialBlockChanceRating", "PartialBlockMitigation": "PartialBlockMitigationRating", "ParryChance": "ParryChanceRating", "PartialParryChance": "PartialParryChanceRating", "PartialParryMitigation": "PartialParryMitigationRating", "EvadeChance": "EvadeChanceRating", "PartialEvadeChance": "PartialEvadeChanceRating", "PartialEvadeMitigation": "PartialEvadeMitigationRating", "PhysicalMitigation": "PhysicalMitigationRating", "TacticalMitigation": "TacticalMitigationRating"}
-FINAL_STATS.update({stat:"" for stat in MAIN_STATS})
-FINAL_STATS.update({"Morale": "", "InCombatMoraleRegeneration": "", "NonCombatMoraleRegeneration": "", "Power": "", "InCombatPowerRegeneration": "", "NonCombatPowerRegeneration": ""})
-RATING2PERCENTAGE_FINAL_STATS = {FINAL_STATS[stat]:stat for stat in FINAL_STATS if FINAL_STATS[stat]}
-VALID_STATS = list(set(MAIN_STATS+SECONDARY_STATS+list(FINAL_STATS.keys())))
-VALID_ITEM_MAX_QUANTITY = {"Boots": 1,  "Chest": 1,  "Gloves": 1,  "Helm": 1,  "Leggings": 1,  "Shoulders": 1,  "Back": 1,  "Ring": 2,  "Earring": 2,  "Bracelet": 2,  "Necklace": 1,  "Pocket": 1, "Essence": 999}
+# =============================================================================
+# STAT HIERARCHY
+# =============================================================================
+# Stats are organized in a hierarchy:
+# - Main stats: Base attributes that contribute to secondary stats based on class
+# - Secondary stats: Can be found on gear, contribute to tertiary stats
+# - Tertiary stats: Derived from secondary stats, cannot be found on gear
+# - Final stats: Percentage-based values computed from rating stats
+
+# Main stats - these contribute to different stats depending on class
+# (Class-specific contributions are defined in classes_stats.json)
+MAIN_STATS = ["Might", "Agility", "Vitality", "Will", "Fate"]
+
+# Secondary stats - can be found on gear
+SECONDARY_STATS = [
+    # Primary stats
+    "Armour",
+    "Morale",
+    "Power",
+    # Regeneration stats
+    "InCombatMoraleRegeneration",
+    "NonCombatMoraleRegeneration",
+    "InCombatPowerRegeneration",
+    "NonCombatPowerRegeneration",
+    # Rating stats
+    "CriticalRating",
+    "FinesseRating",
+    "PhysicalMasteryRating",
+    "TacticalMasteryRating",
+    "ResistanceRating",
+    "CriticalDefenceRating",
+    "IncomingHealingRating",
+    "BlockChanceRating",
+    "ParryChanceRating",
+    "EvadeChanceRating",
+    "PhysicalMitigationRating",
+    "TacticalMitigationRating",
+    "OutgoingHealingRating"
+]
+
+# Tertiary stats - derived from secondary stats, cannot be found on gear
+TERTIARY_STATS = [
+    # Critical rating breakdown
+    "CriticalRatingMelee",
+    "DevastatingRatingMelee",
+    "CriticalMagnitudeRatingMelee",
+    "CriticalRatingRange",
+    "DevastatingRatingRange",
+    "CriticalMagnitudeRatingRange",
+    "CriticalRatingTactical",
+    "DevastatingRatingTactical",
+    "CriticalMagnitudeRatingTactical",
+    # Physical mastery breakdown
+    "PhysicalMasteryRatingMelee",
+    "PhysicalMasteryRatingRange",
+    # Avoidance breakdown
+    "BlockChanceRating",
+    "PartialBlockChanceRating",
+    "PartialBlockMitigationRating",
+    "ParryChanceRating",
+    "PartialParryChanceRating",
+    "PartialParryMitigationRating",
+    "EvadeChanceRating",
+    "PartialEvadeChanceRating",
+    "PartialEvadeMitigationRating"
+]
+
+# Mapping from secondary stats to their tertiary stat components
+SECONDARY2TERTIARY_MAPPING = {
+    "CriticalRating": [
+        "CriticalRatingMelee",
+        "CriticalRatingRange",
+        "CriticalRatingTactical",
+        "DevastatingRatingMelee",
+        "DevastatingRatingRange",
+        "DevastatingRatingTactical",
+        "CriticalMagnitudeRatingMelee",
+        "CriticalMagnitudeRatingRange",
+        "CriticalMagnitudeRatingTactical"
+    ],
+    "PhysicalMasteryRating": [
+        "PhysicalMasteryRatingMelee",
+        "PhysicalMasteryRatingRange"
+    ],
+    "BlockChanceRating": [
+        "BlockChanceRating",
+        "PartialBlockChanceRating",
+        "PartialBlockMitigationRating"
+    ],
+    "ParryChanceRating": [
+        "ParryChanceRating",
+        "PartialParryChanceRating",
+        "PartialParryMitigationRating"
+    ],
+    "EvadeChanceRating": [
+        "EvadeChanceRating",
+        "PartialEvadeChanceRating",
+        "PartialEvadeMitigationRating"
+    ]
+}
+
+# For tertiary stats absent from the character JSON, maps each one to the existing
+# stat it should inherit its base value from (same combat-type variant).
+TERTIARY_STAT_BASE_MAP = {
+    "DevastatingRatingMelee":          "CriticalRatingMelee",
+    "CriticalMagnitudeRatingMelee":    "CriticalRatingMelee",
+    "DevastatingRatingRange":          "CriticalRatingRange",
+    "CriticalMagnitudeRatingRange":    "CriticalRatingRange",
+    "DevastatingRatingTactical":       "CriticalRatingTactical",
+    "CriticalMagnitudeRatingTactical": "CriticalRatingTactical",
+    "PartialBlockChanceRating":        "BlockChanceRating",
+    "PartialBlockMitigationRating":    "BlockChanceRating",
+    "PartialParryChanceRating":        "ParryChanceRating",
+    "PartialParryMitigationRating":    "ParryChanceRating",
+    "PartialEvadeChanceRating":        "EvadeChanceRating",
+    "PartialEvadeMitigationRating":    "EvadeChanceRating",
+}
+
+# Reverse mapping from tertiary to secondary stats
+TERTIARY2SECONDARY_MAPPING = {
+    tstat: stat
+    for stat in SECONDARY2TERTIARY_MAPPING
+    for tstat in SECONDARY2TERTIARY_MAPPING[stat]
+}
+
+# Final stats - percentage-based values computed from rating stats
+# Maps final stat name to its associated rating stat (empty string if no rating)
+FINAL_STATS = {
+    # Critical hit chances and magnitudes
+    "CriticalHitChanceMelee": "CriticalRatingMelee",
+    "DevastatingHitChanceMelee": "DevastatingRatingMelee",
+    "Critical&DevastatingHitMagnitudeMelee": "CriticalMagnitudeRatingMelee",
+    "CriticalHitChanceRange": "CriticalRatingRange",
+    "DevastatingHitChanceRange": "DevastatingRatingRange",
+    "Critical&DevastatingHitMagnitudeRange": "CriticalMagnitudeRatingRange",
+    "CriticalHitChanceTactical": "CriticalRatingTactical",
+    "DevastatingHitChanceTactical": "DevastatingRatingTactical",
+    "Critical&DevastatingHitMagnitudeTactical": "CriticalMagnitudeRatingTactical",
+    # Finesse
+    "Finesse": "FinesseRating",
+    # Physical damage
+    "PhysicalDamageMelee": "PhysicalMasteryRatingMelee",
+    "PhysicalDamageRange": "PhysicalMasteryRatingRange",
+    # Tactical offence and healing
+    "TacticalOffenceDamage": "TacticalMasteryRating",
+    "TacticalOutgoingHealing": "OutgoingHealingRating",
+    # Resistance and defence
+    "Resistance": "ResistanceRating",
+    "CriticalDefenceMelee": "CriticalDefenceRating",
+    "CriticalDefenceRanged": "CriticalDefenceRating",
+    "CriticalDefenceTactical": "CriticalDefenceRating",
+    "IncomingHealing": "IncomingHealingRating",
+    # Avoidance
+    "BlockChance": "BlockChanceRating",
+    "PartialBlockChance": "PartialBlockChanceRating",
+    "PartialBlockMitigation": "PartialBlockMitigationRating",
+    "ParryChance": "ParryChanceRating",
+    "PartialParryChance": "PartialParryChanceRating",
+    "PartialParryMitigation": "PartialParryMitigationRating",
+    "EvadeChance": "EvadeChanceRating",
+    "PartialEvadeChance": "PartialEvadeChanceRating",
+    "PartialEvadeMitigation": "PartialEvadeMitigationRating",
+    # Mitigation
+    "PhysicalMitigation": "PhysicalMitigationRating",
+    "OrcCraftMitigation": "PhysicalMitigationRating",
+    "FellWroughtMitigation": "PhysicalMitigationRating",
+    "TacticalMitigation": "TacticalMitigationRating",
+    "FireMitigation": "TacticalMitigationRating",
+    "LightningMitigation": "TacticalMitigationRating",
+    "FrostMitigation": "TacticalMitigationRating",
+    "AcidMitigation": "TacticalMitigationRating",
+    "ShadowMitigation": "TacticalMitigationRating"
+}
+
+# Add main stats and direct stats (no rating conversion)
+FINAL_STATS.update({stat: "" for stat in MAIN_STATS})
+FINAL_STATS.update({
+    "Armour": "",
+    "Morale": "",
+    "InCombatMoraleRegeneration": "",
+    "NonCombatMoraleRegeneration": "",
+    "Power": "",
+    "InCombatPowerRegeneration": "",
+    "NonCombatPowerRegeneration": ""
+})
+
+# Reverse mapping from rating to final stats
+RATING2PERCENTAGE_FINAL_STATS = {
+    FINAL_STATS[stat]: stat
+    for stat in FINAL_STATS
+    if FINAL_STATS[stat]
+}
+
+# All valid stats across all tiers
+VALID_STATS = list(set(MAIN_STATS + SECONDARY_STATS + TERTIARY_STATS + list(FINAL_STATS.keys())))
+VALID_ITEM_MAX_QUANTITY = {"Boots": 1,  "Chest": 1,  "Gloves": 1,  "Helm": 1,  "Leggings": 1,  "Shoulders": 1,  "Back": 1,  "Ring": 2,  "Earring": 2,  "Bracelet": 2,  "Necklace": 1,  "Pocket": 1, "Essence": 999, "Virtue": 5}
 VALID_ITEM_TYPES = list(VALID_ITEM_MAX_QUANTITY.keys())
 
 
@@ -59,6 +287,11 @@ def equip_items(character_stats, character_class_stats, items):
     new_stats = copy.deepcopy(character_stats)
     if "available_items" in items:
         items = items["available_items"]
+    for tertiary_list in SECONDARY2TERTIARY_MAPPING.values():
+        for tstat in tertiary_list:
+            if tstat not in new_stats:
+                base_stat = TERTIARY_STAT_BASE_MAP.get(tstat)
+                new_stats[tstat] = new_stats.get(base_stat, 0) if base_stat else 0
     for item in items:
         item_stats = item.get("Stats")
         for item_stat in item_stats:
@@ -77,10 +310,7 @@ def compute_percentage(base_stats, character_armour, character_level, extra_stat
     computed_stats = {i:0 for i in FINAL_STATS}
     overcapped_stats = {}
     for stat in computed_stats:
-        if stat in ["PhysicalMitigation", "TacticalMitigation"]:
-            stat_info = STATS_INFO[f"{character_armour}{stat}"]
-        else:
-            stat_info = STATS_INFO[f"{stat}"]
+        stat_info = STATS_INFO[get_stats_info_key(stat, character_armour)]
         a = stat_info["A"]
         b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
         computed_stats[stat] = round(PfromR(r=base_stats[computed_stats[stat]["AssociatedSecondaryStat"]], a=a, b=b), 1)
@@ -98,10 +328,7 @@ def compute_stat_percentage(stat_name, stat_value, character_armour, character_l
     level_index = lvl_index(character_level)
     computed_stats = {stat_name:0}
     overcapped_stats = {}
-    if stat_name in ["PhysicalMitigation", "TacticalMitigation"]:
-        stat_info = STATS_INFO[f"{character_armour}{stat_name}"]
-    else:
-        stat_info = STATS_INFO[f"{stat_name}"]
+    stat_info = STATS_INFO[get_stats_info_key(stat_name, character_armour)]
     a = stat_info["A"]
     b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
     computed_stats[stat_name] = round(PfromR(r=stat_value, a=a, b=b), 1)
@@ -115,9 +342,20 @@ def compute_stat_percentage(stat_name, stat_value, character_armour, character_l
         computed_stats[stat_name] += extra_stats[stat_name]
     return computed_stats, overcapped_stats
 
-def prepare_items(items_file, items_to_pick):
-    items_json = json.load(open(items_file))
-    available_items = items_json.get("available_items")
+def prepare_items(gear_file, items_to_pick, virtues_items=None):
+    gear_json = json.load(open(gear_file))
+    available_items = gear_json.get("available_items", [])
+    
+    # Load essences from separate file or from unified gear file
+    available_essences = []
+    if "available_essences" in gear_json:
+        available_essences = gear_json["available_essences"]
+    
+    # Validate essences are available if Essence is in items_to_pick
+    if "Essence" in items_to_pick and items_to_pick["Essence"] > 0:
+        if not available_essences:
+            print(f"Essence is in items_to_pick but no essences were found. Aborting!")
+            sys.exit(1)
 
     items_per_type = {}
     for item in items_to_pick:
@@ -130,6 +368,8 @@ def prepare_items(items_file, items_to_pick):
 
     items_per_type = {i:[] for i in items_to_pick}
     items_ids = {i:[] for i in items_to_pick}
+    
+    # Process regular items from items.json
     for item in available_items:
         item_name = item.get("Name", False)
         item_type = item.get("Type", "Unset")
@@ -145,15 +385,16 @@ def prepare_items(items_file, items_to_pick):
                 print(f"Stat {stat} of {item_name} is not valid. Aborting!")
                 sys.exit(1)
 
-        if items_to_pick[item_type] != 0:
-            if items_per_type[item_type] == []:
-                items_per_type[item_type] = [{"Name": item_name, "Stats": item_stats}]
-            else:
-                items_per_type[item_type].append({"Name": item_name, "Stats": item_stats})
-            if items_ids[item_type] == []:
-                items_ids[item_type].append(0)
-            else:
-                items_ids[item_type].append(items_ids[item_type][-1]+1)
+        if item_type in items_to_pick:
+            if items_to_pick[item_type] != 0:
+                if items_per_type[item_type] == []:
+                    items_per_type[item_type] = [{"Name": item_name, "Stats": item_stats}]
+                else:
+                    items_per_type[item_type].append({"Name": item_name, "Stats": item_stats})
+                if items_ids[item_type] == []:
+                    items_ids[item_type].append(0)
+                else:
+                    items_ids[item_type].append(items_ids[item_type][-1]+1)
             #items_to_pick[item_type] -= 1
         #    else:
         #        for i in range(1,items_to_pick[item_type]+1):
@@ -180,22 +421,106 @@ def prepare_items(items_file, items_to_pick):
         #         for i in range(1,items_to_pick[item_type]+1):
         #             items_per_type[item_type+f"{i}"].append({"Name": item_name, "Stats": item_stats})
         #             items_ids[item_type+f"{i}"].append(items_ids[item_type+f"{i}"][-1]+1)
+
+    # Process essences from essences file
+    essence_quantity_limits = {}
+    for essence in available_essences:
+        essence_name = essence.get("Name", False)
+        essence_type = essence.get("Type", "Unset")
+        essence_stats = essence.get("Stats", False)
+        quantity_available = essence.get("QuantityAvailable", -1)
+        
+        if not essence_name:
+            print(f"Missing name for essence {essence}. Aborting!")
+            sys.exit(1)
+        if essence_type != "Essence":
+            print(f"Type {essence_type} of {essence_name} is not Essence. Aborting!")
+            sys.exit(1)
+        for stat in essence_stats:
+            if stat not in VALID_STATS:
+                print(f"Stat {stat} of {essence_name} is not valid. Aborting!")
+                sys.exit(1)
+        
+        # Track quantity limits for each essence
+        essence_quantity_limits[essence_name] = quantity_available
+        
+        if "Essence" in items_to_pick and items_to_pick["Essence"] != 0:
+            if items_per_type["Essence"] == []:
+                items_per_type["Essence"] = [{"Name": essence_name, "Stats": essence_stats}]
+            else:
+                items_per_type["Essence"].append({"Name": essence_name, "Stats": essence_stats})
+            if items_ids["Essence"] == []:
+                items_ids["Essence"].append(0)
+            else:
+                items_ids["Essence"].append(items_ids["Essence"][-1]+1)
+    
+    # Process virtues from virtues_items (if provided)
+    if virtues_items is not None:
+        for virtue in virtues_items:
+            virtue_name = virtue.get("Name", False)
+            virtue_type = virtue.get("Type", "Unset")
+            virtue_stats = virtue.get("Stats", False)
+            quantity_available = virtue.get("QuantityAvailable", -1)
+            
+            if not virtue_name:
+                print(f"Missing name for virtue {virtue}. Aborting!")
+                sys.exit(1)
+            if virtue_type != "Virtue":
+                print(f"Type {virtue_type} of {virtue_name} is not Virtue. Aborting!")
+                sys.exit(1)
+            for stat in virtue_stats:
+                if stat not in VALID_STATS:
+                    print(f"Stat {stat} of {virtue_name} is not valid. Aborting!")
+                    sys.exit(1)
+            
+            # Track quantity limits for each virtue (enforce no duplicates)
+            essence_quantity_limits[virtue_name] = quantity_available
+            
+            if "Virtue" in items_to_pick and items_to_pick["Virtue"] != 0:
+                if items_per_type["Virtue"] == []:
+                    items_per_type["Virtue"] = [{"Name": virtue_name, "Stats": virtue_stats}]
+                else:
+                    items_per_type["Virtue"].append({"Name": virtue_name, "Stats": virtue_stats})
+                if items_ids["Virtue"] == []:
+                    items_ids["Virtue"].append(0)
+                else:
+                    items_ids["Virtue"].append(items_ids["Virtue"][-1]+1)
+    
     expanded_items_ids = {}
     for item in items_to_pick:
         for i in range(1, items_to_pick[item]+1):
             expanded_items_ids[f"{item}#{i}"] = items_ids[item]
 
-    return items_per_type, expanded_items_ids
+    return items_per_type, expanded_items_ids, essence_quantity_limits
+
+# Maps final stat names that differ from their stats_info.json key to the correct key.
+# Stats that share an entry (e.g. all CriticalDefence variants, element mitigations)
+# are redirected here; the armour-prefix logic for Mitigation stats is applied after.
+STATS_INFO_KEY_OVERRIDES = {
+    "CriticalDefenceMelee":    "CriticalDefence",
+    "CriticalDefenceRanged":   "CriticalDefence",
+    "CriticalDefenceTactical": "CriticalDefence",
+    "OrcCraftMitigation":      "PhysicalMitigation",
+    "FellWroughtMitigation":   "PhysicalMitigation",
+    "FireMitigation":          "TacticalMitigation",
+    "LightningMitigation":     "TacticalMitigation",
+    "FrostMitigation":         "TacticalMitigation",
+    "AcidMitigation":          "TacticalMitigation",
+    "ShadowMitigation":        "TacticalMitigation",
+}
+
+def get_stats_info_key(fstat, character_armour):
+    key = STATS_INFO_KEY_OVERRIDES.get(fstat, fstat)
+    if key in ["PhysicalMitigation", "TacticalMitigation"]:
+        return f"{character_armour}{key}"
+    return key
 
 def get_all_stats_Rcap(character_level, character_armour):
     level_index = lvl_index(character_level)
     stats_rcap = {}
     for fstat in FINAL_STATS:
         if FINAL_STATS[fstat]:
-            if fstat in ["PhysicalMitigation", "TacticalMitigation"]:
-                stat_info = STATS_INFO[f"{character_armour}{fstat}"]
-            else:
-                stat_info = STATS_INFO[f"{fstat}"]
+            stat_info = STATS_INFO[get_stats_info_key(fstat, character_armour)]
             a = stat_info["A"]
             b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
             stats_rcap[FINAL_STATS[fstat]] = Rcap(PCap=stat_info["PCap"], a=a, b=b)
@@ -208,13 +533,10 @@ def get_ratings_for_requirements(stat_requirements, character_level, character_a
         fstat = r.split('=')[0]
         percentage = float(r.split('=')[1]) if len(r.split('=')) == 2 else -1
         if percentage != -1:
-            if fstat in ["PhysicalMitigation", "TacticalMitigation"]:
-                stat_info = STATS_INFO[f"{character_armour}{fstat}"]
-            elif fstat in ["Morale"]:
+            if fstat in ["Morale"]:
                 requirements_ratings[fstat] = percentage
                 continue
-            else:
-                stat_info = STATS_INFO[f"{fstat}"]
+            stat_info = STATS_INFO[get_stats_info_key(fstat, character_armour)]
             a = stat_info["A"]
             b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
             requirements_ratings[FINAL_STATS[fstat]] = RfromP(p=percentage, a=a, b=b)
@@ -236,10 +558,16 @@ def define_combination_value(new_stats, requirements_ratings):
             value += new_stats[r]
     return value
 
-def process_combination(combination, item_types, items_per_type, character_stats, character_class_stats, stats_rcap, requirements_ratings, penalize_overcapping):
+def process_combination(combination, item_types, items_per_type, character_stats, character_class_stats, stats_rcap, requirements_ratings, penalize_overcapping, essence_quantity_limits=None):
     #if comb_num % 1000 == 0:
     #    print(comb_num)
     #print(combination)
+    
+    # Validate essence quantity limits if provided
+    if essence_quantity_limits is not None:
+        if not validate_essence_quantities(combination, item_types, items_per_type, essence_quantity_limits):
+            return (combination, -1, {}, 0, {})
+    
     combination_items = []
     for index, item_type_index in enumerate(combination):
         item_type_name = item_types[index]
@@ -278,6 +606,31 @@ def process_combination(combination, item_types, items_per_type, character_stats
     #print(combination_value)
     return (combination, combination_value, overcapped_stats, overcap_value, new_stats)
 
+def resolve_virtue_items(virtues_dict):
+    """
+    Convert a virtues dict (e.g., {"Honour": 20, "Valour": 18}) to a list of virtue items
+    with stats resolved from VIRTUE_STATS. Each virtue is treated as an item with Type="Virtue"
+    and QuantityAvailable=1 (no duplicates allowed).
+    """
+    virtue_items = []
+    for virtue_name, rank in virtues_dict.items():
+        if virtue_name not in VIRTUE_STATS:
+            print(f"Virtue {virtue_name} not found in VIRTUE_STATS. Skipping.")
+            continue
+        rank_str = str(rank)
+        if rank_str not in VIRTUE_STATS[virtue_name]:
+            print(f"Rank {rank} not found for virtue {virtue_name}. Skipping.")
+            continue
+        
+        virtue_stats = VIRTUE_STATS[virtue_name][rank_str]
+        virtue_items.append({
+            "Name": virtue_name,
+            "Type": "Virtue",
+            "QuantityAvailable": 1,
+            "Stats": virtue_stats
+        })
+    return virtue_items
+
 def load_preferred_stats(character_name, role):
     preferred_stats_file = os.path.join(STATSCALC, "resources", "character_files", character_name, "preferred_stats.json")
     if not os.path.exists(preferred_stats_file):
@@ -299,7 +652,8 @@ def load_preferred_stats(character_name, role):
         print(f"Role {role} does not define 'stats_to_print', printing all stats at the end.")
         stats_to_print = VALID_STATS
     
-    items_to_pick = preferred_stats["items_to_pick"]
+    # Use optimization_choices with fallback to items_to_pick for backward compatibility
+    items_to_pick = preferred_stats.get("optimization_choices", preferred_stats.get("items_to_pick"))
 
     return stat_requirements, stats_to_print, items_to_pick
 
@@ -314,4 +668,229 @@ def add_item_stats(*dicts):
                 result[key] += value
             else:
                 result[key] = value
+    return result
+
+def validate_essence_quantities(combination, item_types, items_per_type, essence_quantity_limits):
+    """
+    Validate that a combination respects essence quantity limits.
+    Returns True if valid, False otherwise.
+    """
+    essence_counts = {}
+    
+    for index, item_type_index in enumerate(combination):
+        item_type_name = item_types[index]
+        if item_type_name == "Essence":
+            item = items_per_type[item_type_name][item_type_index]
+            essence_name = item["Name"]
+            essence_counts[essence_name] = essence_counts.get(essence_name, 0) + 1
+            
+            # Check if this essence exceeds its quantity limit
+            quantity_limit = essence_quantity_limits.get(essence_name, -1)
+            if quantity_limit != -1 and essence_counts[essence_name] > quantity_limit:
+                return False
+    
+    return True
+
+def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
+                                  character_stats, character_class_stats, stats_rcap, requirements_ratings,
+                                  essence_quantity_limits, stat_requirements, character_level, character_armour):
+    """
+    Integer Linear Programming using pulp for gear/essence optimization.
+
+    Stat requirements are converted to required ratings via RfromP before this function
+    is called (see get_ratings_for_requirements). The optimization is therefore entirely
+    linear in rating space — no piecewise approximation is needed.
+
+    Hard constraints enforce minimum ratings from requirements_ratings.
+    The objective maximizes capped total ratings (matching the stats_rcap cap logic).
+    """
+    try:
+        import pulp
+    except ImportError:
+        print("pulp library not found. Please install it with: pip install pulp")
+        return None, -1, {}, 0, {}
+
+    # Stats we care about: those in requirements_ratings, or all character stats if none defined
+    if requirements_ratings:
+        opt_stats = set(requirements_ratings.keys())
+    else:
+        opt_stats = set(character_stats.keys())
+
+    # Separate virtue slots from gear/essence slots to avoid symmetry issues in ILP
+    virtue_slot_indices = [i for i, t in enumerate(item_types) if t == "Virtue"]
+    n_virtue_slots = len(virtue_slot_indices)
+
+    # Pre-compute each non-virtue item's contribution to each opt_stat
+    slot_item_contrib = []
+    for i, t in enumerate(item_types):
+        if t == "Virtue":
+            slot_item_contrib.append([])
+            continue
+        item_contribs = []
+        for item in items_per_type[t]:
+            contrib = {s: 0.0 for s in opt_stats}
+            for item_stat, value in item["Stats"].items():
+                if item_stat in SECONDARY2TERTIARY_MAPPING:
+                    for tertiary_stat in SECONDARY2TERTIARY_MAPPING[item_stat]:
+                        if tertiary_stat in contrib:
+                            contrib[tertiary_stat] += value
+                else:
+                    if item_stat in contrib:
+                        contrib[item_stat] += value
+                if item_stat in MAIN_STATS:
+                    for secondary_stat, multiplier in character_class_stats[item_stat].items():
+                        if secondary_stat in contrib:
+                            contrib[secondary_stat] += math.floor(value * multiplier)
+            item_contribs.append(contrib)
+        slot_item_contrib.append(item_contribs)
+
+    # Pre-compute each virtue's contribution to each opt_stat
+    virtue_contrib = []
+    if n_virtue_slots and "Virtue" in items_per_type:
+        for virtue in items_per_type["Virtue"]:
+            contrib = {s: 0.0 for s in opt_stats}
+            for item_stat, value in virtue["Stats"].items():
+                if item_stat in SECONDARY2TERTIARY_MAPPING:
+                    for tertiary_stat in SECONDARY2TERTIARY_MAPPING[item_stat]:
+                        if tertiary_stat in contrib:
+                            contrib[tertiary_stat] += value
+                else:
+                    if item_stat in contrib:
+                        contrib[item_stat] += value
+                if item_stat in MAIN_STATS:
+                    for secondary_stat, multiplier in character_class_stats[item_stat].items():
+                        if secondary_stat in contrib:
+                            contrib[secondary_stat] += math.floor(value * multiplier)
+            virtue_contrib.append(contrib)
+
+    prob = pulp.LpProblem("GearOptimization", pulp.LpMaximize)
+
+    # Decision variables: x[(i, j)] = 1 if non-virtue slot i uses item j
+    x = {}
+    for i, t in enumerate(item_types):
+        if t == "Virtue":
+            continue
+        for j in range(len(items_per_type[t])):
+            x[(i, j)] = pulp.LpVariable(f"x_{i}_{j}", cat='Binary')
+
+    # Virtue variables: y[j] = 1 if virtue j is selected (avoids slot symmetry)
+    y = {}
+    if n_virtue_slots and "Virtue" in items_per_type:
+        for j in range(len(items_per_type["Virtue"])):
+            y[j] = pulp.LpVariable(f"y_{j}", cat='Binary')
+
+    # Constraint: each non-virtue slot has exactly one item
+    for i, t in enumerate(item_types):
+        if t == "Virtue":
+            continue
+        prob += pulp.lpSum(x[(i, j)] for j in range(len(items_per_type[t]))) == 1
+
+    # Constraint: pick exactly n_virtue_slots virtues (replaces per-slot virtue constraints)
+    if y:
+        prob += pulp.lpSum(y[j] for j in y) == n_virtue_slots
+
+    # Constraint: essence quantity limits
+    essence_slots = [i for i, t in enumerate(item_types) if t == "Essence"]
+    if essence_slots:
+        for j, item in enumerate(items_per_type["Essence"]):
+            item_name = item["Name"]
+            quantity_limit = essence_quantity_limits.get(item_name, -1)
+            if quantity_limit != -1:
+                prob += pulp.lpSum(x[(i, j)] for i in essence_slots) <= quantity_limit
+
+    # Compute total rating per stat as an LP affine expression
+    total_rating = {}
+    for stat in opt_stats:
+        base = character_stats.get(stat, 0.0)
+        gear_contrib = pulp.lpSum(
+            slot_item_contrib[i][j][stat] * x[(i, j)]
+            for i, t in enumerate(item_types)
+            if t != "Virtue"
+            for j in range(len(items_per_type[t]))
+        )
+        virtue_total = pulp.lpSum(
+            virtue_contrib[j][stat] * y[j]
+            for j in y
+        ) if y else 0
+        total_rating[stat] = base + gear_contrib + virtue_total
+
+    # Hard constraints: minimum required ratings
+    for stat, req in requirements_ratings.items():
+        if req != -1 and stat in total_rating:
+            prob += total_rating[stat] >= req
+
+    # Pre-compute maximum possible contribution per stat from all item slots.
+    # Used to bound the objective for stats that have no explicit rcap, preventing
+    # an unbounded LP relaxation which causes slow B&B convergence.
+    max_item_contrib = {stat: 0.0 for stat in opt_stats}
+    for i, t in enumerate(item_types):
+        if t == "Virtue" or not items_per_type[t]:
+            continue
+        for stat in opt_stats:
+            max_item_contrib[stat] += max(
+                slot_item_contrib[i][j].get(stat, 0.0) for j in range(len(items_per_type[t]))
+            )
+    if y and virtue_contrib:
+        for stat in opt_stats:
+            top_virtue_contribs = sorted(
+                (vc.get(stat, 0.0) for vc in virtue_contrib), reverse=True
+            )[:n_virtue_slots]
+            max_item_contrib[stat] += sum(top_virtue_contribs)
+
+    # Auxiliary continuous variables for capped totals used in objective.
+    # For stats with a hard minimum requirement: cap at the requirement — no benefit to overshoot.
+    # For unconstrained stats (req == -1): cap at stats_rcap if available, otherwise cap at the
+    # maximum achievable value from items. This keeps the LP relaxation tight and avoids slow B&B.
+    cap_var = {}
+    for stat in opt_stats:
+        req = requirements_ratings.get(stat, -1)
+        if req != -1:
+            obj_cap = req
+        elif stat in stats_rcap:
+            obj_cap = stats_rcap[stat]
+        else:
+            obj_cap = character_stats.get(stat, 0.0) + max_item_contrib[stat]
+            print(f"ILP: no rcap for {stat}, using computed cap {obj_cap} (base {character_stats.get(stat, 0.0)} + max items {max_item_contrib[stat]})")
+
+        v = pulp.LpVariable(f"cap_{stat}", lowBound=0)
+        prob += v <= total_rating[stat]
+        prob += v <= obj_cap
+        cap_var[stat] = v
+
+    # Objective: maximise sum of capped ratings for all optimised stats
+    prob += pulp.lpSum(cap_var[stat] for stat in opt_stats)
+
+    prob.solve(pulp.PULP_CBC_CMD(msg=False))
+
+    if pulp.LpStatus[prob.status] != 'Optimal':
+        print(f"ILP: no optimal solution found (status: {pulp.LpStatus[prob.status]})")
+        return None, -1, {}, 0, {}
+
+    # Extract solution: for each slot pick the chosen item index
+    # For virtue slots, assign chosen virtues (from y variables) sequentially
+    chosen_virtue_indices = []
+    if y:
+        chosen_virtue_indices = [j for j in y if round(pulp.value(y[j]) or 0) == 1]
+
+    best_combination = []
+    virtue_slot_cursor = 0
+    for i, t in enumerate(item_types):
+        if t == "Virtue":
+            chosen = chosen_virtue_indices[virtue_slot_cursor] if virtue_slot_cursor < len(chosen_virtue_indices) else 0
+            virtue_slot_cursor += 1
+        else:
+            chosen = 0
+            for j in range(len(items_per_type[t])):
+                if round(pulp.value(x[(i, j)]) or 0) == 1:
+                    chosen = j
+                    break
+        best_combination.append(chosen)
+
+    best_combination = tuple(best_combination)
+
+    # Evaluate via process_combination for a consistent result format
+    result = process_combination(best_combination, item_types, items_per_type,
+                                 character_stats, character_class_stats, stats_rcap,
+                                 requirements_ratings, True, essence_quantity_limits)
+
     return result

@@ -1,20 +1,29 @@
 {
-    "items_to_pick": {
-        "Shoulders": 1,
-        "Gloves": 1,
-        "Boots": 1
+    "optimization_choices": {
+        "Essence": 24,
+        "Virtue": 5
     },
     "roles": {
         "dps": {
             "stats_to_print": [
                 "Morale",
-                "CriticalHitChanceMelee",
+                "CriticalHitChanceTactical",
+                "DevastatingHitChanceTactical",
+                "Critical&DevastatingHitMagnitudeTactical",
                 "Finesse",
                 "TacticalOffenceDamage",
                 "PhysicalMitigation",
                 "TacticalMitigation"
             ],
             "stat_requirements": [
+                "CriticalHitChanceTactical=25",
+                "TacticalOffenceDamage=200",
+                "Finesse=30",
+                "PhysicalMitigation=40",
+                "TacticalMitigation=40",
+                "Morale"
+            ],
+            "stat_requirements_bkp": [
             ],
             "set_restrictions": []
         }
