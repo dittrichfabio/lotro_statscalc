@@ -60,10 +60,10 @@ def simulate_equipping_items(character_name, items_file, priority):
     #    stat_priorities = ["P1", "P2", "P3"]
 
     #initialize main and secondary stats from character and equip items
-    base_stats, extra_stats = equip_items(character_stats, character_class_stats, items)
+    base_stats = equip_items(character_stats, character_class_stats, items)
     print(base_stats)
     #compute percentage of all stats, save information about overcapped stats and adds extra stats
-    computed_stats, overcapped_stats = compute_percentage(base_stats, character_armour, character_level, extra_stats)
+    #computed_stats, overcapped_stats = compute_percentage(base_stats, character_armour, character_level, extra_stats)
     
 
 
