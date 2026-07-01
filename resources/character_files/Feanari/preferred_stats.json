@@ -17,15 +17,13 @@
             ],
             "stat_requirements": [
                 "CriticalHitChanceTactical=25",
+                "TacticalOffenceDamage=200",
                 "Finesse=30",
+                "PhysicalMitigation=40",
                 "TacticalMitigation=40",
                 "Morale"
             ],
             "stat_requirements_bkp": [
-                "TacticalOffenceDamage=200",
-                "CriticalHitChanceTactical=25",
-                "PhysicalMitigation=40",
-                "Morale"
             ],
             "set_restrictions": []
         }

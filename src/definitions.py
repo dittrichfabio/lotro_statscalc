@@ -827,27 +827,43 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
         if req != -1 and stat in total_rating:
             prob += total_rating[stat] >= req
 
+    # Pre-compute maximum possible contribution per stat from all item slots.
+    # Used to bound the objective for stats that have no explicit rcap, preventing
+    # an unbounded LP relaxation which causes slow B&B convergence.
+    max_item_contrib = {stat: 0.0 for stat in opt_stats}
+    for i, t in enumerate(item_types):
+        if t == "Virtue" or not items_per_type[t]:
+            continue
+        for stat in opt_stats:
+            max_item_contrib[stat] += max(
+                slot_item_contrib[i][j].get(stat, 0.0) for j in range(len(items_per_type[t]))
+            )
+    if y and virtue_contrib:
+        for stat in opt_stats:
+            top_virtue_contribs = sorted(
+                (vc.get(stat, 0.0) for vc in virtue_contrib), reverse=True
+            )[:n_virtue_slots]
+            max_item_contrib[stat] += sum(top_virtue_contribs)
+
     # Auxiliary continuous variables for capped totals used in objective.
     # For stats with a hard minimum requirement: cap at the requirement — no benefit to overshoot.
-    # For unconstrained stats (req == -1): cap at stats_rcap so diminishing returns apply at cap.
+    # For unconstrained stats (req == -1): cap at stats_rcap if available, otherwise cap at the
+    # maximum achievable value from items. This keeps the LP relaxation tight and avoids slow B&B.
     cap_var = {}
     for stat in opt_stats:
         req = requirements_ratings.get(stat, -1)
         if req != -1:
-            # Constrained stat: objective ceiling is the requirement rating itself
             obj_cap = req
         elif stat in stats_rcap:
             obj_cap = stats_rcap[stat]
         else:
-            obj_cap = None
+            obj_cap = character_stats.get(stat, 0.0) + max_item_contrib[stat]
+            print(f"ILP: no rcap for {stat}, using computed cap {obj_cap} (base {character_stats.get(stat, 0.0)} + max items {max_item_contrib[stat]})")
 
-        if obj_cap is not None:
-            v = pulp.LpVariable(f"cap_{stat}", lowBound=0)
-            prob += v <= total_rating[stat]
-            prob += v <= obj_cap
-            cap_var[stat] = v
-        else:
-            cap_var[stat] = total_rating[stat]
+        v = pulp.LpVariable(f"cap_{stat}", lowBound=0)
+        prob += v <= total_rating[stat]
+        prob += v <= obj_cap
+        cap_var[stat] = v
 
     # Objective: maximise sum of capped ratings for all optimised stats
     prob += pulp.lpSum(cap_var[stat] for stat in opt_stats)
