@@ -105,6 +105,10 @@ SECONDARY_STATS = [
     "PhysicalMasteryRating",
     "TacticalMasteryRating",
     "ResistanceRating",
+    "ResistanceWoundRating",
+    "ResistanceFearRating",
+    "ResistanceDiseaseRating",
+    "ResistancePoisonRating",
     "CriticalDefenceRating",
     "IncomingHealingRating",
     "BlockChanceRating",
@@ -141,6 +145,16 @@ TERTIARY_STATS = [
     "PartialEvadeChanceRating",
     "PartialEvadeMitigationRating"
 ]
+
+# Mapping from secondary stats to other secondary stats
+SECONDARY2SECONDARY_MAPPING = {
+    "ResistanceRating": [
+        "ResistanceWoundRating",
+        "ResistanceFearRating",
+        "ResistanceDiseaseRating",
+        "ResistancePoisonRating"
+    ]
+}
 
 # Mapping from secondary stats to their tertiary stat components
 SECONDARY2TERTIARY_MAPPING = {
@@ -222,7 +236,10 @@ FINAL_STATS = {
     "TacticalOffenceDamage": "TacticalMasteryRating",
     "TacticalOutgoingHealing": "OutgoingHealingRating",
     # Resistance and defence
-    "Resistance": "ResistanceRating",
+    "ResistanceWound": "ResistanceWoundRating",
+    "ResistanceFear": "ResistanceFearRating",
+    "ResistanceDisease": "ResistanceDiseaseRating",
+    "ResistancePoison": "ResistancePoisonRating",
     "CriticalDefenceMelee": "CriticalDefenceRating",
     "CriticalDefenceRanged": "CriticalDefenceRating",
     "CriticalDefenceTactical": "CriticalDefenceRating",
@@ -285,6 +302,7 @@ def lvl_index(lvl):
         
 def equip_items(character_stats, character_class_stats, items):
     new_stats = copy.deepcopy(character_stats)
+    extra_stats = {}
     if "available_items" in items:
         items = items["available_items"]
     for tertiary_list in SECONDARY2TERTIARY_MAPPING.values():
@@ -295,7 +313,12 @@ def equip_items(character_stats, character_class_stats, items):
     for item in items:
         item_stats = item.get("Stats")
         for item_stat in item_stats:
-            if item_stat in SECONDARY2TERTIARY_MAPPING:
+            if item_stat in FINAL_STATS:
+                extra_stats[item_stat] = extra_stats.get(item_stat, 0) + item_stats[item_stat]
+            elif item_stat in SECONDARY2SECONDARY_MAPPING:
+                for stat in SECONDARY2SECONDARY_MAPPING[item_stat]:
+                    new_stats[stat] += item_stats[item_stat]
+            elif item_stat in SECONDARY2TERTIARY_MAPPING:
                 for stat in SECONDARY2TERTIARY_MAPPING[item_stat]:
                     new_stats[stat] += item_stats[item_stat]
             else:
@@ -303,7 +326,7 @@ def equip_items(character_stats, character_class_stats, items):
             if item_stat in MAIN_STATS: #if the stat is a main stat, add its contribution to secondary stats
                 for secondary_stat in character_class_stats[item_stat]:
                     new_stats[secondary_stat] += math.floor(item_stats[item_stat] * character_class_stats[item_stat][secondary_stat])
-    return new_stats
+    return new_stats, extra_stats
 
 def compute_percentage(base_stats, character_armour, character_level, extra_stats):
     level_index = lvl_index(character_level)
@@ -578,7 +601,7 @@ def process_combination(combination, item_types, items_per_type, character_stats
         combination_items.append(item)
     #print(combination_items)
     #print(character_stats)
-    new_stats = equip_items(character_stats, character_class_stats, combination_items)
+    new_stats, _ = equip_items(character_stats, character_class_stats, combination_items)
     #print(new_stats)
     overcap_value = 0
     overcapped_stats = {}
@@ -730,7 +753,13 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
         for item in items_per_type[t]:
             contrib = {s: 0.0 for s in opt_stats}
             for item_stat, value in item["Stats"].items():
-                if item_stat in SECONDARY2TERTIARY_MAPPING:
+                if item_stat in FINAL_STATS:
+                    continue  # Skip final stats (percentages) in ILP
+                if item_stat in SECONDARY2SECONDARY_MAPPING:
+                    for secondary_stat in SECONDARY2SECONDARY_MAPPING[item_stat]:
+                        if secondary_stat in contrib:
+                            contrib[secondary_stat] += value
+                elif item_stat in SECONDARY2TERTIARY_MAPPING:
                     for tertiary_stat in SECONDARY2TERTIARY_MAPPING[item_stat]:
                         if tertiary_stat in contrib:
                             contrib[tertiary_stat] += value
@@ -750,7 +779,13 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
         for virtue in items_per_type["Virtue"]:
             contrib = {s: 0.0 for s in opt_stats}
             for item_stat, value in virtue["Stats"].items():
-                if item_stat in SECONDARY2TERTIARY_MAPPING:
+                if item_stat in FINAL_STATS:
+                    continue  # Skip final stats (percentages) in ILP
+                if item_stat in SECONDARY2SECONDARY_MAPPING:
+                    for secondary_stat in SECONDARY2SECONDARY_MAPPING[item_stat]:
+                        if secondary_stat in contrib:
+                            contrib[secondary_stat] += value
+                elif item_stat in SECONDARY2TERTIARY_MAPPING:
                     for tertiary_stat in SECONDARY2TERTIARY_MAPPING[item_stat]:
                         if tertiary_stat in contrib:
                             contrib[tertiary_stat] += value
