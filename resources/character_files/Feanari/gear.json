@@ -190,7 +190,7 @@
     "buffs": [
         {
             "Name": "Scroll of Anórien Battle Lore",
-            "active": false,
+            "active": true,
             "Stats": {
                 "TacticalMasteryRating": 439,
                 "PhysicalMasteryRating": 439
@@ -198,7 +198,7 @@
         },
         {
             "Name": "Scroll of Anórien Warding Lore",
-            "active": false,
+            "active": true,
             "Stats": {
                 "TacticalMitigationRating": 257,
                 "PhysicalMitigationRating": 257
@@ -206,29 +206,21 @@
         },
         {
             "Name": "Anórien Beans and Tater Soup",
-            "active": false,
+            "active": true,
             "Stats": {
-                "ResistanceRating": 2610,
-                "ResistanceWound": 2,
-                "ResistanceFear": 2,
-                "ResistanceDisease": 2,
-                "ResistancePoison": 2
+                "ResistanceRating": 2610
             }
         },
         {
             "Name": "Superior Anórien Beans and Tater Soup",
-            "active": false,
+            "active": true,
             "Stats": {
-                "ResistanceRating": 2610,
-                "ResistanceWound": 5,
-                "ResistanceFear": 5,
-                "ResistanceDisease": 5,
-                "ResistancePoison": 5
+                "ResistanceRating": 2610
             }
         },
         {
             "Name": "Feast of Anórien",
-            "active": false,
+            "active": true,
             "Stats": {
                 "Agility": 166,
                 "Might": 166,
@@ -238,7 +230,7 @@
         },
         {
             "Name": "Superior Feast of Anórien",
-            "active": false,
+            "active": true,
             "Stats": {
                 "Agility": 166,
                 "Might": 166,
