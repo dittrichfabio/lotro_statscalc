@@ -1,6 +1,6 @@
 {
     "optimization_choices": {
-        "Essence": 24,
+        "Essence": 27,
         "Virtue": 5
     },
     "roles": {
@@ -13,7 +13,17 @@
                 "Finesse",
                 "TacticalOffenceDamage",
                 "PhysicalMitigation",
-                "TacticalMitigation"
+                "TacticalMitigation",
+                "Resistance",
+                "WoundResistance",
+                "FearResistance",
+                "DiseaseResistance",
+                "PoisonResistance",
+                "FireMitigation",
+                "LightningMitigation",
+                "FrostMitigation",
+                "AcidMitigation",
+                "ShadowMitigation"
             ],
             "stat_requirements": [
                 "CriticalHitChanceTactical=25",
