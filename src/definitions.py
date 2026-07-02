@@ -478,13 +478,19 @@ def prepare_optimization_choices(gear_file, optimization_choices, virtues_items=
             
             if "Virtue" in optimization_choices and optimization_choices["Virtue"] != 0:
                 if items_per_type["Virtue"] == []:
-                    items_per_type["Virtue"] = [{"Name": virtue_name, "Stats": virtue_stats}]
+                    items_per_type["Virtue"] = [{"Name": virtue_name, "Stats": virtue_stats, "Rank": virtue.get("Rank")}]
                 else:
-                    items_per_type["Virtue"].append({"Name": virtue_name, "Stats": virtue_stats})
+                    items_per_type["Virtue"].append({"Name": virtue_name, "Stats": virtue_stats, "Rank": virtue.get("Rank")})
                 if items_ids["Virtue"] == []:
                     items_ids["Virtue"].append(0)
                 else:
                     items_ids["Virtue"].append(items_ids["Virtue"][-1]+1)
+    
+    # Validate that each item type in optimization_choices has available items
+    for item_type in optimization_choices:
+        if optimization_choices[item_type] > 0 and not items_per_type[item_type]:
+            print(f"Item type '{item_type}' is in optimization_choices but no available items were found. Aborting!")
+            sys.exit(1)
     
     expanded_items_ids = {}
     for item in optimization_choices:
@@ -627,7 +633,8 @@ def resolve_virtue_items(virtues_dict):
             "Name": virtue_name,
             "Type": "Virtue",
             "QuantityAvailable": 1,
-            "Stats": virtue_stats
+            "Stats": virtue_stats,
+            "Rank": rank
         })
     return virtue_items
 

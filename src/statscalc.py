@@ -208,10 +208,44 @@ def find_optimal_gear(character_name, gear_file, role):
         for i in best_combination_overcapped_stats:
             print(i, best_combination_overcapped_stats[i])
         print()
+        # Group and count items by type
+        virtue_items = []
+        essence_counts = {}
+        other_items = []
+        
         for index, item_type_index in enumerate(best_combination):
             item_type_name = item_types[index]
             item = items_per_type[item_type_name][item_type_index]
-            print(item["Name"])
+            
+            if item_type_name == "Virtue":
+                virtue_items.append(item)
+            elif item_type_name == "Essence":
+                essence_name = item["Name"]
+                essence_counts[essence_name] = essence_counts.get(essence_name, 0) + 1
+            else:
+                other_items.append(item)
+        
+        # Print virtues with their ranks
+        if virtue_items:
+            print("Virtues:")
+            for virtue in virtue_items:
+                rank = virtue.get("Rank", "N/A")
+                print(f"  {virtue['Name']} (Rank {rank})")
+            print()
+        
+        # Print essences with counts
+        if essence_counts:
+            print("Essences:")
+            for essence_name, count in essence_counts.items():
+                print(f"  {essence_name} x {count}")
+            print()
+        
+        # Print other items
+        if other_items:
+            print("Gear:")
+            for item in other_items:
+                print(f"  {item['Name']}")
+            print()
         print()
         for stat in best_combination_stats:
             fstat = RATING2PERCENTAGE_FINAL_STATS.get(stat, stat)
