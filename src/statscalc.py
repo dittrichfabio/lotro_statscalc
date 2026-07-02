@@ -192,7 +192,7 @@ def find_optimal_gear(character_name, gear_file, role):
     stats_rcap = get_all_stats_Rcap(character_level, character_armour)
 
     # Use ILP algorithm
-    best_combination, best_combination_value, best_combination_overcapped_stats, best_combination_overcap_value, best_combination_stats = find_optimal_combination_ilp(
+    best_combination, best_combination_value, best_combination_overcapped_stats, best_combination_overcap_value, best_combination_stats, best_combination_uncapped_stats = find_optimal_combination_ilp(
         item_types, items_per_type, items_ids,
         character_stats, character_class_stats, stats_rcap, requirements_ratings,
         essence_quantity_limits, stat_requirements, character_level, character_armour
@@ -247,6 +247,11 @@ def find_optimal_gear(character_name, gear_file, role):
                 print(f"  {item['Name']}")
             print()
         print()
+
+        print(best_combination_stats)
+        print()
+        print()
+        # Print stats with percentages
         for stat in best_combination_stats:
             fstat = RATING2PERCENTAGE_FINAL_STATS.get(stat, stat)
             if fstat != stat:
@@ -254,8 +259,10 @@ def find_optimal_gear(character_name, gear_file, role):
                 if stat_info:
                     a = stat_info["A"]
                     b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
+                    uncapped_value = best_combination_uncapped_stats.get(stat, best_combination_stats[stat])
+                    cap_value = stats_rcap.get(stat, uncapped_value)
                     percentage = PfromR(r=best_combination_stats[stat], a=a, b=b)
-                    print(f"{fstat} {round(percentage, 2)}%\n\t{stat} {best_combination_stats[stat]}")
+                    print(f"{fstat} {round(percentage, 2)}%\n\t{stat} {uncapped_value}/{cap_value}")
             else:
                 if fstat in stats_to_print:
                     print(f"{stat} {best_combination_stats[stat]}")

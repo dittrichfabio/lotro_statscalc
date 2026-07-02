@@ -584,10 +584,11 @@ def process_combination(combination, item_types, items_per_type, character_stats
         combination_items.append(item)
     #print(combination_items)
     #print(character_stats)
-    new_stats = equip_items(character_stats, character_class_stats, combination_items)
-    #print(new_stats)
+    uncapped_stats = equip_items(character_stats, character_class_stats, combination_items)
+    #print(uncapped_stats)
     overcap_value = 0
     overcapped_stats = {}
+    new_stats = uncapped_stats.copy()
     for stat in new_stats:
         if stat in stats_rcap:
             if new_stats[stat] > stats_rcap[stat]:
@@ -610,7 +611,7 @@ def process_combination(combination, item_types, items_per_type, character_stats
     #print("=====")
     #print(overcap)
     #print(combination_value)
-    return (combination, combination_value, overcapped_stats, overcap_value, new_stats)
+    return (combination, combination_value, overcapped_stats, overcap_value, new_stats, uncapped_stats)
 
 def resolve_virtue_items(virtues_dict):
     """
