@@ -104,7 +104,12 @@ SECONDARY_STATS = [
     "FinesseRating",
     "PhysicalMasteryRating",
     "TacticalMasteryRating",
+    "OutgoingHealingRating",
     "ResistanceRating",
+    "ResistanceWoundRating",
+    "ResistanceFearRating",
+    "ResistanceDiseaseRating",
+    "ResistancePoisonRating",
     "CriticalDefenceRating",
     "IncomingHealingRating",
     "BlockChanceRating",
@@ -112,7 +117,6 @@ SECONDARY_STATS = [
     "EvadeChanceRating",
     "PhysicalMitigationRating",
     "TacticalMitigationRating",
-    "OutgoingHealingRating"
 ]
 
 # Tertiary stats - derived from secondary stats, cannot be found on gear
@@ -139,7 +143,12 @@ TERTIARY_STATS = [
     "PartialParryMitigationRating",
     "EvadeChanceRating",
     "PartialEvadeChanceRating",
-    "PartialEvadeMitigationRating"
+    "PartialEvadeMitigationRating",
+    # Resistance breakdown
+    "ResistanceWoundRating",
+    "ResistanceFearRating",
+    "ResistanceDiseaseRating",
+    "ResistancePoisonRating"
 ]
 
 # Mapping from secondary stats to their tertiary stat components
@@ -173,6 +182,13 @@ SECONDARY2TERTIARY_MAPPING = {
         "EvadeChanceRating",
         "PartialEvadeChanceRating",
         "PartialEvadeMitigationRating"
+    ],
+    "ResistanceRating": [
+        "ResistanceRating",
+        "ResistanceWoundRating",
+        "ResistanceFearRating",
+        "ResistanceDiseaseRating",
+        "ResistancePoisonRating"
     ]
 }
 
@@ -191,6 +207,10 @@ TERTIARY_STAT_BASE_MAP = {
     "PartialParryMitigationRating":    "ParryChanceRating",
     "PartialEvadeChanceRating":        "EvadeChanceRating",
     "PartialEvadeMitigationRating":    "EvadeChanceRating",
+    "ResistanceWoundRating":           "ResistanceRating",
+    "ResistanceFearRating":            "ResistanceRating",
+    "ResistanceDiseaseRating":         "ResistanceRating",
+    "ResistancePoisonRating":          "ResistanceRating",
 }
 
 # Reverse mapping from tertiary to secondary stats
@@ -223,6 +243,10 @@ FINAL_STATS = {
     "TacticalOutgoingHealing": "OutgoingHealingRating",
     # Resistance and defence
     "Resistance": "ResistanceRating",
+    "WoundResistance":    "ResistanceWoundRating",
+    "FearResistance":     "ResistanceFearRating",
+    "DiseaseResistance":  "ResistanceDiseaseRating",
+    "PoisonResistance":   "ResistancePoisonRating",
     "CriticalDefenceMelee": "CriticalDefenceRating",
     "CriticalDefenceRanged": "CriticalDefenceRating",
     "CriticalDefenceTactical": "CriticalDefenceRating",
@@ -302,7 +326,12 @@ def equip_items(character_stats, character_class_stats, items):
                 new_stats[item_stat] += item_stats[item_stat]
             if item_stat in MAIN_STATS: #if the stat is a main stat, add its contribution to secondary stats
                 for secondary_stat in character_class_stats[item_stat]:
-                    new_stats[secondary_stat] += math.floor(item_stats[item_stat] * character_class_stats[item_stat][secondary_stat])
+                    contribution = math.floor(item_stats[item_stat] * character_class_stats[item_stat][secondary_stat])
+                    if secondary_stat in SECONDARY2TERTIARY_MAPPING:
+                        for tertiary_stat in SECONDARY2TERTIARY_MAPPING[secondary_stat]:
+                            new_stats[tertiary_stat] += contribution
+                    else:
+                        new_stats[secondary_stat] += contribution
     return new_stats
 
 def compute_percentage(base_stats, character_armour, character_level, extra_stats):
@@ -513,6 +542,10 @@ STATS_INFO_KEY_OVERRIDES = {
     "FrostMitigation":         "TacticalMitigation",
     "AcidMitigation":          "TacticalMitigation",
     "ShadowMitigation":        "TacticalMitigation",
+    "WoundResistance":         "Resistance",
+    "FearResistance":          "Resistance",
+    "DiseaseResistance":       "Resistance",
+    "PoisonResistance":        "Resistance",
 }
 
 def get_stats_info_key(fstat, character_armour):
