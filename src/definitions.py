@@ -106,10 +106,10 @@ SECONDARY_STATS = [
     "TacticalMasteryRating",
     "OutgoingHealingRating",
     "ResistanceRating",
-    "ResistanceWoundRating",
-    "ResistanceFearRating",
-    "ResistanceDiseaseRating",
-    "ResistancePoisonRating",
+    "WoundResistanceRating",
+    "FearResistanceRating",
+    "DiseaseResistanceRating",
+    "PoisonResistanceRating",
     "CriticalDefenceRating",
     "IncomingHealingRating",
     "BlockChanceRating",
@@ -145,10 +145,10 @@ TERTIARY_STATS = [
     "PartialEvadeChanceRating",
     "PartialEvadeMitigationRating",
     # Resistance breakdown
-    "ResistanceWoundRating",
-    "ResistanceFearRating",
-    "ResistanceDiseaseRating",
-    "ResistancePoisonRating"
+    "WoundResistanceRating",
+    "FearResistanceRating",
+    "DiseaseResistanceRating",
+    "PoisonResistanceRating"
 ]
 
 # Mapping from secondary stats to their tertiary stat components
@@ -185,10 +185,10 @@ SECONDARY2TERTIARY_MAPPING = {
     ],
     "ResistanceRating": [
         "ResistanceRating",
-        "ResistanceWoundRating",
-        "ResistanceFearRating",
-        "ResistanceDiseaseRating",
-        "ResistancePoisonRating"
+        "WoundResistanceRating",
+        "FearResistanceRating",
+        "DiseaseResistanceRating",
+        "PoisonResistanceRating"
     ]
 }
 
@@ -207,10 +207,10 @@ TERTIARY_STAT_BASE_MAP = {
     "PartialParryMitigationRating":    "ParryChanceRating",
     "PartialEvadeChanceRating":        "EvadeChanceRating",
     "PartialEvadeMitigationRating":    "EvadeChanceRating",
-    "ResistanceWoundRating":           "ResistanceRating",
-    "ResistanceFearRating":            "ResistanceRating",
-    "ResistanceDiseaseRating":         "ResistanceRating",
-    "ResistancePoisonRating":          "ResistanceRating",
+    "WoundResistanceRating":           "ResistanceRating",
+    "FearResistanceRating":            "ResistanceRating",
+    "DiseaseResistanceRating":         "ResistanceRating",
+    "PoisonResistanceRating":          "ResistanceRating",
 }
 
 # Reverse mapping from tertiary to secondary stats
@@ -243,10 +243,10 @@ FINAL_STATS = {
     "TacticalOutgoingHealing": "OutgoingHealingRating",
     # Resistance and defence
     "Resistance": "ResistanceRating",
-    "WoundResistance":    "ResistanceWoundRating",
-    "FearResistance":     "ResistanceFearRating",
-    "DiseaseResistance":  "ResistanceDiseaseRating",
-    "PoisonResistance":   "ResistancePoisonRating",
+    "WoundResistance":    "WoundResistanceRating",
+    "FearResistance":     "FearResistanceRating",
+    "DiseaseResistance":  "DiseaseResistanceRating",
+    "PoisonResistance":   "PoisonResistanceRating",
     "CriticalDefenceMelee": "CriticalDefenceRating",
     "CriticalDefenceRanged": "CriticalDefenceRating",
     "CriticalDefenceTactical": "CriticalDefenceRating",
@@ -294,6 +294,8 @@ RATING2PERCENTAGE_FINAL_STATS = {
 
 # All valid stats across all tiers
 VALID_STATS = list(set(MAIN_STATS + SECONDARY_STATS + TERTIARY_STATS + list(FINAL_STATS.keys())))
+# Valid stats for gear/essence/buff entries (only main and secondary stats can appear on items)
+VALID_ITEM_STATS = set(MAIN_STATS + SECONDARY_STATS + list(FINAL_STATS.keys()))
 VALID_ITEM_MAX_QUANTITY = {"Boots": 1,  "Chest": 1,  "Gloves": 1,  "Helm": 1,  "Leggings": 1,  "Shoulders": 1,  "Back": 1,  "Ring": 2,  "Earring": 2,  "Bracelet": 2,  "Necklace": 1,  "Pocket": 1, "Essence": 999, "Virtue": 5}
 VALID_ITEM_TYPES = list(VALID_ITEM_MAX_QUANTITY.keys())
 
@@ -313,9 +315,11 @@ def equip_items(character_stats, character_class_stats, items):
         items = items["available_items"]
     for tertiary_list in SECONDARY2TERTIARY_MAPPING.values():
         for tstat in tertiary_list:
+            base_stat = TERTIARY_STAT_BASE_MAP.get(tstat)
             if tstat not in new_stats:
-                base_stat = TERTIARY_STAT_BASE_MAP.get(tstat)
                 new_stats[tstat] = new_stats.get(base_stat, 0) if base_stat else 0
+            elif base_stat and tstat in SECONDARY_STATS:
+                new_stats[tstat] += new_stats.get(base_stat, 0)
     for item in items:
         item_stats = item.get("Stats")
         for item_stat in item_stats:
@@ -410,8 +414,8 @@ def prepare_optimization_choices(gear_file, optimization_choices, virtues_items=
             print(f"Type {item_type} of {item_name} is not valid. Aborting!")
             sys.exit(1)
         for stat in item_stats:
-            if stat not in VALID_STATS:
-                print(f"Stat {stat} of {item_name} is not valid. Aborting!")
+            if stat not in VALID_ITEM_STATS:
+                print(f"Stat '{stat}' of '{item_name}' is not a valid main or secondary stat. Aborting!")
                 sys.exit(1)
 
         if item_type in optimization_choices:
@@ -466,8 +470,8 @@ def prepare_optimization_choices(gear_file, optimization_choices, virtues_items=
             print(f"Type {essence_type} of {essence_name} is not Essence. Aborting!")
             sys.exit(1)
         for stat in essence_stats:
-            if stat not in VALID_STATS:
-                print(f"Stat {stat} of {essence_name} is not valid. Aborting!")
+            if stat not in VALID_ITEM_STATS:
+                print(f"Stat '{stat}' of '{essence_name}' is not a valid main or secondary stat. Aborting!")
                 sys.exit(1)
         
         # Track quantity limits for each essence
@@ -690,8 +694,7 @@ def load_preferred_stats(character_name, role):
         print(f"Role {role} does not define 'stat_requirements', using all stats for comparing item combinations.")
         stat_requirements = None
     if not stats_to_print:
-        print(f"Role {role} does not define 'stats_to_print', printing all stats at the end.")
-        stats_to_print = VALID_STATS
+        stats_to_print = None
     
     optimization_choices = preferred_stats.get("optimization_choices")
 

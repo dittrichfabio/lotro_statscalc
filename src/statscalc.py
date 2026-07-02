@@ -172,11 +172,22 @@ def find_optimal_gear(character_name, gear_file, role):
     buffs = gear_json.get("buffs", [])
 
     # Apply active buffs as flat stat additions to character stats
+    # Final stats (e.g. WoundResistance) are collected separately as direct % bonuses
+    extra_final_stats = {}
+    _pure_final_stats = set(FINAL_STATS.keys()) - set(MAIN_STATS) - set(SECONDARY_STATS)
     for buff in buffs:
+        buff_name = buff.get("Name", str(buff))
+        buff_stats = buff.get("Stats", {})
+        for stat in buff_stats:
+            if stat not in VALID_ITEM_STATS:
+                print(f"Stat '{stat}' of buff '{buff_name}' is not a valid stat. Aborting!")
+                sys.exit(1)
         if buff.get("active", False):
-            buff_stats = buff.get("Stats", {})
             for stat, value in buff_stats.items():
-                character_stats[stat] = character_stats.get(stat, 0) + value
+                if stat in _pure_final_stats:
+                    extra_final_stats[stat] = extra_final_stats.get(stat, 0) + value
+                else:
+                    character_stats[stat] = character_stats.get(stat, 0) + value
 
     # Resolve virtue items from character's available virtues
     virtues_dict = character.get("Virtues", {})
@@ -217,6 +228,10 @@ def find_optimal_gear(character_name, gear_file, role):
             item_type_name = item_types[index]
             item = items_per_type[item_type_name][item_type_index]
             
+            for stat, value in item.get("Stats", {}).items():
+                if stat in _pure_final_stats:
+                    extra_final_stats[stat] = extra_final_stats.get(stat, 0) + value
+
             if item_type_name == "Virtue":
                 virtue_items.append(item)
             elif item_type_name == "Essence":
@@ -249,23 +264,55 @@ def find_optimal_gear(character_name, gear_file, role):
         print()
 
         # Print stats with percentages
-        for fstat in stats_to_print:
-            rating_stat = FINAL_STATS.get(fstat, "")
-            if rating_stat:
-                # This is a rating stat that converts to percentage
-                stat_info = STATS_INFO.get(get_stats_info_key(fstat, character_armour))
-                if stat_info:
-                    a = stat_info["A"]
-                    b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
-                    capped_value = best_combination_stats.get(rating_stat, 0)
-                    uncapped_value = best_combination_uncapped_stats.get(rating_stat, capped_value)
-                    cap_value = stats_rcap.get(rating_stat, uncapped_value)
-                    percentage = PfromR(r=capped_value, a=a, b=b)
-                    print(f"{fstat}\n\t{round(percentage, 2)}% ({uncapped_value}/{cap_value})")
-            else:
-                # This is a direct stat without rating conversion
-                value = best_combination_stats.get(fstat, 0)
-                print(f"{fstat} {value}")
+        if stats_to_print:
+            for fstat in stats_to_print:
+                rating_stat = FINAL_STATS.get(fstat, "")
+                if rating_stat:
+                    stat_info = STATS_INFO.get(get_stats_info_key(fstat, character_armour))
+                    if stat_info:
+                        a = stat_info["A"]
+                        b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
+                        capped_value = best_combination_stats.get(rating_stat, 0)
+                        uncapped_value = best_combination_uncapped_stats.get(rating_stat, capped_value)
+                        cap_value = stats_rcap.get(rating_stat, uncapped_value)
+                        percentage = PfromR(r=capped_value, a=a, b=b) + extra_final_stats.get(fstat, 0)
+                        print(f"{fstat}\n\t{round(percentage, 2)}% ({uncapped_value}/{cap_value})")
+                else:
+                    value = best_combination_stats.get(fstat, 0)
+                    print(f"{fstat} {value}")
+        else:
+            rating_to_finals = {}
+            for fstat, rating in FINAL_STATS.items():
+                if rating:
+                    rating_to_finals.setdefault(rating, []).append(fstat)
+            for secondary_stat in SECONDARY_STATS:
+                parent = TERTIARY2SECONDARY_MAPPING.get(secondary_stat)
+                if parent and parent != secondary_stat:
+                    continue
+                uncapped_value = best_combination_uncapped_stats.get(secondary_stat)
+                stat_for_cap = secondary_stat
+                if uncapped_value is None:
+                    first_tertiary = next(iter(SECONDARY2TERTIARY_MAPPING.get(secondary_stat, [])), None)
+                    uncapped_value = best_combination_uncapped_stats.get(first_tertiary, 0) if first_tertiary else 0
+                    stat_for_cap = first_tertiary or secondary_stat
+                cap_value = stats_rcap.get(stat_for_cap)
+                if cap_value is not None:
+                    print(f"{secondary_stat} {uncapped_value}/{cap_value}")
+                else:
+                    print(f"{secondary_stat} {uncapped_value}")
+                # Print associated final stats indented below
+                tertiary_stats = SECONDARY2TERTIARY_MAPPING.get(secondary_stat, [secondary_stat])
+                for tstat in tertiary_stats:
+                    for fstat in rating_to_finals.get(tstat, []):
+                        stat_info = STATS_INFO.get(get_stats_info_key(fstat, character_armour))
+                        if stat_info:
+                            a = stat_info["A"]
+                            b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
+                            capped_tvalue = best_combination_stats.get(tstat, 0)
+                            uncapped_tvalue = best_combination_uncapped_stats.get(tstat, capped_tvalue)
+                            tcap_value = stats_rcap.get(tstat, uncapped_tvalue)
+                            percentage = PfromR(r=capped_tvalue, a=a, b=b) + extra_final_stats.get(fstat, 0)
+                            print(f"\t{fstat} {uncapped_tvalue}/{tcap_value} {round(percentage, 2)}%")
     else:
         print(f"Couldn't find a combination that satisfies {stat_requirements}.")
 
