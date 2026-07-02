@@ -248,24 +248,24 @@ def find_optimal_gear(character_name, gear_file, role):
             print()
         print()
 
-        print(best_combination_stats)
-        print()
-        print()
         # Print stats with percentages
-        for stat in best_combination_stats:
-            fstat = RATING2PERCENTAGE_FINAL_STATS.get(stat, stat)
-            if fstat != stat:
+        for fstat in stats_to_print:
+            rating_stat = FINAL_STATS.get(fstat, "")
+            if rating_stat:
+                # This is a rating stat that converts to percentage
                 stat_info = STATS_INFO.get(get_stats_info_key(fstat, character_armour))
                 if stat_info:
                     a = stat_info["A"]
                     b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
-                    uncapped_value = best_combination_uncapped_stats.get(stat, best_combination_stats[stat])
-                    cap_value = stats_rcap.get(stat, uncapped_value)
-                    percentage = PfromR(r=best_combination_stats[stat], a=a, b=b)
-                    print(f"{fstat} {round(percentage, 2)}%\n\t{stat} {uncapped_value}/{cap_value}")
+                    capped_value = best_combination_stats.get(rating_stat, 0)
+                    uncapped_value = best_combination_uncapped_stats.get(rating_stat, capped_value)
+                    cap_value = stats_rcap.get(rating_stat, uncapped_value)
+                    percentage = PfromR(r=capped_value, a=a, b=b)
+                    print(f"{fstat}\n\t{round(percentage, 2)}% ({uncapped_value}/{cap_value})")
             else:
-                if fstat in stats_to_print:
-                    print(f"{stat} {best_combination_stats[stat]}")
+                # This is a direct stat without rating conversion
+                value = best_combination_stats.get(fstat, 0)
+                print(f"{fstat} {value}")
     else:
         print(f"Couldn't find a combination that satisfies {stat_requirements}.")
 
