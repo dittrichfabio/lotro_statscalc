@@ -30,10 +30,12 @@
                 "TacticalOffenceDamage=200",
                 "Finesse=30",
                 "PhysicalMitigation=40",
-                "TacticalMitigation=40",
+                "CriticalRatingTactical=21000",
+                "TacticalMitigationRating=10470",
                 "Morale"
             ],
             "stat_requirements_bkp": [
+                "TacticalMitigation=40"
             ],
             "set_restrictions": []
         }

@@ -579,6 +579,16 @@ def get_ratings_for_requirements(stat_requirements, character_level, character_a
             if fstat in ["Morale"]:
                 requirements_ratings[fstat] = percentage
                 continue
+            if fstat in SECONDARY_STATS:
+                if fstat in SECONDARY2TERTIARY_MAPPING:
+                    tertiary_examples = SECONDARY2TERTIARY_MAPPING[fstat]
+                    print(f"Stat '{fstat}' distributes to multiple tertiary stats and cannot be used as a direct rating requirement. Use a specific tertiary stat instead (e.g. '{tertiary_examples[0]}') or a final stat percentage. Aborting!")
+                    sys.exit(1)
+                requirements_ratings[fstat] = percentage
+                continue
+            if fstat in TERTIARY_STATS:
+                requirements_ratings[fstat] = percentage
+                continue
             stat_info = STATS_INFO[get_stats_info_key(fstat, character_armour)]
             a = stat_info["A"]
             b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
@@ -628,19 +638,24 @@ def process_combination(combination, item_types, items_per_type, character_stats
     new_stats = uncapped_stats.copy()
     for stat in new_stats:
         if stat in stats_rcap:
-            if new_stats[stat] > stats_rcap[stat]:
+            effective_cap = max(stats_rcap[stat], requirements_ratings.get(stat, 0))
+            secondary = TERTIARY2SECONDARY_MAPPING.get(stat)
+            if secondary is not None:
+                for sibling in SECONDARY2TERTIARY_MAPPING.get(secondary, []):
+                    effective_cap = max(effective_cap, requirements_ratings.get(sibling, 0))
+            if new_stats[stat] > effective_cap:
                 #print("!!!!")
                 #print(stat)
                 #print(new_stats[stat])
                 #print(stats_rcap[stat])
                 secondary_stat = TERTIARY2SECONDARY_MAPPING.get(stat, "use_normal_stat")
                 if secondary_stat == "use_normal_stat":
-                    overcapped_stats[stat] = (new_stats[stat] - stats_rcap[stat])
-                    overcap_value += (new_stats[stat] - stats_rcap[stat])
+                    overcapped_stats[stat] = (new_stats[stat] - effective_cap)
+                    overcap_value += (new_stats[stat] - effective_cap)
                 elif secondary_stat not in overcapped_stats:
-                    overcapped_stats[secondary_stat] = (new_stats[stat] - stats_rcap[stat])
-                    overcap_value += (new_stats[stat] - stats_rcap[stat])
-                new_stats[stat] = stats_rcap[stat]
+                    overcapped_stats[secondary_stat] = (new_stats[stat] - effective_cap)
+                    overcap_value += (new_stats[stat] - effective_cap)
+                new_stats[stat] = effective_cap
     #print(new_stats)
     combination_value = define_combination_value(new_stats, requirements_ratings)
     if penalize_overcapping:
@@ -751,7 +766,7 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
         import pulp
     except ImportError:
         print("pulp library not found. Please install it with: pip install pulp")
-        return None, -1, {}, 0, {}
+        return None, -1, {}, 0, {}, {}
 
     # Stats we care about: those in requirements_ratings, or all character stats if none defined
     if requirements_ratings:
@@ -907,7 +922,7 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
 
     if pulp.LpStatus[prob.status] != 'Optimal':
         print(f"ILP: no optimal solution found (status: {pulp.LpStatus[prob.status]})")
-        return None, -1, {}, 0, {}
+        return None, -1, {}, 0, {}, {}
 
     # Extract solution: for each slot pick the chosen item index
     # For virtue slots, assign chosen virtues (from y variables) sequentially

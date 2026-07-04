@@ -274,8 +274,14 @@ def find_optimal_gear(character_name, gear_file, role):
                         b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
                         capped_value = best_combination_stats.get(rating_stat, 0)
                         uncapped_value = best_combination_uncapped_stats.get(rating_stat, capped_value)
-                        cap_value = stats_rcap.get(rating_stat, uncapped_value)
-                        percentage = PfromR(r=capped_value, a=a, b=b) + extra_final_stats.get(fstat, 0)
+                        base_cap = stats_rcap.get(rating_stat, uncapped_value)
+                        penetration = max(0, requirements_ratings.get(rating_stat, 0) - base_cap)
+                        secondary_of_r = TERTIARY2SECONDARY_MAPPING.get(rating_stat)
+                        if secondary_of_r:
+                            for sibling in SECONDARY2TERTIARY_MAPPING.get(secondary_of_r, []):
+                                penetration = max(penetration, max(0, requirements_ratings.get(sibling, 0) - base_cap))
+                        cap_value = base_cap + penetration
+                        percentage = PfromR(r=capped_value - penetration, a=a, b=b) + extra_final_stats.get(fstat, 0)
                         print(f"{fstat}\n\t{round(percentage, 2)}% ({uncapped_value}/{cap_value})")
                 else:
                     value = best_combination_stats.get(fstat, 0)
@@ -297,6 +303,9 @@ def find_optimal_gear(character_name, gear_file, role):
                     stat_for_cap = first_tertiary or secondary_stat
                 cap_value = stats_rcap.get(stat_for_cap)
                 if cap_value is not None:
+                    cap_value = max(cap_value, requirements_ratings.get(secondary_stat, 0))
+                    for sibling in SECONDARY2TERTIARY_MAPPING.get(secondary_stat, []):
+                        cap_value = max(cap_value, requirements_ratings.get(sibling, 0))
                     print(f"{secondary_stat} {uncapped_value}/{cap_value}")
                 else:
                     print(f"{secondary_stat} {uncapped_value}")
@@ -310,8 +319,14 @@ def find_optimal_gear(character_name, gear_file, role):
                             b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
                             capped_tvalue = best_combination_stats.get(tstat, 0)
                             uncapped_tvalue = best_combination_uncapped_stats.get(tstat, capped_tvalue)
-                            tcap_value = stats_rcap.get(tstat, uncapped_tvalue)
-                            percentage = PfromR(r=capped_tvalue, a=a, b=b) + extra_final_stats.get(fstat, 0)
+                            tbase_cap = stats_rcap.get(tstat, uncapped_tvalue)
+                            tpenetration = max(0, requirements_ratings.get(tstat, 0) - tbase_cap)
+                            secondary_of_t = TERTIARY2SECONDARY_MAPPING.get(tstat)
+                            if secondary_of_t:
+                                for sibling in SECONDARY2TERTIARY_MAPPING.get(secondary_of_t, []):
+                                    tpenetration = max(tpenetration, max(0, requirements_ratings.get(sibling, 0) - tbase_cap))
+                            tcap_value = tbase_cap + tpenetration
+                            percentage = PfromR(r=capped_tvalue - tpenetration, a=a, b=b) + extra_final_stats.get(fstat, 0)
                             print(f"\t{fstat} {uncapped_tvalue}/{tcap_value} {round(percentage, 2)}%")
     else:
         print(f"Couldn't find a combination that satisfies {stat_requirements}.")
