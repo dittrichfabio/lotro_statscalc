@@ -577,26 +577,36 @@ def get_ratings_for_requirements(stat_requirements, character_level, character_a
         percentage = float(r.split('=')[1]) if len(r.split('=')) == 2 else -1
         if percentage != -1:
             if fstat in ["Morale"]:
-                requirements_ratings[fstat] = percentage
-                continue
-            if fstat in SECONDARY_STATS:
+                target_key, target_value = fstat, percentage
+            elif fstat in SECONDARY_STATS:
                 if fstat in SECONDARY2TERTIARY_MAPPING:
                     tertiary_examples = SECONDARY2TERTIARY_MAPPING[fstat]
                     print(f"Stat '{fstat}' distributes to multiple tertiary stats and cannot be used as a direct rating requirement. Use a specific tertiary stat instead (e.g. '{tertiary_examples[0]}') or a final stat percentage. Aborting!")
                     sys.exit(1)
-                requirements_ratings[fstat] = percentage
-                continue
-            if fstat in TERTIARY_STATS:
-                requirements_ratings[fstat] = percentage
-                continue
-            stat_info = STATS_INFO[get_stats_info_key(fstat, character_armour)]
-            a = stat_info["A"]
-            b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
-            requirements_ratings[FINAL_STATS[fstat]] = RfromP(p=percentage, a=a, b=b)
+                target_key, target_value = fstat, percentage
+            elif fstat in TERTIARY_STATS:
+                target_key, target_value = fstat, percentage
+            else:
+                stat_info = STATS_INFO[get_stats_info_key(fstat, character_armour)]
+                a = stat_info["A"]
+                b = BRating(bs=stat_info["BStart"][level_index], be=stat_info["BEnd"][level_index], l=character_level, le=stat_info["LEnd"][level_index], ls=stat_info["LStart"][level_index])
+                target_key, target_value = FINAL_STATS[fstat], RfromP(p=percentage, a=a, b=b)
         elif FINAL_STATS[fstat]:
-            requirements_ratings[FINAL_STATS[fstat]] = -1
+            target_key, target_value = FINAL_STATS[fstat], -1
         else:
-            requirements_ratings[fstat] = -1
+            target_key, target_value = fstat, -1
+        if target_key in requirements_ratings and requirements_ratings[target_key] != target_value:
+            existing = requirements_ratings[target_key]
+            if existing == -1:
+                kept = target_value
+            elif target_value == -1:
+                kept = existing
+            else:
+                kept = max(existing, target_value)
+            print(f"Warning: '{r}' conflicts with a previous requirement — both target '{target_key}'. Keeping higher value: {kept}.")
+            requirements_ratings[target_key] = kept
+        else:
+            requirements_ratings[target_key] = target_value
     return requirements_ratings
 
 def define_combination_value(new_stats, requirements_ratings):
