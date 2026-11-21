@@ -217,7 +217,7 @@
         },
         {
             "Name": "Superior Anórien Beans and Tater Soup",
-            "active": true,
+            "active": false,
             "Stats": {
                 "ResistanceRating": 2610,
                 "WoundResistance": 5,
@@ -228,7 +228,7 @@
         },
         {
             "Name": "Feast of Anórien",
-            "active": false,
+            "active": true,
             "Stats": {
                 "Agility": 166,
                 "Might": 166,
@@ -238,7 +238,7 @@
         },
         {
             "Name": "Superior Feast of Anórien",
-            "active": true,
+            "active": false,
             "Stats": {
                 "Agility": 166,
                 "Might": 166,
@@ -249,7 +249,7 @@
         },
         {
             "Name": "Westemnet Edhelharn Token",
-            "active": true,
+            "active": false,
             "Stats": {
                 "ResistanceRating": 328
             }

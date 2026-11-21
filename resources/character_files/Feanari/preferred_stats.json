@@ -1,6 +1,6 @@
 {
     "optimization_choices": {
-        "Essence": 27,
+        "Essence": 33,
         "Virtue": 5
     },
     "roles": {
@@ -26,16 +26,18 @@
                 "ShadowMitigation"
             ],
             "stat_requirements": [
-                "CriticalHitChanceTactical=25",
+                "CriticalRatingTactical=21000",
                 "TacticalOffenceDamage=200",
                 "Finesse=30",
                 "PhysicalMitigation=40",
-                "CriticalRatingTactical=21000",
+                "TacticalMitigation=40",
                 "TacticalMitigationRating=10470",
                 "Morale"
             ],
             "stat_requirements_bkp": [
-                "TacticalMitigation=40"
+                "DevastatingHitChanceTactical=10",
+                "CriticalHitChanceTactical=25",
+                "Morale"
             ],
             "set_restrictions": []
         }

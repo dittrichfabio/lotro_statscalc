@@ -58,9 +58,9 @@ char_stat_sorting_order = [
 ]
 
 #Plugins data
-server = "Angmar"
-username = "ddmdarklink"
-plugin_char_path = os.path.join("/", "mnt", "c", "Users", "fabio_dittrich", "Documents", "The Lord of the Rings Online", "PluginData", f"{username}", f"{server}", "{character_name}")
+DEFAULT_PLUGIN_SERVER = "Angmar"
+DEFAULT_PLUGIN_USERNAME = "ddmdarklink"
+plugin_char_path = os.path.join("/", "mnt", "c", "Users", "fabio_dittrich", "Documents", "The Lord of the Rings Online", "PluginData", "{username}", "{server}", "{character_name}")
 
 #Formulas
 BRating = lambda bs, be, l, le, ls: (bs*(le-l)+(l-ls)*be)/(le-ls)
@@ -336,6 +336,10 @@ def equip_items(character_stats, character_class_stats, items):
                             new_stats[tertiary_stat] += contribution
                     else:
                         new_stats[secondary_stat] += contribution
+            # Convert Armour to mitigation ratings
+            if item_stat == "Armour":
+                new_stats["PhysicalMitigationRating"] += item_stats[item_stat]
+                new_stats["TacticalMitigationRating"] += math.floor(item_stats[item_stat] * 0.2)
     return new_stats
 
 def compute_percentage(base_stats, character_armour, character_level, extra_stats):
@@ -809,6 +813,12 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
                     for secondary_stat, multiplier in character_class_stats[item_stat].items():
                         if secondary_stat in contrib:
                             contrib[secondary_stat] += math.floor(value * multiplier)
+                # Convert Armour to mitigation ratings
+                if item_stat == "Armour":
+                    if "PhysicalMitigationRating" in contrib:
+                        contrib["PhysicalMitigationRating"] += value
+                    if "TacticalMitigationRating" in contrib:
+                        contrib["TacticalMitigationRating"] += math.floor(value * 0.2)
             item_contribs.append(contrib)
         slot_item_contrib.append(item_contribs)
 
@@ -829,6 +839,12 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
                     for secondary_stat, multiplier in character_class_stats[item_stat].items():
                         if secondary_stat in contrib:
                             contrib[secondary_stat] += math.floor(value * multiplier)
+                # Convert Armour to mitigation ratings
+                if item_stat == "Armour":
+                    if "PhysicalMitigationRating" in contrib:
+                        contrib["PhysicalMitigationRating"] += value
+                    if "TacticalMitigationRating" in contrib:
+                        contrib["TacticalMitigationRating"] += math.floor(value * 0.2)
             virtue_contrib.append(contrib)
 
     prob = pulp.LpProblem("GearOptimization", pulp.LpMaximize)

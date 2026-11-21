@@ -6,6 +6,8 @@ from definitions import *
 from functools import partial
 from joblib import Parallel, delayed
 from lotro_wiki_interface import get_virtue_stats_from_wiki
+from plugindata import load_plugindata
+from items_db import ItemDatabase, SLOT_MAP, decode_link_gid, effective_item_level
 
 @click.group()
 @click.version_option()
@@ -336,37 +338,192 @@ def find_optimal_gear(character_name, gear_file, role):
 @click.argument('character_name', required=True)
 @click.argument('server', required=False)
 @click.argument('filename', required=True)
-def convert_plugin_data_to_json(character_name, server, filename):
-    stats_file = os.path.join(plugin_char_path.format(character_name=character_name, server=server), "Stats.plugindata")
+@click.option('--username', 'account', default=DEFAULT_PLUGIN_USERNAME,
+              help='PluginData account name')
+def convert_plugin_data_to_json(character_name, server, filename, account):
+    plugin_dir = plugin_char_path.format(
+        username=account,
+        server=server or DEFAULT_PLUGIN_SERVER,
+        character_name=character_name)
+    stats_file = os.path.join(plugin_dir, "Stats.plugindata")
     char_folder = os.path.join(STATSCALC, "stat_files", character_name)
     if not os.path.exists(char_folder):
         os.makedirs(char_folder)
 
-    with open(stats_file, 'r') as f:
-        text = f.read()
+    table = load_plugindata(stats_file)
 
-    matches=STAT.findall(text)
     data = {}
     stats = {}
-    for key, value in matches:
+    for key, value in table.items():
         if key in ["Class", "Level"]:
             try:
                 data[key] = float(value)
-            except ValueError:
-                data[key] = value.strip('"')
+            except (TypeError, ValueError):
+                data[key] = value
         else:
             try:
                 stats[key] = round(float(value))
-            except ValueError:
-                stats[key] = value.strip('"')
+            except (TypeError, ValueError):
+                stats[key] = value
     for missing_stat, base_stat in TERTIARY_STAT_BASE_MAP.items():
         if missing_stat not in stats and base_stat in stats:
             stats[missing_stat] = stats[base_stat]
-    stats = {key: stats[key] for key in sorted(stats, key=lambda x: char_stat_sorting_order.index(x)) if key in char_stat_sorting_order}
+    stats = {key: stats[key] for key in sorted(
+        (key for key in stats if key in char_stat_sorting_order),
+        key=char_stat_sorting_order.index)}
     data["Stats"] = stats
 
     with open(os.path.join(char_folder, filename), 'w') as f:
         json.dump(data, f, indent=4)
+
+
+def _normalize_decoded(value):
+    """Cast integral floats from Decoded tables to ints for readable JSON."""
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    if isinstance(value, dict):
+        return {k: _normalize_decoded(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_normalize_decoded(v) for v in value]
+    return value
+
+
+def _shortcut_gid(shortcut_data):
+    """Extract the GID half of a quickslot ShortcutData string ("0x<IID>,0x<GID>")."""
+    try:
+        parts = str(shortcut_data).split(',')
+        if len(parts) == 2:
+            gid = int(parts[1], 16)
+            return gid if gid != 0 else None
+    except ValueError:
+        pass
+    return None
+
+
+@cli.command('convert_items_to_json')
+@click.argument('character_name', required=True)
+@click.argument('server', required=False)
+@click.argument('filename', required=True)
+@click.option('--username', 'account', default=DEFAULT_PLUGIN_USERNAME,
+              help='PluginData account name')
+def convert_items_to_json(character_name, server, filename, account):
+    """Convert Items.plugindata records into a gear-file-style JSON.
+
+    Each record's itemGID is resolved against the LotroCompanion item DB
+    (resources/item_db/items.xml + progressions.xml). Stat progressions are
+    interpolated at the item's effective level (Decoded.itemTrueLevel /
+    itemLevel when present, else the DB record's level).
+    """
+    plugin_dir = plugin_char_path.format(
+        username=account,
+        server=server or DEFAULT_PLUGIN_SERVER,
+        character_name=character_name)
+    items_file = os.path.join(plugin_dir, "Items.plugindata")
+    char_folder = os.path.join(STATSCALC, "stat_files", character_name)
+    if not os.path.exists(char_folder):
+        os.makedirs(char_folder)
+
+    records = load_plugindata(items_file)
+    if isinstance(records, dict):
+        records = [records[k] for k in sorted(records)]
+
+    # Resolve GIDs for every record before a single pass over items.xml
+    record_gids = []
+    for rec in records:
+        decoded = rec.get("Decoded") if isinstance(rec.get("Decoded"), dict) else {}
+        gid = decoded.get("itemGID")
+        if gid is None:
+            gid = _shortcut_gid(rec.get("ShortcutData"))
+        if gid is None and rec.get("LinkData") and rec.get("Source") != "ChatLinkLI":
+            fallback = decode_link_gid(rec["LinkData"])
+            if fallback:
+                decoded = dict(decoded)
+                decoded.update(fallback)
+                gid = fallback["itemGID"]
+        record_gids.append((decoded, int(gid) if gid else None))
+
+    try:
+        db = ItemDatabase()
+    except OSError as e:
+        print(f"Cannot load item DB: {e}")
+        print("Download https://github.com/LotroCompanion/lotro-items-db/raw/master/items.xml "
+              "to resources/item_db/items.xml and "
+              "https://github.com/LotroCompanion/lotro-data/raw/master/lore/progressions.xml "
+              "to resources/item_db/progressions.xml")
+        sys.exit(1)
+    db_items = db.get_items([gid for _, gid in record_gids])
+
+    available_items = []
+    non_gear_items = []
+    unresolved_items = []
+    for rec, (decoded, gid) in zip(records, record_gids):
+        item = db_items.get(gid) if gid else None
+        if item is None:
+            entry = {"Name": rec.get("Name")}
+            for key in ("Source", "Quality", "Category", "Description", "DecodeError"):
+                if rec.get(key) is not None:
+                    entry[key] = rec[key]
+            if gid:
+                entry["GID"] = gid
+            if decoded:
+                entry["Decoded"] = _normalize_decoded(decoded)
+            if rec.get("DecodeError") and rec.get("LinkData"):
+                entry["LinkData"] = rec["LinkData"]
+            unresolved_items.append(entry)
+            continue
+
+        level = effective_item_level(item, decoded)
+        stats, other_stats = db.resolve_stats(item, level)
+        slot = item.get("slot")
+        item_type = SLOT_MAP.get(slot)
+        entry = {
+            "Name": rec.get("Name") or item.get("name"),
+            "Type": item_type or slot or item.get("category") or "Unset",
+            "Stats": stats,
+            "GID": gid,
+        }
+        if level is not None:
+            entry["ItemLevel"] = level
+        if item.get("minLevel"):
+            entry["MinLevel"] = int(float(item["minLevel"]))
+        if item.get("quality"):
+            entry["Quality"] = item["quality"]
+        if item.get("armourType"):
+            entry["ArmourType"] = item["armourType"]
+        if item.get("slots"):
+            entry["EssenceSlots"] = int(item["slots"])
+        if item.get("scaling"):
+            entry["Scaling"] = item["scaling"]
+        for weapon_key in ("dps", "minDamage", "maxDamage", "damageType", "weaponType"):
+            if item.get(weapon_key) is not None:
+                entry[weapon_key] = item[weapon_key]
+        if decoded:
+            entry["Decoded"] = _normalize_decoded(decoded)
+        if other_stats:
+            entry["OtherStats"] = other_stats
+        if item_type:
+            available_items.append(entry)
+        else:
+            non_gear_items.append(entry)
+
+    output = {
+        "available_items": available_items,
+        "non_gear_items": non_gear_items,
+        "unresolved_items": unresolved_items,
+    }
+    out_path = os.path.join(char_folder, filename)
+    with open(out_path, 'w') as f:
+        json.dump(output, f, indent=4, ensure_ascii=False)
+
+    print(f"Wrote {out_path}")
+    print(f"  {len(available_items)} gear item(s), "
+          f"{len(non_gear_items)} non-gear item(s), "
+          f"{len(unresolved_items)} unresolved record(s)")
+    for entry in unresolved_items:
+        print(f"  unresolved: {entry.get('Name')} "
+              f"(GID={entry.get('GID')}, {entry.get('DecodeError') or 'no usable ID'})")
+    for entry in non_gear_items:
+        print(f"  non-gear: {entry.get('Name')} (Type={entry.get('Type')})")
 
 
 

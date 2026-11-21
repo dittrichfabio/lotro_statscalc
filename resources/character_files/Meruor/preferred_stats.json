@@ -1,0 +1,47 @@
+{
+    "optimization_choices": {
+        "Essence": 21,
+        "Back": 1,
+        "Virtue": 5
+    },
+    "roles": {
+        "dps": {
+            "stats_to_print_bkp": [
+                "Morale",
+                "CriticalHitChanceTactical",
+                "DevastatingHitChanceTactical",
+                "Critical&DevastatingHitMagnitudeTactical",
+                "Finesse",
+                "TacticalOffenceDamage",
+                "PhysicalMitigation",
+                "TacticalMitigation",
+                "Resistance",
+                "WoundResistance",
+                "FearResistance",
+                "DiseaseResistance",
+                "PoisonResistance",
+                "FireMitigation",
+                "LightningMitigation",
+                "FrostMitigation",
+                "AcidMitigation",
+                "ShadowMitigation"
+            ],
+            "stat_requirements": [
+                
+                "TacticalOffenceDamage=200",
+                "CriticalRatingTactical=14400",
+                "TacticalMitigation=35",
+                "Finesse=30",
+                "Morale"
+            ],
+            "stat_requirements_bkp": [
+                "PhysicalMitigation=40",
+
+                "DevastatingHitChanceTactical=10",
+                "CriticalHitChanceTactical=25",
+                "Morale"
+            ],
+            "set_restrictions": []
+        }
+    }
+}

@@ -207,3 +207,6 @@ marimo/_lsp/
 __marimo__/
 
 TODO.txt
+
+# Downloaded LotroCompanion databases (large, refreshable)
+resources/item_db/

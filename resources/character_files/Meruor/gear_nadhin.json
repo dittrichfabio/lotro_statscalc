@@ -1,0 +1,264 @@
+{
+    "available_items": [
+        {
+            "Name": "Light Nadhin Shoulders",
+            "Type": "Shoulders",
+            "Stats": {
+                "Armour": 356,
+                "Will": 108
+            }
+        },
+        {
+            "Name": "Light Nadhin Gauntlets",
+            "Type": "Gloves",
+            "Stats": {
+                "Armour": 598,
+                "Will": 108
+            }
+        },
+        {
+            "Name": "Light Nadhin Leggings",
+            "Type": "Leggings",
+            "Stats": {
+                "Armour": 1013,
+                "Will": 108
+            }
+        },
+        {
+            "Name": "Light Nadhin Hood",
+            "Type": "Helm",
+            "Stats": {
+                "Armour": 356,
+                "Will": 108
+            }
+        },
+        {
+            "Name": "Light Nadhin Robe",
+            "Type": "Chest",
+            "Stats": {
+                "Armour": 1214,
+                "Will": 108
+            }
+        },
+        {
+            "Name": "Light Nadhin Shoes",
+            "Type": "Boots",
+            "Stats": {
+                "Armour": 484,
+                "Will": 108
+            }
+        },
+        {
+            "Name": "Anórien Cloak of Brilliance",
+            "Type": "Back",
+            "Stats": {
+                "Armour": 1036,
+                "Will": 189,
+                "Vitality": 184,
+                "CriticalRating": 265,
+                "CriticalDefenceRating": 591
+            }
+        },
+        {
+            "Name": "Anórien Cloak of Nimbleness",
+            "Type": "Back",
+            "Stats": {
+                "Armour": 1036,
+                "Agility": 189,
+                "Vitality": 184,
+                "CriticalRating": 265,
+                "CriticalDefenceRating": 591
+            }
+        },
+        {
+            "Name": "Exquisite Anórien Earring of Succour",
+            "Type": "Earring",
+            "Stats": {
+                "Morale": 616,
+                "Will": 110
+            }
+        },
+        {
+            "Name": "Exquisite Anórien Necklace of Succour",
+            "Type": "Necklace",
+            "Stats": {
+                "Morale": 616,
+                "Will": 110
+            }
+        },
+        {
+            "Name": "Exquisite Anórien Bracelet of Succour",
+            "Type": "Bracelet",
+            "Stats": {
+                "Morale": 616,
+                "Will": 110
+            }
+        },
+        {
+            "Name": "Exquisite Anórien Ring of Succour",
+            "Type": "Ring",
+            "Stats": {
+                "Morale": 616,
+                "Will": 110
+            }
+        }
+    ],
+    "available_essences": [
+        {
+            "Name": "Major Essence of Might",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "Might": 76
+            }
+        },
+        {
+            "Name": "Major Essence of Agility",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "Agility": 76
+            }
+        },
+        {
+            "Name": "Major Essence of Will",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "Will": 76
+            }
+        },
+        {
+            "Name": "Major Essence of Morale",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "Morale": 424
+            }
+        },
+        {
+            "Name": "Major Essence of Critical Rating",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "CriticalRating": 428
+            }
+        },
+        {
+            "Name": "Major Essence of Critical Defence",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "CriticalDefenceRating": 571
+            }
+        },
+        {
+            "Name": "Major Essence of Physical Mastery",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "PhysicalMasteryRating": 363
+            }
+        },
+        {
+            "Name": "Major Essence of Tactical Mastery",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "TacticalMasteryRating": 363
+            }
+        },
+        {
+            "Name": "Major Essence of Physical Mitigation",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "PhysicalMitigationRating": 428
+            }
+        },
+        {
+            "Name": "Major Essence of Tactical Mitigation",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "TacticalMitigationRating": 428
+            }
+        },
+        {
+            "Name": "Major Essence of Finesse",
+            "Type": "Essence",
+            "QuantityAvailable": -1,
+            "Stats": {
+                "FinesseRating": 571
+            }
+        }
+    ],
+    "buffs": [
+        {
+            "Name": "Scroll of Anórien Battle Lore",
+            "active": false,
+            "Stats": {
+                "TacticalMasteryRating": 439,
+                "PhysicalMasteryRating": 439
+            }
+        },
+        {
+            "Name": "Scroll of Anórien Warding Lore",
+            "active": false,
+            "Stats": {
+                "TacticalMitigationRating": 257,
+                "PhysicalMitigationRating": 257
+            }
+        },
+        {
+            "Name": "Anórien Beans and Tater Soup",
+            "active": false,
+            "Stats": {
+                "ResistanceRating": 2610,
+                "WoundResistance": 2,
+                "FearResistance": 2,
+                "DiseaseResistance": 2,
+                "PoisonResistance": 2
+            }
+        },
+        {
+            "Name": "Superior Anórien Beans and Tater Soup",
+            "active": false,
+            "Stats": {
+                "ResistanceRating": 2610,
+                "WoundResistance": 5,
+                "FearResistance": 5,
+                "DiseaseResistance": 5,
+                "PoisonResistance": 5
+            }
+        },
+        {
+            "Name": "Feast of Anórien",
+            "active": false,
+            "Stats": {
+                "Agility": 166,
+                "Might": 166,
+                "Will": 166,
+                "Fate": 135
+            }
+        },
+        {
+            "Name": "Superior Feast of Anórien",
+            "active": false,
+            "Stats": {
+                "Agility": 166,
+                "Might": 166,
+                "Will": 166,
+                "Fate": 135,
+                "Vitality": 162
+            }
+        },
+        {
+            "Name": "Westemnet Edhelharn Token",
+            "active": false,
+            "Stats": {
+                "ResistanceRating": 328
+            }
+        }
+    ]
+}
