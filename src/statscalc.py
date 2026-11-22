@@ -340,15 +340,15 @@ def find_optimal_gear(character_name, gear_file, role):
 @click.argument('filename', required=True)
 @click.option('--username', 'account', default=DEFAULT_PLUGIN_USERNAME,
               help='PluginData account name')
-def convert_plugin_data_to_json(character_name, server, filename, account):
+@click.option('--force', '-f', is_flag=True, default=False,
+              help='Overwrite the output file if it already exists')
+def convert_plugin_data_to_json(character_name, server, filename, account, force):
+    out_path = _char_output_path(character_name, filename, force)
     plugin_dir = plugin_char_path.format(
         username=account,
         server=server or DEFAULT_PLUGIN_SERVER,
         character_name=character_name)
     stats_file = os.path.join(plugin_dir, "Stats.plugindata")
-    char_folder = os.path.join(STATSCALC, "stat_files", character_name)
-    if not os.path.exists(char_folder):
-        os.makedirs(char_folder)
 
     table = load_plugindata(stats_file)
 
@@ -373,8 +373,23 @@ def convert_plugin_data_to_json(character_name, server, filename, account):
         key=char_stat_sorting_order.index)}
     data["Stats"] = stats
 
-    with open(os.path.join(char_folder, filename), 'w') as f:
+    with open(out_path, 'w') as f:
         json.dump(data, f, indent=4)
+
+
+def _char_output_path(character_name, filename, force):
+    """Output path under resources/character_files/<char>/.
+
+    Refuses to overwrite an existing file unless force is set, so fresh
+    exports don't clobber curated inputs by accident.
+    """
+    char_folder = os.path.join(STATSCALC, "resources", "character_files", character_name)
+    os.makedirs(char_folder, exist_ok=True)
+    out_path = os.path.join(char_folder, filename)
+    if os.path.exists(out_path) and not force:
+        raise click.ClickException(
+            f"{out_path} already exists; choose a different filename or pass --force to overwrite")
+    return out_path
 
 
 def _normalize_decoded(value):
@@ -439,7 +454,9 @@ def _shortcut_gid(shortcut_data):
               help='PluginData account name')
 @click.option('--verbose', '-v', is_flag=True, default=False,
               help='Include full metadata (GID, Decoded, quality, non-gear and unresolved records)')
-def convert_items_to_json(character_name, server, filename, account, verbose):
+@click.option('--force', '-f', is_flag=True, default=False,
+              help='Overwrite the output file if it already exists')
+def convert_items_to_json(character_name, server, filename, account, verbose, force):
     """Convert Items.plugindata records into a gear-file-style JSON.
 
     Each record's itemGID is resolved against the LotroCompanion item DB
@@ -447,14 +464,12 @@ def convert_items_to_json(character_name, server, filename, account, verbose):
     interpolated at the item's effective level (Decoded.itemTrueLevel /
     itemLevel when present, else the DB record's level).
     """
+    out_path = _char_output_path(character_name, filename, force)
     plugin_dir = plugin_char_path.format(
         username=account,
         server=server or DEFAULT_PLUGIN_SERVER,
         character_name=character_name)
     items_file = os.path.join(plugin_dir, "Items.plugindata")
-    char_folder = os.path.join(STATSCALC, "stat_files", character_name)
-    if not os.path.exists(char_folder):
-        os.makedirs(char_folder)
 
     records = load_plugindata(items_file)
     if isinstance(records, dict):
@@ -558,7 +573,6 @@ def convert_items_to_json(character_name, server, filename, account, verbose):
     if verbose:
         output["non_gear_items"] = non_gear_items
         output["unresolved_items"] = unresolved_items
-    out_path = os.path.join(char_folder, filename)
     with open(out_path, 'w') as f:
         json.dump(output, f, indent=4, ensure_ascii=False)
 

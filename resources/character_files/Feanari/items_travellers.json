@@ -1,0 +1,178 @@
+{
+    "available_items": [
+        {
+            "Name": "Reinforced Cap of the Traveller",
+            "ItemLevel": 368,
+            "Type": "Helm",
+            "Stats": {
+                "Will": 457,
+                "Vitality": 337,
+                "TacticalMasteryRating": 910,
+                "TacticalMitigationRating": 1270,
+                "Armour": 871
+            }
+        },
+        {
+            "Name": "Reinforced Mantle of the Traveller",
+            "ItemLevel": 368,
+            "Type": "Shoulders",
+            "Stats": {
+                "Will": 457,
+                "Vitality": 337,
+                "TacticalMasteryRating": 910,
+                "Fate": 188,
+                "Armour": 871
+            }
+        },
+        {
+            "Name": "Reinforced Waistcoat of the Traveller",
+            "ItemLevel": 368,
+            "Type": "Chest",
+            "Stats": {
+                "Will": 457,
+                "Vitality": 337,
+                "FinesseRating": 1418,
+                "CriticalRating": 1284,
+                "Armour": 2962
+            }
+        },
+        {
+            "Name": "Reinforced Gloves of the Traveller",
+            "ItemLevel": 368,
+            "Type": "Gloves",
+            "Stats": {
+                "Will": 457,
+                "Vitality": 337,
+                "FinesseRating": 1418,
+                "TacticalMitigationRating": 1270,
+                "Armour": 1471
+            }
+        },
+        {
+            "Name": "Reinforced Trousers of the Traveller",
+            "ItemLevel": 368,
+            "Type": "Leggings",
+            "Stats": {
+                "Will": 457,
+                "Vitality": 337,
+                "CriticalRating": 1284,
+                "Armour": 2464
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Reinforced Shoes of the Traveller",
+            "ItemLevel": 368,
+            "Type": "Boots",
+            "Stats": {
+                "Will": 457,
+                "Vitality": 337,
+                "Fate": 188,
+                "Armour": 1190
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Reinforced Light Cloak of the Traveller",
+            "ItemLevel": 368,
+            "Type": "Back",
+            "Stats": {
+                "Will": 457,
+                "Vitality": 337,
+                "TacticalMasteryRating": 1097,
+                "Armour": 2447
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Reinforced Soothing Cap of the Traveller",
+            "ItemLevel": 368,
+            "Type": "Helm",
+            "Stats": {
+                "Will": 419,
+                "Vitality": 337,
+                "OutgoingHealingRating": 3444,
+                "CriticalRating": 1077,
+                "Armour": 871
+            }
+        },
+        {
+            "Name": "Reinforced Soothing Mantle of the Traveller",
+            "ItemLevel": 368,
+            "Type": "Shoulders",
+            "Stats": {
+                "Will": 419,
+                "Vitality": 337,
+                "Fate": 220,
+                "CriticalRating": 1077,
+                "Armour": 871
+            }
+        },
+        {
+            "Name": "Reinforced Soothing Waistcoat of the Traveller",
+            "ItemLevel": 368,
+            "Type": "Chest",
+            "Stats": {
+                "Will": 419,
+                "Vitality": 337,
+                "TacticalMasteryRating": 1274,
+                "OutgoingHealingRating": 2461,
+                "Armour": 2962
+            }
+        },
+        {
+            "Name": "Reinforced Soothing Gloves of the Traveller",
+            "ItemLevel": 368,
+            "Type": "Gloves",
+            "Stats": {
+                "Will": 419,
+                "Vitality": 337,
+                "OutgoingHealingRating": 3444,
+                "TacticalMitigationRating": 1053,
+                "Armour": 1471
+            }
+        },
+        {
+            "Name": "Reinforced Soothing Trousers of the Traveller",
+            "ItemLevel": 368,
+            "Type": "Leggings",
+            "Stats": {
+                "Will": 342,
+                "Vitality": 300,
+                "TacticalMitigationRating": 2106,
+                "Armour": 2464
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Reinforced Soothing Shoes of the Traveller",
+            "ItemLevel": 368,
+            "Type": "Boots",
+            "Stats": {
+                "Will": 342,
+                "Vitality": 300,
+                "OutgoingHealingRating": 4915,
+                "Armour": 1190
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Reinforced Soothing Light Cloak of the Traveller",
+            "ItemLevel": 368,
+            "Type": "Back",
+            "Stats": {
+                "Will": 342,
+                "Vitality": 300,
+                "TacticalMitigationRating": 2106,
+                "Armour": 2447
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        }
+    ]
+}

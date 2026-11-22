@@ -1,0 +1,250 @@
+{
+    "available_items": [
+        {
+            "Name": "Pristine Keen Delver's Hood",
+            "ItemLevel": 380,
+            "Type": "Helm",
+            "Stats": {
+                "Will": 233,
+                "Vitality": 381,
+                "TacticalMasteryRating": 1121,
+                "Armour": 891
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Pristine Keen Delver's Mantle",
+            "ItemLevel": 380,
+            "Type": "Shoulders",
+            "Stats": {
+                "Will": 194,
+                "Vitality": 343,
+                "CriticalRating": 876,
+                "FinesseRating": 1161,
+                "Armour": 891
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Pristine Keen Delver's Coat",
+            "ItemLevel": 380,
+            "Type": "Chest",
+            "Stats": {
+                "Will": 233,
+                "Vitality": 343,
+                "CriticalRating": 1536,
+                "Armour": 3031
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Pristine Keen Delver's Gloves",
+            "ItemLevel": 380,
+            "Type": "Gloves",
+            "Stats": {
+                "Will": 271,
+                "Vitality": 305,
+                "TacticalMasteryRating": 745,
+                "FinesseRating": 869,
+                "Armour": 1505
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Pristine Keen Delver's Leggings",
+            "ItemLevel": 380,
+            "Type": "Leggings",
+            "Stats": {
+                "Will": 233,
+                "Vitality": 305,
+                "FinesseRating": 1450,
+                "CriticalRating": 657,
+                "Armour": 2520
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Pristine Keen Delver's Shoes",
+            "ItemLevel": 380,
+            "Type": "Boots",
+            "Stats": {
+                "Will": 271,
+                "Vitality": 343,
+                "FinesseRating": 869,
+                "CriticalRating": 657,
+                "Armour": 1217
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Pristine Benevolent Delver's Hood",
+            "ItemLevel": 380,
+            "Type": "Helm",
+            "Stats": {
+                "Will": 194,
+                "Vitality": 419,
+                "CriticalRating": 1313,
+                "Armour": 891
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Pristine Benevolent Delver's Mantle",
+            "ItemLevel": 380,
+            "Type": "Shoulders",
+            "Stats": {
+                "Will": 233,
+                "Vitality": 381,
+                "CriticalRating": 657,
+                "Fate": 96,
+                "Armour": 891
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Pristine Benevolent Delver's Coat",
+            "ItemLevel": 380,
+            "Type": "Chest",
+            "Stats": {
+                "Will": 233,
+                "Vitality": 343,
+                "TacticalMasteryRating": 745,
+                "CriticalRating": 657,
+                "Armour": 3031
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Pristine Benevolent Delver's Gloves",
+            "ItemLevel": 380,
+            "Type": "Gloves",
+            "Stats": {
+                "Will": 233,
+                "Vitality": 343,
+                "CriticalRating": 1101,
+                "FinesseRating": 579,
+                "Armour": 1505
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Pristine Benevolent Delver's Leggings",
+            "ItemLevel": 380,
+            "Type": "Leggings",
+            "Stats": {
+                "Will": 194,
+                "Vitality": 343,
+                "PhysicalMitigationRating": 1075,
+                "CriticalRating": 657,
+                "Armour": 2520
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Pristine Benevolent Delver's Shoes",
+            "ItemLevel": 380,
+            "Type": "Boots",
+            "Stats": {
+                "Will": 233,
+                "Vitality": 419,
+                "TacticalMitigationRating": 1075,
+                "Armour": 1217
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Pristine Discerning Delver's Hood",
+            "ItemLevel": 380,
+            "Type": "Helm",
+            "Stats": {
+                "Will": 233,
+                "Vitality": 381,
+                "FinesseRating": 1738,
+                "Armour": 891
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Pristine Discerning Delver's Mantle",
+            "ItemLevel": 380,
+            "Type": "Shoulders",
+            "Stats": {
+                "Will": 233,
+                "Vitality": 343,
+                "FinesseRating": 1450,
+                "Fate": 64,
+                "Armour": 891
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Pristine Discerning Delver's Coat",
+            "ItemLevel": 380,
+            "Type": "Chest",
+            "Stats": {
+                "Will": 194,
+                "Vitality": 419,
+                "CriticalRating": 1101,
+                "Fate": 32,
+                "Armour": 3031
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Pristine Discerning Delver's Gloves",
+            "ItemLevel": 380,
+            "Type": "Gloves",
+            "Stats": {
+                "Will": 233,
+                "Vitality": 343,
+                "TacticalMitigationRating": 860,
+                "FinesseRating": 869,
+                "Armour": 1505
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Pristine Discerning Delver's Leggings",
+            "ItemLevel": 380,
+            "Type": "Leggings",
+            "Stats": {
+                "Will": 194,
+                "Vitality": 343,
+                "PhysicalMitigationRating": 645,
+                "FinesseRating": 1450,
+                "Armour": 2520
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Pristine Discerning Delver's Shoes",
+            "ItemLevel": 380,
+            "Type": "Boots",
+            "Stats": {
+                "Will": 233,
+                "Vitality": 457,
+                "TacticalMitigationRating": 860,
+                "Armour": 1217
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        }
+    ]
+}

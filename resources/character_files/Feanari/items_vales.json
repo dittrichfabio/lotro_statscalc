@@ -1,0 +1,311 @@
+{
+    "available_items": [
+        {
+            "Name": "Reinforced Cap of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Helm",
+            "Stats": {
+                "Will": 463,
+                "Vitality": 265,
+                "TacticalMasteryRating": 924,
+                "TacticalMitigationRating": 641,
+                "Armour": 885
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Reinforced Gloves of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Gloves",
+            "Stats": {
+                "Will": 463,
+                "Vitality": 265,
+                "FinesseRating": 1439,
+                "TacticalMitigationRating": 641,
+                "Armour": 1494
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Reinforced Soothing Cap of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Helm",
+            "Stats": {
+                "Will": 385,
+                "Vitality": 265,
+                "OutgoingHealingRating": 3494,
+                "CriticalRating": 652,
+                "Armour": 885
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Reinforced Soothing Cuffs of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Gloves",
+            "Stats": {
+                "Will": 385,
+                "Vitality": 265,
+                "OutgoingHealingRating": 3494,
+                "TacticalMitigationRating": 641,
+                "Armour": 1494
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Topaz Steel Ring of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Ring",
+            "Stats": {
+                "Might": 385,
+                "Vitality": 228,
+                "CriticalRating": 1304,
+                "FinesseRating": 1439
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Topaz Gold Ring of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Ring",
+            "Stats": {
+                "Agility": 385,
+                "Vitality": 228,
+                "CriticalRating": 1524,
+                "FinesseRating": 1153
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Carved Jade Ring of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Ring",
+            "Stats": {
+                "Will": 385,
+                "Vitality": 228,
+                "CriticalRating": 1524,
+                "Fate": 127
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Reinforced Mantle of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Shoulders",
+            "Stats": {
+                "Will": 463,
+                "Vitality": 265,
+                "TacticalMasteryRating": 924,
+                "Fate": 95,
+                "Armour": 885
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Reinforced Boots of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Boots",
+            "Stats": {
+                "Will": 463,
+                "Vitality": 265,
+                "Fate": 95,
+                "Armour": 1208
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Reinforced Soothing Mantle of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Shoulders",
+            "Stats": {
+                "Will": 385,
+                "Vitality": 378,
+                "CriticalDefenceRating": 1153,
+                "CriticalRating": 652,
+                "Armour": 885
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Reinforced Soothing Boots of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Boots",
+            "Stats": {
+                "Will": 308,
+                "Vitality": 228,
+                "OutgoingHealingRating": 3991,
+                "Armour": 1208
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Studded Gold Bracer of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Bracelet",
+            "Stats": {
+                "Might": 385,
+                "Vitality": 228,
+                "FinesseRating": 1725,
+                "CriticalRating": 1093
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Dextrous Gold Bracelet of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Bracelet",
+            "Stats": {
+                "Agility": 385,
+                "Vitality": 228,
+                "FinesseRating": 2016,
+                "CriticalRating": 869
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Delicate Gold Armlet of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Bracelet",
+            "Stats": {
+                "Will": 385,
+                "Vitality": 228,
+                "TacticalMasteryRating": 1294,
+                "Fate": 127
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Delicate Gold Armlet of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Bracelet",
+            "Stats": {
+                "Will": 385,
+                "Vitality": 265,
+                "CriticalRating": 1304,
+                "Fate": 127
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Reinforced Waistcoat of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Chest",
+            "Stats": {
+                "Will": 463,
+                "Vitality": 265,
+                "FinesseRating": 1439,
+                "CriticalRating": 652,
+                "Armour": 3008
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Reinforced Soothing Waistcoat of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Chest",
+            "Stats": {
+                "Will": 385,
+                "Vitality": 341,
+                "TacticalMasteryRating": 924,
+                "OutgoingHealingRating": 1499,
+                "Armour": 3008
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Reinforced Trousers of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Leggings",
+            "Stats": {
+                "Will": 463,
+                "Vitality": 265,
+                "CriticalRating": 652,
+                "Armour": 2502
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Reinforced Soothing Trousers of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Leggings",
+            "Stats": {
+                "Will": 308,
+                "Vitality": 228,
+                "TacticalMitigationRating": 1714,
+                "Armour": 2502
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Moonstone Gold Stud of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Earring",
+            "Stats": {
+                "Might": 385,
+                "Vitality": 228,
+                "CriticalRating": 1304,
+                "FinesseRating": 1439
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Moonstone Gold Earring of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Earring",
+            "Stats": {
+                "Agility": 385,
+                "Vitality": 228,
+                "CriticalRating": 1524,
+                "FinesseRating": 1153
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Topaz Gold Ear Cuff of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Earring",
+            "Stats": {
+                "Will": 385,
+                "Vitality": 228,
+                "CriticalRating": 1524,
+                "TacticalMasteryRating": 739
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Topaz Gold Ear Cuff of the Vale's Armouries",
+            "ItemLevel": 376,
+            "Type": "Earring",
+            "Stats": {
+                "Will": 385,
+                "Vitality": 265,
+                "FinesseRating": 1725,
+                "TacticalMitigationRating": 854
+            },
+            "EssenceSlots": 1,
+            "UsedEssenceSlots": 0
+        }
+    ]
+}

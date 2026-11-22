@@ -99,24 +99,31 @@ Virtues are resolved from the character's `{role}_stats.json` file (under the `V
 ### `convert_plugin_data_to_json`
 Converts LOTRO plugin data to JSON format for character stats.
 ```
-statscalc convert_plugin_data_to_json <character_name> [server] <filename> [--username ACCOUNT]
+statscalc convert_plugin_data_to_json <character_name> [server] <filename> [--username ACCOUNT] [--force]
 ```
 Parses `Stats.plugindata` via `src/plugindata.py` (a hand-rolled Lua-table parser)
-and writes `stat_files/<character_name>/<filename>`.
+and writes `resources/character_files/<character_name>/<filename>`. Existing
+files are not overwritten unless `--force` is passed.
 
 ### `convert_items_to_json`
 Converts `Items.plugindata` records into a gear-file-style JSON.
 ```
-statscalc convert_items_to_json <character_name> [server] <filename> [--username ACCOUNT]
+statscalc convert_items_to_json <character_name> [server] <filename> [--username ACCOUNT] [--verbose] [--force]
 ```
 Each record's `itemGID` (from `Decoded`, `ShortcutData`, or a `LinkData`
 fallback decode) is resolved against the LotroCompanion item DB in
 `resources/item_db/` (`items.xml` + `progressions.xml`, downloaded from
 github.com/LotroCompanion — gitignored). Stat progressions are interpolated
 at the effective item level (`Decoded.itemTrueLevel`/`itemLevel` if present,
-else the DB record's `level`). Output contains `available_items` (gear slots
-mapped to the usual Type names), `non_gear_items` (weapons/tools/other slots),
-and `unresolved_items` (records without a usable GID or missing from the DB).
+else the DB record's `level`). Writes to
+`resources/character_files/<character_name>/<filename>` (no overwrite without
+`--force`). `--verbose` adds GID/Decoded/quality metadata plus the
+`non_gear_items` and `unresolved_items` sections; the default output is the
+slim gear format (`Name`, `ItemLevel`, `Type`, `Stats`, `Essences`,
+`OtherStats`, `EssenceSlots`/`UsedEssenceSlots`). Stat values follow game
+semantics via `resources/item_db/stats.xml`: INTEGER stats truncate, FLOAT
+stats round to display precision, percentage stats scale ×100 and regen
+stats ×60.
 
 ## Optimization Algorithms
 
