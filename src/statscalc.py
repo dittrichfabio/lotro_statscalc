@@ -388,6 +388,37 @@ def _normalize_decoded(value):
     return value
 
 
+def _resolve_essences(item_essences, db, db_items, verbose):
+    """Resolve Decoded.itemEssences [{GID, Level}] to name + stats entries."""
+    if not isinstance(item_essences, list):
+        return []
+    resolved = []
+    for ess in item_essences:
+        if not isinstance(ess, dict) or not ess.get("GID"):
+            continue
+        ess_gid = int(ess["GID"])
+        ess_item = db_items.get(ess_gid)
+        if ess_item is None:
+            if verbose:
+                resolved.append({"GID": ess_gid})
+            continue
+        ess_level = int(ess["Level"]) if ess.get("Level") else effective_item_level(ess_item)
+        ess_stats, ess_other = db.resolve_stats(ess_item, ess_level)
+        ess_entry = {"Name": ess_item.get("name")}
+        if ess_level is not None:
+            ess_entry["ItemLevel"] = ess_level
+        if ess_stats:
+            ess_entry["Stats"] = ess_stats
+        if verbose:
+            ess_entry["GID"] = ess_gid
+            if ess_item.get("quality"):
+                ess_entry["Quality"] = ess_item["quality"]
+        if ess_other:
+            ess_entry["OtherStats"] = ess_other
+        resolved.append(ess_entry)
+    return resolved
+
+
 def _shortcut_gid(shortcut_data):
     """Extract the GID half of a quickslot ShortcutData string ("0x<IID>,0x<GID>")."""
     try:
@@ -406,7 +437,9 @@ def _shortcut_gid(shortcut_data):
 @click.argument('filename', required=True)
 @click.option('--username', 'account', default=DEFAULT_PLUGIN_USERNAME,
               help='PluginData account name')
-def convert_items_to_json(character_name, server, filename, account):
+@click.option('--verbose', '-v', is_flag=True, default=False,
+              help='Include full metadata (GID, Decoded, quality, non-gear and unresolved records)')
+def convert_items_to_json(character_name, server, filename, account, verbose):
     """Convert Items.plugindata records into a gear-file-style JSON.
 
     Each record's itemGID is resolved against the LotroCompanion item DB
@@ -442,6 +475,14 @@ def convert_items_to_json(character_name, server, filename, account):
                 gid = fallback["itemGID"]
         record_gids.append((decoded, int(gid) if gid else None))
 
+    essence_gids = [
+        ess["GID"]
+        for decoded, _ in record_gids
+        if isinstance(decoded.get("itemEssences"), list)
+        for ess in decoded["itemEssences"]
+        if isinstance(ess, dict) and ess.get("GID")
+    ]
+
     try:
         db = ItemDatabase()
     except OSError as e:
@@ -451,7 +492,7 @@ def convert_items_to_json(character_name, server, filename, account):
               "https://github.com/LotroCompanion/lotro-data/raw/master/lore/progressions.xml "
               "to resources/item_db/progressions.xml")
         sys.exit(1)
-    db_items = db.get_items([gid for _, gid in record_gids])
+    db_items = db.get_items([gid for _, gid in record_gids] + essence_gids)
 
     available_items = []
     non_gear_items = []
@@ -476,41 +517,47 @@ def convert_items_to_json(character_name, server, filename, account):
         stats, other_stats = db.resolve_stats(item, level)
         slot = item.get("slot")
         item_type = SLOT_MAP.get(slot)
-        entry = {
-            "Name": rec.get("Name") or item.get("name"),
-            "Type": item_type or slot or item.get("category") or "Unset",
-            "Stats": stats,
-            "GID": gid,
-        }
+        essences = _resolve_essences(
+            decoded.get("itemEssences") if decoded else None,
+            db, db_items, verbose)
+
+        entry = {"Name": rec.get("Name") or item.get("name")}
         if level is not None:
             entry["ItemLevel"] = level
-        if item.get("minLevel"):
-            entry["MinLevel"] = int(float(item["minLevel"]))
-        if item.get("quality"):
-            entry["Quality"] = item["quality"]
-        if item.get("armourType"):
-            entry["ArmourType"] = item["armourType"]
+        entry["Type"] = item_type or slot or item.get("category") or "Unset"
+        entry["Stats"] = stats
         if item.get("slots"):
             entry["EssenceSlots"] = int(item["slots"])
-        if item.get("scaling"):
-            entry["Scaling"] = item["scaling"]
-        for weapon_key in ("dps", "minDamage", "maxDamage", "damageType", "weaponType"):
-            if item.get(weapon_key) is not None:
-                entry[weapon_key] = item[weapon_key]
-        if decoded:
-            entry["Decoded"] = _normalize_decoded(decoded)
+            raw_essences = decoded.get("itemEssences") if decoded else None
+            entry["UsedEssenceSlots"] = (
+                sum(1 for ess in raw_essences if isinstance(ess, dict) and ess.get("GID"))
+                if isinstance(raw_essences, list) else 0
+            )
+        if essences:
+            entry["Essences"] = essences
         if other_stats:
             entry["OtherStats"] = other_stats
+        if verbose:
+            entry["GID"] = gid
+            for attr, key in (("minLevel", "MinLevel"), ("quality", "Quality"),
+                              ("armourType", "ArmourType"),
+                              ("scaling", "Scaling")):
+                if item.get(attr) is not None:
+                    entry[key] = int(float(item[attr])) if attr in ("minLevel", "slots") else item[attr]
+            for weapon_key in ("dps", "minDamage", "maxDamage", "damageType", "weaponType"):
+                if item.get(weapon_key) is not None:
+                    entry[weapon_key] = item[weapon_key]
+            if decoded:
+                entry["Decoded"] = _normalize_decoded(decoded)
         if item_type:
             available_items.append(entry)
         else:
             non_gear_items.append(entry)
 
-    output = {
-        "available_items": available_items,
-        "non_gear_items": non_gear_items,
-        "unresolved_items": unresolved_items,
-    }
+    output = {"available_items": available_items}
+    if verbose:
+        output["non_gear_items"] = non_gear_items
+        output["unresolved_items"] = unresolved_items
     out_path = os.path.join(char_folder, filename)
     with open(out_path, 'w') as f:
         json.dump(output, f, indent=4, ensure_ascii=False)

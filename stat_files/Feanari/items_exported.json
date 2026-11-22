@@ -2,6 +2,7 @@
     "available_items": [
         {
             "Name": "Shoes of the Apparition",
+            "ItemLevel": 376,
             "Type": "Boots",
             "Stats": {
                 "Will": 308,
@@ -9,23 +10,40 @@
                 "OutgoingHealingRating": 3991,
                 "Armour": 1208
             },
-            "GID": 1879388370,
-            "ItemLevel": 376,
-            "MinLevel": 120,
-            "Quality": "INCOMPARABLE",
-            "ArmourType": "LIGHT",
             "EssenceSlots": 2,
-            "Scaling": "ze_skirmish_level#115-:1879372831;5:0.3",
-            "Decoded": {
-                "itemIIDLow": 4046832204,
-                "itemGID": 1879388370,
-                "itemStorageInfo": 1073741868,
-                "itemIIDHigh": 54591488,
-                "itemBoundToLow": 4045,
-                "itemBoundToHigh": 37814272
+            "UsedEssenceSlots": 0
+        },
+        {
+            "Name": "Woven Waistcoat of Bard's Honour",
+            "ItemLevel": 340,
+            "Type": "Chest",
+            "Stats": {
+                "Will": 304,
+                "Vitality": 210,
+                "OutgoingHealingRating": 1978,
+                "Armour": 2386
+            },
+            "EssenceSlots": 2,
+            "UsedEssenceSlots": 2,
+            "Essences": [
+                {
+                    "Name": "Dark Essence of Critical Rating",
+                    "ItemLevel": 300,
+                    "Stats": {
+                        "CriticalRating": 667
+                    }
+                },
+                {
+                    "Name": "Dark Essence of Critical Rating",
+                    "ItemLevel": 300,
+                    "Stats": {
+                        "CriticalRating": 667
+                    }
+                }
+            ],
+            "OtherStats": {
+                "LIGHT_OF_EARENDIL": 20
             }
         }
-    ],
-    "non_gear_items": [],
-    "unresolved_items": []
+    ]
 }
