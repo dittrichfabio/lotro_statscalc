@@ -122,7 +122,11 @@ else the DB record's `level`). Writes to
 `--force`). `--verbose` adds GID/Decoded/quality metadata plus the
 `non_gear_items` and `unresolved_items` sections; the default output is the
 slim gear format (`Name`, `ItemLevel`, `Type`, `Stats`, `Essences`,
-`OtherStats`, `EssenceSlots`/`UsedEssenceSlots`). Stat values follow game
+`OtherStats`, `EssenceSlots`/`UsedEssenceSlots`) plus an
+`available_essences` list (`Name`, `Type: "Essence"`, `QuantityAvailable`,
+`Stats`) for records whose DB category is `ESSENCE`. Essence records whose
+GID is already slotted inside another item's `itemEssences` are kept with
+that item and excluded from `available_essences`. Stat values follow game
 semantics via `resources/item_db/stats.xml`: INTEGER stats truncate, FLOAT
 stats round to display precision, percentage stats scale ×100 and regen
 stats ×60.

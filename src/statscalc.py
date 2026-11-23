@@ -522,6 +522,18 @@ def convert_items_to_json(character_name, server, filename, account, verbose, fo
     available_items = []
     non_gear_items = []
     unresolved_items = []
+    available_essences = {}
+    skipped_slotted_essences = 0
+    # GIDs referenced inside any item's Decoded.itemEssences are already
+    # accounted for as part of that item — top-level records with those
+    # GIDs are not added to the essence pool again.
+    slotted_gids = {
+        int(ess["GID"])
+        for decoded, _ in record_gids
+        if isinstance(decoded.get("itemEssences"), list)
+        for ess in decoded["itemEssences"]
+        if isinstance(ess, dict) and ess.get("GID")
+    }
     for rec, (decoded, gid) in zip(records, record_gids):
         item = db_items.get(gid) if gid else None
         if item is None:
@@ -539,6 +551,33 @@ def convert_items_to_json(character_name, server, filename, account, verbose, fo
             continue
 
         level = effective_item_level(item, decoded)
+
+        # Essence items feed available_essences instead of the gear lists
+        if item.get("category") == "ESSENCE":
+            if gid in slotted_gids:
+                skipped_slotted_essences += 1
+                continue
+            ess_stats, ess_other = db.resolve_stats(item, level)
+            key = (gid, level)
+            quantity = int(decoded.get("itemQuantity") or 1)
+            if key in available_essences:
+                available_essences[key]["QuantityAvailable"] += quantity
+            else:
+                ess_entry = {
+                    "Name": rec.get("Name") or item.get("name"),
+                    "Type": "Essence",
+                    "QuantityAvailable": quantity,
+                    "Stats": ess_stats,
+                }
+                if level is not None:
+                    ess_entry["ItemLevel"] = level
+                if ess_other:
+                    ess_entry["OtherStats"] = ess_other
+                if verbose:
+                    ess_entry["GID"] = gid
+                available_essences[key] = ess_entry
+            continue
+
         stats, other_stats = db.resolve_stats(item, level)
         slot = item.get("slot")
         item_type = SLOT_MAP.get(slot)
@@ -579,7 +618,8 @@ def convert_items_to_json(character_name, server, filename, account, verbose, fo
         else:
             non_gear_items.append(entry)
 
-    output = {"available_items": available_items}
+    output = {"available_items": available_items,
+              "available_essences": list(available_essences.values())}
     if verbose:
         output["non_gear_items"] = non_gear_items
         output["unresolved_items"] = unresolved_items
@@ -588,8 +628,11 @@ def convert_items_to_json(character_name, server, filename, account, verbose, fo
 
     print(f"Wrote {out_path}")
     print(f"  {len(available_items)} gear item(s), "
+          f"{len(available_essences)} essence(s), "
           f"{len(non_gear_items)} non-gear item(s), "
           f"{len(unresolved_items)} unresolved record(s)")
+    if skipped_slotted_essences:
+        print(f"  {skipped_slotted_essences} essence record(s) already slotted in items (kept with their items)")
     for entry in unresolved_items:
         print(f"  unresolved: {entry.get('Name')} "
               f"(GID={entry.get('GID')}, {entry.get('DecodeError') or 'no usable ID'})")
