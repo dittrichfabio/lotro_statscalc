@@ -86,12 +86,14 @@ statscalc simulate_equipping_items <character_name> <items_file> [priority]
 ### `find_optimal_gear`
 Finds the optimal gear combination including items, essences, and virtues.
 ```
-statscalc find_optimal_gear <character_name> <gear_file> <role>
+statscalc find_optimal_gear <character_name> <gear_file> [<gear_file> ...] <role> [--essence-mode fixed|free]
 ```
-Uses ILP (Integer Linear Programming) algorithm for optimization. The gear file is a unified JSON containing:
-- `available_items`: List of gear pieces
+Multiple gear files can be passed; their `available_items`, `available_essences` and `buffs` sections are concatenated (exact duplicates dropped), so plugin exports can be kept as per-set files. Uses ILP (Integer Linear Programming) algorithm for optimization. Each gear file is a unified JSON containing:
+- `available_items`: List of gear pieces (may include `EssenceSlots`, `UsedEssenceSlots` and a resolved `Essences` list from `convert_items_to_json`)
 - `available_essences`: List of available essences
 - `buffs`: List of consumable buffs (with `active: true/false` flag)
+
+Essence picks are not a fixed count: the optimizer derives how many essences to slot from the open sockets (`EssenceSlots - UsedEssenceSlots`) of whichever gear items are selected, so the count varies per combination. `--essence-mode fixed` (default) treats already-slotted essences as part of the item's stats and only optimizes open sockets; `free` re-optimizes all sockets from the essence pool. Essence optimization is automatic whenever the gear file has `available_essences` and socketed gear — no `optimization_choices` entry needed; `"Essence": 0` explicitly disables it.
 
 Active buffs are applied as flat stat additions to the character's base stats before optimization.
 Virtues are resolved from the character's `{role}_stats.json` file (under the `Virtues` field) and optimized as part of the gear selection.
@@ -135,7 +137,7 @@ stats ×60.
 - **Objective**: maximise sum of capped ratings
   - For stats **with** a requirement: capped at the requirement rating (no incentive to overshoot)
   - For stats **without** a requirement (e.g. Morale): capped at `stats_rcap` to respect game cap
-- Essence and virtue quantity limits enforced as linear constraints
+- Essence quantity limits enforced as linear constraints; essence pick counts are integer variables tied to selected gear's open sockets
 - Most efficient for large problems; handles 24+ essence slots in seconds
 
 ## Character File Format

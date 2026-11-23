@@ -379,20 +379,55 @@ def compute_stat_percentage(stat_name, stat_value, character_armour, character_l
         computed_stats[stat_name] += extra_stats[stat_name]
     return computed_stats, overcapped_stats
 
-def prepare_optimization_choices(gear_file, optimization_choices, virtues_items=None):
-    gear_json = json.load(open(gear_file))
+def _item_open_essence_slots(item, essence_mode):
+    """Open essence sockets on a gear item, and (in 'fixed' mode) the stats
+    of already-slotted essences which are treated as part of the item."""
+    essence_slots = int(item.get("EssenceSlots") or 0)
+    used_slots = int(item.get("UsedEssenceSlots") or 0)
+    if essence_mode == "free":
+        return essence_slots, {}
+    slotted_stats = {}
+    for ess in item.get("Essences") or []:
+        for stat, value in (ess.get("Stats") or {}).items():
+            slotted_stats[stat] = slotted_stats.get(stat, 0) + value
+    return max(0, essence_slots - used_slots), slotted_stats
+
+
+def load_gear_jsons(paths):
+    """Load and merge one or more gear JSON files into a single dict,
+    concatenating available_items / available_essences / buffs.
+    Exact duplicate entries are dropped."""
+    merged = {"available_items": [], "available_essences": [], "buffs": []}
+    seen = {key: set() for key in merged}
+    for path in paths:
+        data = json.load(open(path))
+        for key in merged:
+            for entry in data.get(key, []):
+                sig = json.dumps(entry, sort_keys=True)
+                if sig not in seen[key]:
+                    seen[key].add(sig)
+                    merged[key].append(entry)
+    return merged
+
+
+def prepare_optimization_choices(gear_json, optimization_choices, virtues_items=None, essence_mode="fixed"):
     available_items = gear_json.get("available_items", [])
-    
+    optimization_choices = optimization_choices or {}
+
+    # Essence optimization is automatic: it runs whenever gear items have open
+    # sockets and an essence pool exists. "Essence": 0 in optimization_choices
+    # explicitly disables it; any other value (or omitting the key) enables it.
+    essence_enabled = optimization_choices.get("Essence", 1) != 0
+
     # Load essences from separate file or from unified gear file
     available_essences = []
     if "available_essences" in gear_json:
         available_essences = gear_json["available_essences"]
-    
-    # Validate essences are available if Essence is in items_to_pick
-    if "Essence" in optimization_choices and optimization_choices["Essence"] > 0:
-        if not available_essences:
-            print(f"Essence is in items_to_pick but no essences were found. Aborting!")
-            sys.exit(1)
+
+    # Validate essences are available if Essence is explicitly requested
+    if optimization_choices.get("Essence", 0) > 0 and not available_essences:
+        print(f"Essence is in items_to_pick but no essences were found. Aborting!")
+        sys.exit(1)
 
     items_per_type = {}
     for item in optimization_choices:
@@ -405,12 +440,18 @@ def prepare_optimization_choices(gear_file, optimization_choices, virtues_items=
 
     items_per_type = {i:[] for i in optimization_choices}
     items_ids = {i:[] for i in optimization_choices}
+    if essence_enabled:
+        items_per_type.setdefault("Essence", [])
+        items_ids.setdefault("Essence", [])
     
     # Process regular items from items.json
     for item in available_items:
         item_name = item.get("Name", False)
         item_type = item.get("Type", "Unset")
-        item_stats = item.get("Stats", False)
+        item_stats = dict(item.get("Stats") or {})
+        open_slots, slotted_stats = _item_open_essence_slots(item, essence_mode)
+        for stat, value in slotted_stats.items():
+            item_stats[stat] = item_stats.get(stat, 0) + value
         if not item_name:
             print(f"Missing name for item {item}. Aborting!")
             sys.exit(1)
@@ -425,9 +466,9 @@ def prepare_optimization_choices(gear_file, optimization_choices, virtues_items=
         if item_type in optimization_choices:
             if optimization_choices[item_type] != 0:
                 if items_per_type[item_type] == []:
-                    items_per_type[item_type] = [{"Name": item_name, "Stats": item_stats}]
+                    items_per_type[item_type] = [{"Name": item_name, "Stats": item_stats, "OpenSlots": open_slots}]
                 else:
-                    items_per_type[item_type].append({"Name": item_name, "Stats": item_stats})
+                    items_per_type[item_type].append({"Name": item_name, "Stats": item_stats, "OpenSlots": open_slots})
                 if items_ids[item_type] == []:
                     items_ids[item_type].append(0)
                 else:
@@ -481,7 +522,7 @@ def prepare_optimization_choices(gear_file, optimization_choices, virtues_items=
         # Track quantity limits for each essence
         essence_quantity_limits[essence_name] = quantity_available
         
-        if "Essence" in optimization_choices and optimization_choices["Essence"] != 0:
+        if essence_enabled:
             if items_per_type["Essence"] == []:
                 items_per_type["Essence"] = [{"Name": essence_name, "Stats": essence_stats}]
             else:
@@ -531,6 +572,10 @@ def prepare_optimization_choices(gear_file, optimization_choices, virtues_items=
     
     expanded_items_ids = {}
     for item in optimization_choices:
+        # Essence picks are not fixed slots: their count is derived from the
+        # open essence sockets of whichever gear items get selected.
+        if item == "Essence":
+            continue
         for i in range(1, optimization_choices[item]+1):
             expanded_items_ids[f"{item}#{i}"] = items_ids[item]
 
@@ -763,6 +808,31 @@ def validate_essence_quantities(combination, item_types, items_per_type, essence
     
     return True
 
+def _stat_contribs(item_stats, opt_stats, character_class_stats):
+    """Contribution of one item's Stats dict to each optimised stat,
+    including secondary->tertiary distribution, main-stat class bonuses
+    and Armour->mitigation conversion."""
+    contrib = {s: 0.0 for s in opt_stats}
+    for item_stat, value in item_stats.items():
+        if item_stat in SECONDARY2TERTIARY_MAPPING:
+            for tertiary_stat in SECONDARY2TERTIARY_MAPPING[item_stat]:
+                if tertiary_stat in contrib:
+                    contrib[tertiary_stat] += value
+        elif item_stat in contrib:
+            contrib[item_stat] += value
+        if item_stat in MAIN_STATS:
+            for secondary_stat, multiplier in character_class_stats[item_stat].items():
+                if secondary_stat in contrib:
+                    contrib[secondary_stat] += math.floor(value * multiplier)
+        # Convert Armour to mitigation ratings
+        if item_stat == "Armour":
+            if "PhysicalMitigationRating" in contrib:
+                contrib["PhysicalMitigationRating"] += value
+            if "TacticalMitigationRating" in contrib:
+                contrib["TacticalMitigationRating"] += math.floor(value * 0.2)
+    return contrib
+
+
 def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
                                   character_stats, character_class_stats, stats_rcap, requirements_ratings,
                                   essence_quantity_limits, stat_requirements, character_level, character_armour):
@@ -780,7 +850,7 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
         import pulp
     except ImportError:
         print("pulp library not found. Please install it with: pip install pulp")
-        return None, -1, {}, 0, {}, {}
+        return None, None
 
     # Stats we care about: those in requirements_ratings, or all character stats if none defined
     if requirements_ratings:
@@ -798,54 +868,30 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
         if t == "Virtue":
             slot_item_contrib.append([])
             continue
-        item_contribs = []
-        for item in items_per_type[t]:
-            contrib = {s: 0.0 for s in opt_stats}
-            for item_stat, value in item["Stats"].items():
-                if item_stat in SECONDARY2TERTIARY_MAPPING:
-                    for tertiary_stat in SECONDARY2TERTIARY_MAPPING[item_stat]:
-                        if tertiary_stat in contrib:
-                            contrib[tertiary_stat] += value
-                else:
-                    if item_stat in contrib:
-                        contrib[item_stat] += value
-                if item_stat in MAIN_STATS:
-                    for secondary_stat, multiplier in character_class_stats[item_stat].items():
-                        if secondary_stat in contrib:
-                            contrib[secondary_stat] += math.floor(value * multiplier)
-                # Convert Armour to mitigation ratings
-                if item_stat == "Armour":
-                    if "PhysicalMitigationRating" in contrib:
-                        contrib["PhysicalMitigationRating"] += value
-                    if "TacticalMitigationRating" in contrib:
-                        contrib["TacticalMitigationRating"] += math.floor(value * 0.2)
-            item_contribs.append(contrib)
+        item_contribs = [
+            _stat_contribs(item.get("Stats") or {}, opt_stats, character_class_stats)
+            for item in items_per_type[t]
+        ]
         slot_item_contrib.append(item_contribs)
 
     # Pre-compute each virtue's contribution to each opt_stat
     virtue_contrib = []
     if n_virtue_slots and "Virtue" in items_per_type:
         for virtue in items_per_type["Virtue"]:
-            contrib = {s: 0.0 for s in opt_stats}
-            for item_stat, value in virtue["Stats"].items():
-                if item_stat in SECONDARY2TERTIARY_MAPPING:
-                    for tertiary_stat in SECONDARY2TERTIARY_MAPPING[item_stat]:
-                        if tertiary_stat in contrib:
-                            contrib[tertiary_stat] += value
-                else:
-                    if item_stat in contrib:
-                        contrib[item_stat] += value
-                if item_stat in MAIN_STATS:
-                    for secondary_stat, multiplier in character_class_stats[item_stat].items():
-                        if secondary_stat in contrib:
-                            contrib[secondary_stat] += math.floor(value * multiplier)
-                # Convert Armour to mitigation ratings
-                if item_stat == "Armour":
-                    if "PhysicalMitigationRating" in contrib:
-                        contrib["PhysicalMitigationRating"] += value
-                    if "TacticalMitigationRating" in contrib:
-                        contrib["TacticalMitigationRating"] += math.floor(value * 0.2)
-            virtue_contrib.append(contrib)
+            virtue_contrib.append(_stat_contribs(virtue.get("Stats") or {}, opt_stats, character_class_stats))
+
+    # Essence candidates: the number of picks is not fixed — it equals the
+    # total open essence sockets of whichever gear items are selected.
+    essence_candidates = items_per_type.get("Essence") or []
+    essence_contrib = [
+        _stat_contribs(cand.get("Stats") or {}, opt_stats, character_class_stats)
+        for cand in essence_candidates
+    ]
+    # Quantity limits are per essence name and shared across candidates
+    essence_name_limits = {}
+    for cand in essence_candidates:
+        essence_name_limits.setdefault(
+            cand["Name"], essence_quantity_limits.get(cand["Name"], -1))
 
     prob = pulp.LpProblem("GearOptimization", pulp.LpMaximize)
 
@@ -873,14 +919,27 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
     if y:
         prob += pulp.lpSum(y[j] for j in y) == n_virtue_slots
 
-    # Constraint: essence quantity limits
-    essence_slots = [i for i, t in enumerate(item_types) if t == "Essence"]
-    if essence_slots:
-        for j, item in enumerate(items_per_type["Essence"]):
-            item_name = item["Name"]
-            quantity_limit = essence_quantity_limits.get(item_name, -1)
-            if quantity_limit != -1:
-                prob += pulp.lpSum(x[(i, j)] for i in essence_slots) <= quantity_limit
+    # Essence picks: e[k] = how many times candidate k is slotted. The total
+    # must equal the open sockets of the selected gear items, so the count
+    # varies with the combination.
+    e_vars = {}
+    if essence_candidates:
+        for k in range(len(essence_candidates)):
+            e_vars[k] = pulp.LpVariable(f"e_{k}", lowBound=0, cat='Integer')
+        for name, limit in essence_name_limits.items():
+            if limit != -1:
+                prob += pulp.lpSum(
+                    e_vars[k] for k, cand in enumerate(essence_candidates)
+                    if cand["Name"] == name) <= limit
+        open_socket_terms = []
+        for i, t in enumerate(item_types):
+            if t == "Virtue":
+                continue
+            for j, cand in enumerate(items_per_type[t]):
+                open_slots = cand.get("OpenSlots", 0)
+                if open_slots:
+                    open_socket_terms.append(open_slots * x[(i, j)])
+        prob += pulp.lpSum(e_vars[k] for k in e_vars) == pulp.lpSum(open_socket_terms)
 
     # Compute total rating per stat as an LP affine expression
     total_rating = {}
@@ -896,7 +955,11 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
             virtue_contrib[j][stat] * y[j]
             for j in y
         ) if y else 0
-        total_rating[stat] = base + gear_contrib + virtue_total
+        essence_total = pulp.lpSum(
+            essence_contrib[k][stat] * e_vars[k]
+            for k in e_vars
+        ) if e_vars else 0
+        total_rating[stat] = base + gear_contrib + virtue_total + essence_total
 
     # Hard constraints: minimum required ratings
     for stat, req in requirements_ratings.items():
@@ -920,6 +983,35 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
                 (vc.get(stat, 0.0) for vc in virtue_contrib), reverse=True
             )[:n_virtue_slots]
             max_item_contrib[stat] += sum(top_virtue_contribs)
+    if e_vars:
+        # Upper bound: the most open sockets any gear combination can produce,
+        # filled with the best essence contributions for each stat.
+        max_open_slots = 0
+        for i, t in enumerate(item_types):
+            if t == "Virtue" or not items_per_type[t]:
+                continue
+            max_open_slots += max(cand.get("OpenSlots", 0) for cand in items_per_type[t])
+        for stat in opt_stats:
+            entries = sorted(
+                ((essence_contrib[k][stat], essence_candidates[k]["Name"])
+                 for k in e_vars), reverse=True)
+            remaining = max_open_slots
+            used_names = {}
+            essence_sum = 0.0
+            for value, name in entries:
+                if remaining <= 0:
+                    break
+                limit = essence_name_limits.get(name, -1)
+                if limit == -1:
+                    take = remaining
+                else:
+                    take = min(limit - used_names.get(name, 0), remaining)
+                if take <= 0:
+                    continue
+                essence_sum += value * take
+                used_names[name] = used_names.get(name, 0) + take
+                remaining -= take
+            max_item_contrib[stat] += essence_sum
 
     # Auxiliary continuous variables for capped totals used in objective.
     # For stats with a hard minimum requirement: cap at the requirement — no benefit to overshoot.
@@ -948,7 +1040,7 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
 
     if pulp.LpStatus[prob.status] != 'Optimal':
         print(f"ILP: no optimal solution found (status: {pulp.LpStatus[prob.status]})")
-        return None, -1, {}, 0, {}, {}
+        return None, None
 
     # Extract solution: for each slot pick the chosen item index
     # For virtue slots, assign chosen virtues (from y variables) sequentially
@@ -970,11 +1062,18 @@ def find_optimal_combination_ilp(item_types, items_per_type, items_ids,
                     break
         best_combination.append(chosen)
 
-    best_combination = tuple(best_combination)
+    # Expand essence counts into individual picks for evaluation
+    chosen_essence_indices = []
+    for k in e_vars:
+        count = int(round(pulp.value(e_vars[k]) or 0))
+        chosen_essence_indices.extend([k] * count)
+
+    eval_item_types = list(item_types) + ["Essence"] * len(chosen_essence_indices)
+    eval_combination = tuple(best_combination) + tuple(chosen_essence_indices)
 
     # Evaluate via process_combination for a consistent result format
-    result = process_combination(best_combination, item_types, items_per_type,
+    result = process_combination(eval_combination, eval_item_types, items_per_type,
                                  character_stats, character_class_stats, stats_rcap,
                                  requirements_ratings, True, essence_quantity_limits)
 
-    return result
+    return result, eval_item_types

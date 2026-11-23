@@ -152,9 +152,12 @@ def compare_items(character_name, items_file, priorities_string):
 
 @cli.command('find_optimal_gear')
 @click.argument('character_name', required=True)
-@click.argument('gear_file', required=True)
+@click.argument('gear_files', nargs=-1, required=True)
 @click.argument('role', required=True)
-def find_optimal_gear(character_name, gear_file, role):
+@click.option('--essence-mode', type=click.Choice(['fixed', 'free']), default='fixed',
+              help="'fixed': essences already slotted in items count as item stats and only open sockets are optimized. "
+                   "'free': all essence sockets are re-optimized from the essence pool.")
+def find_optimal_gear(character_name, gear_files, role, essence_mode):
     character = json.load(open(os.path.join(STATSCALC, "resources", "character_files", character_name, f"{role}_stats.json")))
     character_class = character["Class"]
     character_level = character["Level"]
@@ -167,8 +170,8 @@ def find_optimal_gear(character_name, gear_file, role):
 
     requirements_ratings = get_ratings_for_requirements(stat_requirements, character_level, character_armour) if stat_requirements else {}
 
-    # Load unified gear file
-    gear_json = json.load(open(gear_file))
+    # Load and merge one or more gear files
+    gear_json = load_gear_jsons(gear_files)
     available_items = gear_json.get("available_items", [])
     available_essences = gear_json.get("available_essences", [])
     buffs = gear_json.get("buffs", [])
@@ -197,19 +200,26 @@ def find_optimal_gear(character_name, gear_file, role):
 
     # Prepare items with essences and virtues
     items_per_type, items_ids, essence_quantity_limits = prepare_optimization_choices(
-        gear_file, optimization_choices, virtues_items=virtues_items
+        gear_json, optimization_choices, virtues_items=virtues_items, essence_mode=essence_mode
     )
 
     item_types = [i.split('#')[0] for i in items_ids]
-    
+
     stats_rcap = get_all_stats_Rcap(character_level, character_armour)
 
     # Use ILP algorithm
-    best_combination, best_combination_value, best_combination_overcapped_stats, best_combination_overcap_value, best_combination_stats, best_combination_uncapped_stats = find_optimal_combination_ilp(
+    ilp_result, eval_item_types = find_optimal_combination_ilp(
         item_types, items_per_type, items_ids,
         character_stats, character_class_stats, stats_rcap, requirements_ratings,
         essence_quantity_limits, stat_requirements, character_level, character_armour
     )
+    if ilp_result is not None:
+        (best_combination, best_combination_value, best_combination_overcapped_stats,
+         best_combination_overcap_value, best_combination_stats,
+         best_combination_uncapped_stats) = ilp_result
+        item_types = eval_item_types
+    else:
+        best_combination_value = -1
 
     # Print results
     if best_combination_value > 0:

@@ -1,6 +1,15 @@
 {
     "optimization_choices": {
-        "Essence": 33,
+        "Boots": 1,
+        "Chest": 1,
+        "Gloves": 1,
+        "Helm": 1,
+        "Leggings": 1,
+        "Shoulders": 1,
+        "Back": 1,
+        "Ring": 2,
+        "Earring": 2,
+        "Bracelet": 2,
         "Virtue": 5
     },
     "roles": {
